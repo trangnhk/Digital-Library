@@ -55,8 +55,7 @@ public class HibernateConfigs {
         props.put(SHOW_SQL, env.getProperty("hibernate.showSql"));
         props.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         props.put("hibernate.format_sql", env.getProperty("hibernate.format_sql"));
-        props.put("hibernate.current_session_context_class", env.getProperty("hibernate.current_session_context_class"));
-        
+        props.put("hibernate.current_session_context_class","org.springframework.orm.hibernate5.SpringSessionContext");
         return props;
     }
     

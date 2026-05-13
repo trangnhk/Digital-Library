@@ -44,7 +44,7 @@ public class DispatcherServeletInit extends AbstractAnnotationConfigDispatcherSe
 
     @Override
     protected Filter[] getServletFilters() {
-        return super.getServletFilters(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+        return new Filter[]{new JwtFilter()};
     }
     
     

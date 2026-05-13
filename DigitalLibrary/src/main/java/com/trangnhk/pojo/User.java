@@ -28,7 +28,7 @@ import java.util.Set;
     @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username = :username"),
     @NamedQuery(name = "User.findByPassword", query = "SELECT u FROM User u WHERE u.password = :password"),
     @NamedQuery(name = "User.findByActive", query = "SELECT u FROM User u WHERE u.active = :active"),
-    @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role =  role"),
+    @NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role =  :role"),
     @NamedQuery(name = "User.findByAvatar", query = "SELECT u FROM User u WHERE u.avatar = :avatar")})
 public class User implements Serializable{
     private static final long serialVersionUID = 1L;
@@ -38,12 +38,10 @@ public class User implements Serializable{
     @Basic(optional = false)
     private Long id;
 
-    @Column(name = "first_name", nullable = false, length = 50)
-    @Basic(optional = false)
+    @Column(name = "first_name", length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 50)
-    @Basic(optional = false)
+    @Column(name = "last_name", length = 50)
     private String lastName;
 
     @Column(nullable = false, unique = true, length = 50)
