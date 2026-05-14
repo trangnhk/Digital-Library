@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="sidebar">
+
+    <h3 class="mt-3">ADMIN</h3>
+
+    <ul class="nav flex-column mt-4">
+
+        <li class="nav-item">
+            <a class="nav-link text-white" th:href="@{/admin}">
+                Dashboard
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-white" th:href="@{/admin/users}">
+                Users
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-white" th:href="@{/admin/documents}">
+                Documents
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-white" th:href="@{/admin/categories}">
+                Categories
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+</body>
+</html>

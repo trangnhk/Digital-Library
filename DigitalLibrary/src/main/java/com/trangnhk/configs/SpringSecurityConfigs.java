@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,36 +27,47 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  *
  * @author Admin
  */
-
 @Configuration
 @EnableWebSecurity
 @ComponentScan(
         basePackages = {
             "com.trangnhk.controllers",
             "com.trangnhk.repositories",
-            "com.trangnhk.services",
-        }
+            "com.trangnhk.services",}
 )
-class SpringSecurityConfigs {
-    
+public class SpringSecurityConfigs {
+
     @Autowired
     private UserDetailsService userDetailService;
-    
+
     // Encode Password
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+
     }
-    
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
+        provider.setUserDetailsService(userDetailService);
+        provider.setPasswordEncoder(passwordEncoder());
+
+        return provider;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests(auth -> auth
                 // Public API
                 .requestMatchers(
                         "/api/login",
-                        "/api/register"
+                        "/api/register",
+                        "/admin/login",
+                        "/process-login"
                 ).permitAll()
                 // ADMIN
                 .requestMatchers("/", "/admin/**").hasRole("ADMIN")
@@ -64,48 +77,53 @@ class SpringSecurityConfigs {
                 .requestMatchers("/api/secure/**").authenticated()
                 // Any request
                 .anyRequest().permitAll()
-        
-        // LOGIN -> ADMIN
-        ).formLogin(form -> form.loginPage("/admin/login") // Đường dẫn tới trang đăng nhập
-                .loginProcessingUrl("/admin/login") // Đường dẫn xử lý POST
-                .defaultSuccessUrl("/", true) // Chuyển hướng khi thành công
-                .failureUrl("/admin/login?error=true") // Chuyển hướng khi thất bại
+                ).formLogin(form -> form.loginPage("/admin/login") // Đường dẫn tới trang đăng nhập // LOGIN -> ADMIN
+                .loginProcessingUrl("/process-login") // Đường dẫn xử lý POST
+                .defaultSuccessUrl("/admin", true) // Chuyển hướng khi thành công
+                .failureHandler((request, response, exception) -> {
+
+                    response.setContentType("text/plain;charset=UTF-8");
+
+                    response.getWriter().println("LOGIN ERROR");
+                    response.getWriter().println(exception.getClass().getName());
+                    response.getWriter().println(exception.getMessage());
+                }) // Chuyển hướng khi thất bại
                 .permitAll()
-        ).logout((logout) -> logout.logoutSuccessUrl("/admin/login").permitAll());
+                ).logout((logout) -> logout.logoutSuccessUrl("/admin/login").permitAll());
 
         return http.build();
     }
-    
+
     @Bean
-    public Cloudinary cloudinary(){
+    public Cloudinary cloudinary() {
         Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", "dxfbpkmen",
                 "api_key", "771652583444831",
                 "api_secret", "EwZYOpA4n19unyDcRFEDBud6LBA",
                 "secure", true
         ));
-        
+
         return cloudinary;
     }
-    
+
     @Bean
     public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
         return new HandlerMappingIntrospector();
     }
-    
+
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
+
         config.setAllowedOrigins(List.of("http://localhost:3000/"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        
+
         return source;
     }
 }

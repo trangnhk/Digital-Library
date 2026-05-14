@@ -97,9 +97,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("LOGIN USERNAME = " + username);
         User u = this.getUserByUsername(username);
 
         if (u == null) {
+            System.out.println("USER NOT FOUND");
             throw new UsernameNotFoundException("Invalid username");
         }
 
@@ -110,6 +112,10 @@ public class UserServiceImpl implements UserService {
         if (u.getRole() == UserRole.ROLE_LIBRARIAN && !u.getLibrarianVerified()) {
             throw new UsernameNotFoundException("Librarian account not approved yet");
         }
+        
+        System.out.println("DB USER = " + u.getUsername());
+        System.out.println("DB ROLE = " + u.getRole());
+        System.out.println("DB PASSWORD = " + u.getPassword());
 
         Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(u.getRole().name()));
