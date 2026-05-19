@@ -12,6 +12,10 @@ import com.trangnhk.pojo.User;
  */
 public interface UserRepository {
     User getUserByUsername (String username);
+    boolean existEmail(String email);
+    boolean existPhone(String phone);
+    
     User addUser(User u);
+    User update(User u);
     boolean authenticate(String username, String password);
 }

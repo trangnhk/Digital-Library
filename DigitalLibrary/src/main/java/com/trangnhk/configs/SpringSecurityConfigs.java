@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +36,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
             "com.trangnhk.repositories",
             "com.trangnhk.services",}
 )
+@Order(2)
 public class SpringSecurityConfigs {
 
     @Autowired
@@ -59,25 +61,13 @@ public class SpringSecurityConfigs {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(c -> c.disable())
-                .authorizeHttpRequests(auth -> auth
-                // Public API
-                .requestMatchers(
-                        "/api/login",
-                        "/api/register",
-                        "/admin/login",
-                        "/process-login"
-                ).permitAll()
+        http.securityMatcher("/", "/admin/**", "/process-login").csrf(c -> c.disable()).authorizeHttpRequests((request) -> request
                 // ADMIN
                 .requestMatchers("/", "/admin/**").hasRole("ADMIN")
-                // LIBRARIAN
-                .requestMatchers("/api/librarian/**").hasRole("LIBRARIAN")
-                // SECURE API
-                .requestMatchers("/api/secure/**").authenticated()
-                // Any request
+                .requestMatchers("/admin/login", "/process-login").permitAll()
                 .anyRequest().permitAll()
-                ).formLogin(form -> form.loginPage("/admin/login") // Đường dẫn tới trang đăng nhập // LOGIN -> ADMIN
+        )
+                .formLogin(form -> form.loginPage("/admin/login") // Đường dẫn tới trang đăng nhập // LOGIN -> ADMIN
                 .loginProcessingUrl("/process-login") // Đường dẫn xử lý POST
                 .defaultSuccessUrl("/admin", true) // Chuyển hướng khi thành công
                 .failureHandler((request, response, exception) -> {
@@ -111,19 +101,19 @@ public class SpringSecurityConfigs {
         return new HandlerMappingIntrospector();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowedOrigins(List.of("http://localhost:3000/"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration config = new CorsConfiguration();
+//
+//        config.setAllowedOrigins(List.of("http://localhost:3000/"));
+//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+//        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+//        config.setExposedHeaders(List.of("Authorization"));
+//        config.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", config);
+//
+//        return source;
+//    }
 }

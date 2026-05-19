@@ -23,8 +23,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class JwtFilter extends OncePerRequestFilter{
     
-    @Autowired
-    private UserDetailsService userDetailService;
+    private final UserDetailsService userDetailService;
+    
+    public JwtFilter(UserDetailsService userDetailService) {
+        this.userDetailService = userDetailService;
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -54,6 +58,10 @@ public class JwtFilter extends OncePerRequestFilter{
                     
                     SecurityContextHolder.getContext().setAuthentication(auth);
                     
+                }
+                else {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                    return;
                 }
             }
             catch(Exception ex) {

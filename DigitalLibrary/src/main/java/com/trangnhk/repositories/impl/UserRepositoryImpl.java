@@ -57,4 +57,41 @@ public class UserRepositoryImpl implements UserRepository {
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 
+    @Override
+    public boolean existEmail(String email) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query query = s.createNamedQuery("User.findByEmail", User.class);
+
+        query.setParameter("email", email);
+
+        try {
+            return (Integer) query.getSingleResult() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean existPhone(String phone) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query query = s.createNamedQuery("User.findByPhone", User.class);
+
+        query.setParameter("phone", phone);
+
+        try {
+            return (Integer) query.getSingleResult() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public User update(User u) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        User updateU = s.merge(u);
+        
+        return updateU;
+    }
+
 }

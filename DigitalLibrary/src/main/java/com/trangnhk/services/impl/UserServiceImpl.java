@@ -7,6 +7,7 @@ package com.trangnhk.services.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.trangnhk.dto.RegisterRequestDTO;
+import com.trangnhk.dto.UpdateProfileRequestDTO;
 import com.trangnhk.pojo.User;
 import com.trangnhk.pojo.enums.UserRole;
 import com.trangnhk.repositories.UserRepository;
@@ -112,7 +113,7 @@ public class UserServiceImpl implements UserService {
         if (u.getRole() == UserRole.ROLE_LIBRARIAN && !u.getLibrarianVerified()) {
             throw new UsernameNotFoundException("Librarian account not approved yet");
         }
-        
+
         System.out.println("DB USER = " + u.getUsername());
         System.out.println("DB ROLE = " + u.getRole());
         System.out.println("DB PASSWORD = " + u.getPassword());
@@ -122,5 +123,56 @@ public class UserServiceImpl implements UserService {
 
         return new org.springframework.security.core.userdetails.User(u.getUsername(), u.getPassword(), authorities);
     }
+
+    @Override
+    public User updateMyProfile(String usernmae, UpdateProfileRequestDTO dto) {
+        User currentU = this.getUserByUsername(usernmae);
+
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            currentU.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPhone() != null && !dto.getPhone().isBlank()) {
+            currentU.setPhone(dto.getPhone());
+        }
+
+        if (dto.getFirstName() != null) {
+            currentU.setFirstName(dto.getFirstName());
+        }
+
+        if (dto.getLastName() != null) {
+            currentU.setLastName(dto.getLastName());
+        }
+
+        if (dto.getAvatar() != null && !dto.getAvatar().isEmpty()) {
+            String contentType = dto.getAvatar().getContentType();
+
+            if (!isValidImageType(contentType)) {
+                throw new RuntimeException("Avatar must be an image as PNG, JPG or WEBP");
+            }
+            
+            String avatarUrl = this.uploadAvatar(dto.getAvatar());
+            currentU.setAvatar(avatarUrl);
+            
+        }
+        
+        return this.userRepo.update(currentU);
+
+    }
+
+    private boolean isValidImageType(String contentType) {
+        return contentType != null && (contentType.equals("image/jpeg")
+                || contentType.equals("image/png")
+                || contentType.equals("image/webp"));
+    }
     
+    private String uploadAvatar(MultipartFile file){
+        try{
+            Map uploadResult = this.cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "auto"));
+            
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException ex){
+            throw new RuntimeException("Upload avatar FAILED", ex);
+        }
+    }
 }

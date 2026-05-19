@@ -18,11 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,7 +41,7 @@ public class ApiAuthController {
     
     
     // REGISTER
-    @PostMapping(path = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(
             @Valid @ModelAttribute RegisterRequestDTO dto,
             BindingResult rs,
@@ -62,7 +62,7 @@ public class ApiAuthController {
     }
     
     // Login
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(
             @Valid @org.springframework.web.bind.annotation.RequestBody LoginRequestDTO dto,
             BindingResult rs
@@ -89,13 +89,6 @@ public class ApiAuthController {
             return ResponseEntity.internalServerError().body("JWT generation failed");
         }
         
-    }
-    
-    @GetMapping("/secure/profile")
-    public ResponseEntity<?> profile(Principal principal){
-        User u = this.userService.getUserByUsername(principal.getName());
-        
-        return ResponseEntity.ok(u);
     }
     
 }

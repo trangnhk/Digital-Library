@@ -5,6 +5,7 @@
 package com.trangnhk.services;
 
 import com.trangnhk.dto.RegisterRequestDTO;
+import com.trangnhk.dto.UpdateProfileRequestDTO;
 import com.trangnhk.pojo.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,4 +18,5 @@ public interface UserService extends UserDetailsService{
     User getUserByUsername(String username);
     User addUser(RegisterRequestDTO dto, MultipartFile avatar);
     boolean authenticate(String username, String password);
+    User updateMyProfile(String usernmae, UpdateProfileRequestDTO dto);
 }

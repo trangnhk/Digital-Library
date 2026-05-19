@@ -33,7 +33,8 @@ class BorrowHistory implements Serializable{
     @Column(name = "return_date")
     private Date returnDate;
     
-    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private BorrowStatus status;
 
     @ManyToOne

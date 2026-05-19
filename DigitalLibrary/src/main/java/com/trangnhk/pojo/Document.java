@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "doctuments")
+@Table(name = "documents")
 @JsonIgnoreProperties({
     "reviews",
     "payments",
@@ -31,8 +31,11 @@ import java.util.Set;
     @NamedQuery(name = "Document.findByTitle", query = "SELECT d FROM Document d WHERE d.title = :title"),
     @NamedQuery(name = "Document.findByAuthor", query = "SELECT d FROM Document d WHERE d.author = :author"),
     @NamedQuery(name = "Document.findByCreatedDate", query = "SELECT d FROM Document d WHERE d.createdDate = :createdDate")})
-class Document implements Serializable{
+public class Document implements Serializable{
     private static final long serialVersionUID = 1L;
+    
+    private static final String DEFAULT_THUMBNAIL_URL =
+            "https://res.cloudinary.com/dxfbpkmen/image/upload/v1762312884/cld-sample-3.jpg";
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,11 +61,11 @@ class Document implements Serializable{
     @Basic(optional = false)
     private Integer publishYear;
 
-    @Column(unique = true)
-    @Basic(optional = false)
-    private String isbn;
+    @Column(name = "thumbnail", length = 500)
+    private String thumbnail = DEFAULT_THUMBNAIL_URL;
 
-    @Column(name = "document_type")
+    @Column(name = "document_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     @Basic(optional = false)
     private DocumentType documentType;
     
@@ -207,19 +210,6 @@ class Document implements Serializable{
         this.publishYear = publishYear;
     }
 
-    /**
-     * @return the isbn
-     */
-    public String getIsbn() {
-        return isbn;
-    }
-
-    /**
-     * @param isbn the isbn to set
-     */
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
 
     /**
      * @return the documentType
@@ -458,6 +448,22 @@ class Document implements Serializable{
     public void setBookmarks(Set<Bookmark> bookmarks) {
         this.bookmarks = bookmarks;
     }
+
+    /**
+     * @return the thumbnail
+     */
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    /**
+     * @param thumbnail the thumbnail to set
+     */
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    
     
     
 }
