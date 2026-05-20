@@ -5,6 +5,7 @@
 package com.trangnhk.controllers;
 
 import com.trangnhk.dto.AuthRequestDTO;
+import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.LoginRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.pojo.User;
@@ -19,7 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -91,4 +94,14 @@ public class ApiAuthController {
         
     }
     
+    // Change password
+    @PatchMapping("/secure/change-password")
+    public ResponseEntity<?> changePassword(
+            Principal principal,
+            @Valid @RequestBody ChangePasswordRequestDTO dto
+    ){
+        this.userService.changePassword(principal.getName(), dto);
+        
+        return ResponseEntity.ok("Successfully change password");
+    }
 }

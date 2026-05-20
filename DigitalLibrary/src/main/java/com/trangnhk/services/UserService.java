@@ -4,6 +4,7 @@
  */
 package com.trangnhk.services;
 
+import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.dto.UpdateProfileRequestDTO;
 import com.trangnhk.pojo.User;
@@ -19,4 +20,5 @@ public interface UserService extends UserDetailsService{
     User addUser(RegisterRequestDTO dto, MultipartFile avatar);
     boolean authenticate(String username, String password);
     User updateMyProfile(String usernmae, UpdateProfileRequestDTO dto);
+    void changePassword(String username, ChangePasswordRequestDTO dto);
 }

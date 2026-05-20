@@ -21,7 +21,39 @@ import java.util.Set;
     @NamedQuery(name = "Category.findAll", query = "SELECT c FROM Category c"),
     @NamedQuery(name = "Category.findById", query = "SELECT c FROM Category c WHERE c.id = :id"),
     @NamedQuery(name = "Category.findByName", query = "SELECT c FROM Category c WHERE c.name = :name"),
-    @NamedQuery(name = "Category.findByDescription", query = "SELECT c FROM Category c WHERE c.description = :description")})
+    @NamedQuery(name = "Category.findByDescription", query = "SELECT c FROM Category c WHERE c.description = :description"),
+    @NamedQuery(name = "Category.findActiveWithKeyword",
+            query = """
+                    SELECT c FROM Category c
+                    WHERE c.active = true
+                    AND(
+                        LOWER(c.name) LIKE :keyword
+                        OR LOWER(c.description) LIKE :keyword
+                    )
+                    ORDER BY c.name ASC
+                    """),
+    @NamedQuery(
+            name = "Category.countActiveWithKeyword",
+            query = """
+                    SELECT COUNT(c.id)
+                    FROM Category c
+                    WHERE c.active = true
+                    AND (
+                        LOWER(c.name) LIKE :keyword
+                        OR LOWER(c.description) LIKE :keyword
+                    )
+                    """
+    ),
+    @NamedQuery(
+            name = "Category.findActiveById",
+            query = """
+                    SELECT c
+                    FROM Category c
+                    WHERE c.id = :id
+                    AND c.active = true
+                    """
+    )
+})
 public class Category implements Serializable{
     private static final long serialVersionUID = 1L;
     

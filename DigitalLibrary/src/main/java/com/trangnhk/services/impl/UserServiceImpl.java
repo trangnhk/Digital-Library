@@ -6,6 +6,7 @@ package com.trangnhk.services.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.dto.UpdateProfileRequestDTO;
 import com.trangnhk.pojo.User;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +27,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  *
@@ -174,5 +178,28 @@ public class UserServiceImpl implements UserService {
         } catch (IOException ex){
             throw new RuntimeException("Upload avatar FAILED", ex);
         }
+    }
+
+    @Override
+    public void changePassword(String username, ChangePasswordRequestDTO dto) {
+        User currentU = this.userRepo.getUserByUsername(username);
+        
+        if (currentU == null){
+            throw new UsernameNotFoundException("Invalid user");
+        }
+        
+        boolean oldPasswordMatches = this.passwordEncoder.matches(dto.getOldPassword(), currentU.getPassword());
+        
+        if (!oldPasswordMatches)
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Old password isn't correct");
+                
+        if (!dto.getNewPassword().equals(dto.getConfirmPassword()))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Old password isn't correct");
+        
+        String encodeNewPassword = this.passwordEncoder.encode(dto.getNewPassword());
+        
+        currentU.setPassword(encodeNewPassword);
+        
+        this.userRepo.update(currentU);
     }
 }
