@@ -18,8 +18,10 @@ import java.util.Date;
 @NamedQueries({
     @NamedQuery(name = "DocumentFile.findAll", query = "SELECT d FROM DocumentFile d"),
     @NamedQuery(name = "DocumentFile.findById", query = "SELECT d FROM DocumentFile d WHERE d.id = :id"),
+    @NamedQuery(name = "DocumentFile.findByDocumentId",
+                query = "SELECT d FROM DocumentFile d WHERE d.document.id = :documentId ORDER BY d.uploadedDate DESC"),
     @NamedQuery(name = "DocumentFile.findByUploadedDate", query = "SELECT d FROM DocumentFile d WHERE d.uploadedDate = :uploadedDate")})
-class DocumentFile implements Serializable{
+public class DocumentFile implements Serializable{
     private static final long serialVersionUID = 1L;
     
     @Id
