@@ -36,5 +36,14 @@ public class DocumentFileRepositoryImpl implements DocumentFileRepository{
         return query.getResultList();
         
     }
+
+    @Override
+    public DocumentFile add(DocumentFile file) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        s.persist(file);
+        
+        return file;
+    }
     
 }

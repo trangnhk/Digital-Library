@@ -5,6 +5,7 @@
 package com.trangnhk.repositories.impl;
 
 import com.trangnhk.pojo.Document;
+import com.trangnhk.pojo.User;
 import com.trangnhk.repositories.DocumentRepository;
 import com.trangnhk.utils.DocumentSorts;
 import com.trangnhk.utils.SortUtils;
@@ -27,11 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @PropertySource("classpath:configs.properties")
 @Transactional
-public class DocumentRepositoryImpl implements DocumentRepository{
-    
+public class DocumentRepositoryImpl implements DocumentRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Autowired
     private Environment env;
 
@@ -39,28 +40,28 @@ public class DocumentRepositoryImpl implements DocumentRepository{
     public List<Document> getPublicDocuments(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
         StringBuilder hql = new StringBuilder();
-        
+
         hql.append("SELECT d from Document d ");
         hql.append("WHERE d.approved = true ");
-        
+
         this.appendFilters(hql, params);
-        
+
         hql.append(SortUtils.buildOrderBy(params, DocumentSorts.PUBLIC_DOCUMENT_SORT, DocumentSorts.DEFAULT_SORT));
-        
+
         Query query = s.createQuery(hql.toString(), Document.class);
-        
+
         this.setFilterParameters(query, params);
-        
+
         int page = this.getPage(params);
         int size = this.getSize(params);
         int start = (page - 1) * size;
-        
+
         query.setFirstResult(start);
         query.setMaxResults(size);
-        
+
         return query.getResultList();
     }
-    
+
     private int getPage(Map<String, String> params) {
         if (params == null) {
             return 1;
@@ -107,25 +108,25 @@ public class DocumentRepositoryImpl implements DocumentRepository{
             return defaultSize;
         }
     }
-    
+
     @Override
     public long countPublicDocuments(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
         StringBuilder hql = new StringBuilder();
-        
+
         hql.append("SELECT COUNT(d.id) FROM Document d ");
         hql.append("WHERE d.approved = true ");
-        
+
         this.appendFilters(hql, params);
-        
+
         Query query = s.createQuery(hql.toString(), Long.class);
-        
+
         this.setFilterParameters(query, params);
-        
+
         return (long) query.getSingleResult();
-        
+
     }
-    
+
     private void appendFilters(StringBuilder hql, Map<String, String> params) {
         if (params == null) {
             return;
@@ -162,7 +163,7 @@ public class DocumentRepositoryImpl implements DocumentRepository{
             hql.append("AND d.premium = :premium ");
         }
     }
-    
+
     private void setFilterParameters(Query query, Map<String, String> params) {
         if (params == null) {
             return;
@@ -203,22 +204,125 @@ public class DocumentRepositoryImpl implements DocumentRepository{
     @Override
     public Document getPublicDocumentById(Long documentId) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         Query query = s.createQuery("SELECT d FROM Document d WHERE d.id = :id AND d.approved = true", Document.class);
-        
+
         query.setParameter("id", documentId);
-        
-        try{
+
+        try {
             return (Document) query.getSingleResult();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return null;
         }
+
+    }
+
+    @Override
+    public List<Document> getManagedDocuments(User currentU, boolean isAdmin, Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+
+        StringBuilder hql = new StringBuilder();
+
+        hql.append("SELECT d FROM Document d WHERE 1 = 1 ");
+
+        if (!isAdmin) {
+            hql.append(" AND d.uploadedBy.id = :userId");
+        }
+
+        this.appendManagedFilters(hql, params);
+        
+        hql.append(" ORDER BY d.createdDate DESC");
+        
+        Query query = s.createQuery(hql.toString(), Document.class);
+        
+        if (!isAdmin){
+            query.setParameter("userId", currentU.getId());
+        }
+        
+        this.setManagedFilterParameters(query, params);
+        
+        int page = this.getPage(params);
+        int size = this.getSize(params);
+        int start = (page - 1) * size;
+        
+        query.setFirstResult(start);
+        query.setMaxResults(size);
+        
+        return query.getResultList();
+    }
+
+    private void appendManagedFilters(StringBuilder hql, Map<String, String> params) {
+        if (params == null) {
+            return;
+        }
+
+        String keyword = params.get("keyword");
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            hql.append(" AND (LOWER(d.title) LIKE :keyword ");
+            hql.append(" OR LOWER(d.description) LIKE :keyword) ");
+        }
+
+        String approved = params.get("approved");
+
+        if (approved != null && !approved.trim().isEmpty()) {
+            hql.append(" AND d.approved = :approved ");
+        }
+    }
+
+    private void setManagedFilterParameters(Query query, Map<String, String> params) {
+        if (params == null) {
+            return;
+        }
+
+        String keyword = params.get("keyword");
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.setParameter("keyword", "%" + keyword.trim().toLowerCase() + "%");
+        }
+
+        String approved = params.get("approved");
+
+        if (approved != null && !approved.trim().isEmpty()) {
+            query.setParameter("approved", Boolean.valueOf(approved));
+        }
+
         
     }
-    
-    
-    
-    
-    
-    
+
+    @Override
+    public long countManagedDocument(User currentU, boolean isAdmin, Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        StringBuilder hql = new StringBuilder();
+
+        hql.append("SELECT COUNT(d.id) FROM Document d WHERE 1 = 1 ");
+
+        if (!isAdmin) {
+            hql.append(" AND d.uploadedBy.id = :userId");
+        }
+
+        this.appendManagedFilters(hql, params);
+        
+        Query query = s.createQuery(hql.toString(), Long.class);
+        
+        if (!isAdmin){
+            query.setParameter("userId", currentU.getId());
+        }
+        
+        this.setManagedFilterParameters(query, params);
+        
+        
+        return (long) query.getSingleResult();
+        
+    }
+
+    @Override
+    public Document add(Document document) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        s.persist(document);
+        
+        return document;
+    }
 }

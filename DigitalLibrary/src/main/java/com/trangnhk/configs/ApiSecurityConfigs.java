@@ -36,10 +36,13 @@ public class ApiSecurityConfigs {
                 .requestMatchers(
                         "/api/auth/login",
                         "/api/auth/register",
+                        "/api/categories/**",
+                        "/api/documents/**",
                         "/process-login"
                 ).permitAll()
                 // LIBRARIAN
                 .requestMatchers("/api/librarian/**").hasRole("LIBRARIAN")
+                .requestMatchers("/api/secure/librarian/**").hasAnyRole("LIBRARIAN", "ADMIN")
                 // SECURE API
                 .requestMatchers("/api/secure/**").authenticated()
                 // Any request

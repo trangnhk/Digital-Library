@@ -4,8 +4,10 @@
  */
 package com.trangnhk.services;
 
+import com.trangnhk.dto.CreateLibrarianDocumentRequestDTO;
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
+import com.trangnhk.dto.LibrarianDocumentResponseDTO;
 import com.trangnhk.dto.PageResponseDTO;
 import java.util.List;
 import java.util.Map;
@@ -19,4 +21,7 @@ public interface DocumentService {
     DocumentResponseDTO getPublicDocumentById(Long documentId);
     String validatePublicDocumentParams(Map<String, String> params);
     List<DocumentFileResponseDTO> getPublicDocumentFiles(Long documentId);
+    
+    PageResponseDTO<LibrarianDocumentResponseDTO> getManagedDocuments(String username, Map<String, String> params);
+    LibrarianDocumentResponseDTO createLibrarianDocument(String username, CreateLibrarianDocumentRequestDTO dto);
 }
