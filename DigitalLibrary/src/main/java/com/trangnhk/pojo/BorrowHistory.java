@@ -20,7 +20,7 @@ import java.util.Date;
     @NamedQuery(name = "BorrowHistory.findById", query = "SELECT b FROM BorrowHistory b WHERE b.id = :id"),
     @NamedQuery(name = "BorrowHistory.findByBorrowDate", query = "SELECT b FROM BorrowHistory b WHERE b.borrowDate = :borrowDate"),
     @NamedQuery(name = "BorrowHistory.findByStatus", query = "SELECT b FROM BorrowHistory b WHERE b.status = :status")})
-class BorrowHistory implements Serializable{
+public class BorrowHistory implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

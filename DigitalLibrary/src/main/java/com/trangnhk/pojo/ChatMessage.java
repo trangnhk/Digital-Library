@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "chat_messages")
-class ChatMessage {
+public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

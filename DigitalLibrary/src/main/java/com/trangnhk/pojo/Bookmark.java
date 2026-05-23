@@ -15,7 +15,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "bookmarks")
-class Bookmark implements  Serializable{
+public class Bookmark implements  Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

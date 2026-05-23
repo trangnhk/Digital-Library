@@ -15,7 +15,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "access_histories")
-class AccessHistory implements Serializable{
+public class AccessHistory implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

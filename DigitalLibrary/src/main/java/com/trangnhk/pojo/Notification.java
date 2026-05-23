@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "notifications")
-class Notification implements Serializable{
+public class Notification implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
