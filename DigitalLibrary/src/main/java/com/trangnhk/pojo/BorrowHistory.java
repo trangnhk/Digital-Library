@@ -35,7 +35,7 @@ public class BorrowHistory implements Serializable{
     
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private BorrowStatus status;
+    private BorrowStatus status = BorrowStatus.BORROWING;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
