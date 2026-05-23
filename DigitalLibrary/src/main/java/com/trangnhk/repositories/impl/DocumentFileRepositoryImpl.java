@@ -45,5 +45,20 @@ public class DocumentFileRepositoryImpl implements DocumentFileRepository{
         
         return file;
     }
+
+    @Override
+    public void deleteByDocumentId(Long documentId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        Query query = s.createQuery("FROM DocumentFile f WHERE f.document.id = :documentId", DocumentFile.class);
+        
+        query.setParameter("documentId", documentId);
+        
+        List<DocumentFile> files = query.getResultList();
+        
+        for(DocumentFile file: files){
+            s.remove(file);
+        }
+    }
     
 }

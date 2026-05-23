@@ -6,6 +6,7 @@ package com.trangnhk.controllers;
 
 import com.trangnhk.dto.CreateLibrarianDocumentRequestDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
+import com.trangnhk.dto.UpdateLibrarianDocumentRequestDTO;
 import com.trangnhk.services.DocumentService;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -19,8 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -99,4 +102,32 @@ public class ApiLibrarianDocumentController {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         }
     }
+
+    @PatchMapping(value = "/{documentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateDocument(@PathVariable("documentId") Long documentId, Principal principal, @Valid @ModelAttribute UpdateLibrarianDocumentRequestDTO dto, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.badRequest().body(this.buildValidationErrorResponse(bindingResult));
+        }
+        
+        try{
+            return ResponseEntity.ok(this.docService.updateLibrarianDocument(principal.getName(), documentId, dto));
+            
+            
+        } catch (ResponseStatusException ex){
+            return this.buildErrorResponse(ex);
+        }
+    }
+    
+    @DeleteMapping("/{documentId}")
+    public ResponseEntity<?> deleteDocument(@PathVariable("documentId") Long documentId, Principal principal){
+        try{
+            this.docService.deleteLibrarianDocument(principal.getName(), documentId);
+            
+            return ResponseEntity.noContent().build();
+            
+        } catch (ResponseStatusException ex){
+            return this.buildErrorResponse(ex);
+        }
+    }
+    
 }

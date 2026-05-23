@@ -23,3 +23,5 @@
 hs_err_pid*
 replay_pid*
 /DigitalLibrary/target/
+
+/DigitalLibrary/src/main/resources/databases.properties

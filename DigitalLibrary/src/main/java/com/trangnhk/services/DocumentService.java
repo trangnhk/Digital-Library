@@ -9,6 +9,7 @@ import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
 import com.trangnhk.dto.LibrarianDocumentResponseDTO;
 import com.trangnhk.dto.PageResponseDTO;
+import com.trangnhk.dto.UpdateLibrarianDocumentRequestDTO;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ public interface DocumentService {
     
     PageResponseDTO<LibrarianDocumentResponseDTO> getManagedDocuments(String username, Map<String, String> params);
     LibrarianDocumentResponseDTO createLibrarianDocument(String username, CreateLibrarianDocumentRequestDTO dto);
+    LibrarianDocumentResponseDTO updateLibrarianDocument(String username, Long documentId, UpdateLibrarianDocumentRequestDTO dto);
+    void deleteLibrarianDocument(String username, Long documentId);
     
     DocumentResponseDTO getDocumentDetail(Long documentId, String username);
 }

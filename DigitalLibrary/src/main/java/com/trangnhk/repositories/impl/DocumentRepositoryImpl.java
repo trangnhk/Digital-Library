@@ -359,4 +359,18 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
     }
 
+    @Override
+    public Document update(Document document) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        return s.merge(document);
+    }
+
+    @Override
+    public void delete(Document document) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        s.remove(document);
+    }
+
 }

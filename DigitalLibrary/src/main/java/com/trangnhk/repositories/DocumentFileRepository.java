@@ -14,4 +14,5 @@ import java.util.List;
 public interface DocumentFileRepository {
     List<DocumentFile> getFilesByDocumentId(Long documentId);
     DocumentFile add(DocumentFile file);
+    void deleteByDocumentId(Long documentId);
 }
