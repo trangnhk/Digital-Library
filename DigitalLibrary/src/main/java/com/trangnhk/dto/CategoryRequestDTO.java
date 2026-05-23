@@ -4,41 +4,20 @@
  */
 package com.trangnhk.dto;
 
-import com.trangnhk.pojo.Category;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  *
- * @author Admin
+ * @author user
  */
-public class CategoryResponseDTO {
-    private Long id;
+public class CategoryRequestDTO {
+    @NotBlank(message = "Name is required")
     private String name;
+    @Size(max = 255, message = "Description is too long")
     private String description;
     private Boolean active;
-    
-    public static CategoryResponseDTO fromCategory(Category category){
-        CategoryResponseDTO dto = new CategoryResponseDTO();
-        
-        dto.setId(category.getId());
-        dto.setName(category.getName());
-        dto.setDescription(category.getDescription());
-        
-        return dto;
-    }
 
-    /**
-     * @return the id
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     /**
      * @return the name
@@ -81,7 +60,6 @@ public class CategoryResponseDTO {
     public void setActive(Boolean active) {
         this.active = active;
     }
-    
     
     
 }

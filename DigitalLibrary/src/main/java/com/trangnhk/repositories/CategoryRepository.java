@@ -16,4 +16,12 @@ public interface CategoryRepository {
     List<Category> getActiveCategories(Map<String, String> params);
     long countActiveCategories(Map<String, String> params);
     Category getActiveCategoryById(Long categoryId);
+    
+    List<Category> getCates();
+    Category getCategoryById(Long categoryId);
+    Boolean nameExisted(String name);
+    void addOrUpdateCategory(Category c);
+    boolean existsByNameAndIdNot(String name, Long categoryId);
+    
+    
 }

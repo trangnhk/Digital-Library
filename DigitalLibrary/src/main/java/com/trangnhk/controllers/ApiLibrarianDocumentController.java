@@ -5,6 +5,7 @@
 package com.trangnhk.controllers;
 
 import com.trangnhk.dto.CreateLibrarianDocumentRequestDTO;
+import com.trangnhk.dto.DocumentResponseDTO;
 import com.trangnhk.services.DocumentService;
 import jakarta.validation.Valid;
 import java.security.Principal;
@@ -12,12 +13,15 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,5 +87,16 @@ public class ApiLibrarianDocumentController {
         response.put("details", details);
 
         return response;
+    }
+    
+    @GetMapping("/{documentId}")
+    public ResponseEntity<?> getDocumentDetail(@PathVariable("documentId") Long documentId, Authentication authenication){
+        try{
+            DocumentResponseDTO dto = this.docService.getDocumentDetail(documentId, authenication.getName());
+            
+            return ResponseEntity.ok(dto);
+        } catch(ResponseStatusException ex){
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        }
     }
 }
