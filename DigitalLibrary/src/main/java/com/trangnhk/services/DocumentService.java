@@ -24,4 +24,6 @@ public interface DocumentService {
     
     PageResponseDTO<LibrarianDocumentResponseDTO> getManagedDocuments(String username, Map<String, String> params);
     LibrarianDocumentResponseDTO createLibrarianDocument(String username, CreateLibrarianDocumentRequestDTO dto);
+    
+    DocumentResponseDTO getDocumentDetail(Long documentId, String username);
 }

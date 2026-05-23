@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,9 +41,16 @@ public class ApiSecurityConfigs {
                         "/api/documents/**",
                         "/process-login"
                 ).permitAll()
+                //ADMIN
+                .requestMatchers(
+                        "/api/secure/admin/categories",
+                        "/api/secure/admin/categories/{categoryId}"
+                ).hasRole("ADMIN")
                 // LIBRARIAN
                 .requestMatchers("/api/librarian/**").hasRole("LIBRARIAN")
-                .requestMatchers("/api/secure/librarian/**").hasAnyRole("LIBRARIAN", "ADMIN")
+                .requestMatchers(
+                        "/api/secure/librarian/documents/{documentId}"
+                ).hasAnyRole("LIBRARIAN", "ADMIN")
                 // SECURE API
                 .requestMatchers("/api/secure/**").authenticated()
                 // Any request

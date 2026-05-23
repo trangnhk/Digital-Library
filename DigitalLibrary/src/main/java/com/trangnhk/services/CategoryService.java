@@ -4,8 +4,12 @@
  */
 package com.trangnhk.services;
 
+import com.trangnhk.dto.CategoryRequestDTO;
 import com.trangnhk.dto.CategoryResponseDTO;
 import com.trangnhk.dto.PageResponseDTO;
+import com.trangnhk.dto.UpdateCategoryRequestDTO;
+import com.trangnhk.pojo.Category;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,4 +19,8 @@ import java.util.Map;
 public interface CategoryService {
     PageResponseDTO<CategoryResponseDTO> getActiveCategories(Map<String, String> params);
     CategoryResponseDTO getActiveCategoryById(Long categoryId);
+    
+    List<CategoryResponseDTO> getCates();
+    CategoryResponseDTO createCategory(CategoryRequestDTO dto);
+    CategoryResponseDTO updateCategory(Long categoryId, UpdateCategoryRequestDTO dto);
 }

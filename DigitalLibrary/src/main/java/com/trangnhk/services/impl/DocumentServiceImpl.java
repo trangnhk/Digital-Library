@@ -19,6 +19,7 @@ import com.trangnhk.pojo.enums.DocumentType;
 import com.trangnhk.repositories.CategoryRepository;
 import com.trangnhk.repositories.DocumentFileRepository;
 import com.trangnhk.repositories.DocumentRepository;
+import com.trangnhk.repositories.UserRepository;
 import com.trangnhk.services.DocumentService;
 import com.trangnhk.services.UserService;
 import com.trangnhk.utils.DocumentSorts;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,6 +42,7 @@ import org.springframework.web.server.ResponseStatusException;
  * @author Admin
  */
 @Service
+@Transactional
 public class DocumentServiceImpl implements DocumentService{
     
     private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of("PDF", "DOCX", "EPUB", "VIDEO", "AUDIO");
@@ -58,6 +61,9 @@ public class DocumentServiceImpl implements DocumentService{
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private UserRepository userRepo;
     
     @Override
     public PageResponseDTO<DocumentResponseDTO> getPublicDocuments(Map<String, String> params) {
@@ -489,4 +495,37 @@ public class DocumentServiceImpl implements DocumentService{
         return filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
     }
 
+    @Override
+    public DocumentResponseDTO getDocumentDetail(Long documentId, String username) {
+        
+        User currentUser = userRepo.getUserByUsername(username);
+        
+        Document document = documentRepo.getDocumentById(documentId);
+        
+        if(document == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Document not found"
+            );                  
+        }
+        
+        boolean isAdmin = currentUser.getRole().name().equals("ROLE_ADMIN");
+        boolean isOwner = document.getUploadedBy().getId().equals(currentUser.getId());
+        boolean isVerifiedLibrarian = currentUser.getRole().name().equals("ROLE_LIBRARIAN")&& currentUser.getLibrarianVerified();
+        
+        if (!isAdmin && !isVerifiedLibrarian) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,"Librarian not verified"
+        );
+    }
+        
+        if(!isAdmin && !isOwner){
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "You don't have permission"
+            );
+        }
+        
+        return DocumentResponseDTO.fromDocument(document);
+    }
+
+    
 }

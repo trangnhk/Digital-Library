@@ -21,4 +21,7 @@ public interface DocumentRepository {
     List<Document> getManagedDocuments(User currentU, boolean isAdmin, Map<String, String> params);
     long countManagedDocument(User currentU, boolean isAdmin, Map<String, String> params);
     Document add(Document document);
+    
+    public boolean existsByCategoryIdAndActiveTrue(Long categoryId);
+    Document getDocumentById(Long documentId);
 }

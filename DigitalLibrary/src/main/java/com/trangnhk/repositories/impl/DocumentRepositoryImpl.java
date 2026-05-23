@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Admin
  */
-
 @Repository
 @PropertySource("classpath:configs.properties")
 @Transactional
@@ -200,7 +199,6 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
     }
 
-
     @Override
     public Document getPublicDocumentById(Long documentId) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -230,24 +228,24 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
 
         this.appendManagedFilters(hql, params);
-        
+
         hql.append(" ORDER BY d.createdDate DESC");
-        
+
         Query query = s.createQuery(hql.toString(), Document.class);
-        
-        if (!isAdmin){
+
+        if (!isAdmin) {
             query.setParameter("userId", currentU.getId());
         }
-        
+
         this.setManagedFilterParameters(query, params);
-        
+
         int page = this.getPage(params);
         int size = this.getSize(params);
         int start = (page - 1) * size;
-        
+
         query.setFirstResult(start);
         query.setMaxResults(size);
-        
+
         return query.getResultList();
     }
 
@@ -287,13 +285,12 @@ public class DocumentRepositoryImpl implements DocumentRepository {
             query.setParameter("approved", Boolean.valueOf(approved));
         }
 
-        
     }
 
     @Override
     public long countManagedDocument(User currentU, boolean isAdmin, Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         StringBuilder hql = new StringBuilder();
 
         hql.append("SELECT COUNT(d.id) FROM Document d WHERE 1 = 1 ");
@@ -303,26 +300,63 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
 
         this.appendManagedFilters(hql, params);
-        
+
         Query query = s.createQuery(hql.toString(), Long.class);
-        
-        if (!isAdmin){
+
+        if (!isAdmin) {
             query.setParameter("userId", currentU.getId());
         }
-        
+
         this.setManagedFilterParameters(query, params);
-        
-        
+
         return (long) query.getSingleResult();
-        
+
     }
 
     @Override
     public Document add(Document document) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         s.persist(document);
-        
+
         return document;
     }
+
+    @Override
+    public boolean existsByCategoryIdAndActiveTrue(Long categoryId) {
+
+        Session s = this.factory.getObject().getCurrentSession();
+
+        Query query = s.createQuery(
+                "SELECT COUNT(d.id) "
+                + "FROM Document d "
+                + "WHERE d.category.id = :categoryId "
+                + "AND d.approved = true",
+                Long.class
+        );
+
+        query.setParameter("categoryId", categoryId);
+
+        Long count = (Long) query.getSingleResult();
+
+        return count > 0;
+    }
+
+    @Override
+    public Document getDocumentById(Long documentId) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        Query query = session.createQuery(
+                "FROM Document d "
+                + "WHERE d.id = :id", Document.class);
+        
+        query.setParameter("id", documentId);
+        
+        try{
+            return (Document) query.getSingleResult();
+        } catch (Exception ex){
+            return null;
+        }
+    }
+
 }
