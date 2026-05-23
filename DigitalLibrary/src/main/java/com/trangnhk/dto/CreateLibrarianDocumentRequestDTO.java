@@ -27,7 +27,7 @@ public class CreateLibrarianDocumentRequestDTO {
     @NotBlank(message = "Publisher is required")
     private String publisher;
     
-    @NotBlank(message = "Publish year is required")
+    @NotNull(message = "Publish year is required")
     private Integer publishYear;
     
     @NotBlank(message = "Document Type is required")
