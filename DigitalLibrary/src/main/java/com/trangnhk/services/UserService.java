@@ -7,7 +7,10 @@ package com.trangnhk.services;
 import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.dto.UpdateProfileRequestDTO;
+import com.trangnhk.dto.UserResponseDTO;
 import com.trangnhk.pojo.User;
+import java.util.List;
+import java.util.Map;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,4 +24,9 @@ public interface UserService extends UserDetailsService{
     boolean authenticate(String username, String password);
     User updateMyProfile(String usernmae, UpdateProfileRequestDTO dto);
     void changePassword(String username, ChangePasswordRequestDTO dto);
+    
+    List<UserResponseDTO> getUsers(Map<String, String> params);
+    public UserResponseDTO getUserDetail(Long userId);
+    
+    List<UserResponseDTO> getPendingLibrarians();
 }

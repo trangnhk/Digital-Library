@@ -9,12 +9,14 @@ import com.cloudinary.utils.ObjectUtils;
 import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.dto.UpdateProfileRequestDTO;
+import com.trangnhk.dto.UserResponseDTO;
 import com.trangnhk.pojo.User;
 import com.trangnhk.pojo.enums.UserRole;
 import com.trangnhk.repositories.UserRepository;
 import com.trangnhk.services.UserService;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -154,12 +156,12 @@ public class UserServiceImpl implements UserService {
             if (!isValidImageType(contentType)) {
                 throw new RuntimeException("Avatar must be an image as PNG, JPG or WEBP");
             }
-            
+
             String avatarUrl = this.uploadAvatar(dto.getAvatar());
             currentU.setAvatar(avatarUrl);
-            
+
         }
-        
+
         return this.userRepo.update(currentU);
 
     }
@@ -169,13 +171,13 @@ public class UserServiceImpl implements UserService {
                 || contentType.equals("image/png")
                 || contentType.equals("image/webp"));
     }
-    
-    private String uploadAvatar(MultipartFile file){
-        try{
+
+    private String uploadAvatar(MultipartFile file) {
+        try {
             Map uploadResult = this.cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "auto"));
-            
+
             return uploadResult.get("secure_url").toString();
-        } catch (IOException ex){
+        } catch (IOException ex) {
             throw new RuntimeException("Upload avatar FAILED", ex);
         }
     }
@@ -183,23 +185,54 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(String username, ChangePasswordRequestDTO dto) {
         User currentU = this.userRepo.getUserByUsername(username);
-        
-        if (currentU == null){
+
+        if (currentU == null) {
             throw new UsernameNotFoundException("Invalid user");
         }
-        
+
         boolean oldPasswordMatches = this.passwordEncoder.matches(dto.getOldPassword(), currentU.getPassword());
-        
-        if (!oldPasswordMatches)
+
+        if (!oldPasswordMatches) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Old password isn't correct");
-                
-        if (!dto.getNewPassword().equals(dto.getConfirmPassword()))
+        }
+
+        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Old password isn't correct");
-        
+        }
+
         String encodeNewPassword = this.passwordEncoder.encode(dto.getNewPassword());
-        
+
         currentU.setPassword(encodeNewPassword);
-        
+
         this.userRepo.update(currentU);
+    }
+
+    @Override
+    public List<UserResponseDTO> getUsers(Map<String, String> params) {
+        List<User> users = this.userRepo.getUsers(params);
+
+        return users.stream().map(UserResponseDTO::fromUser).toList();
+    }
+
+    @Override
+    public UserResponseDTO getUserDetail(Long userId) {
+        User user = this.userRepo.getUserById(userId);
+
+        if (user == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User not found"
+            );
+        }
+
+        return UserResponseDTO.fromUser(user);
+    }
+
+    @Override
+    public List<UserResponseDTO> getPendingLibrarians() {
+        List<User> users = this.userRepo.getPendingLibrarians();
+
+        return users.stream().map(UserResponseDTO::fromUser).toList();
     }
 }

@@ -44,7 +44,10 @@ public class ApiSecurityConfigs {
                 //ADMIN
                 .requestMatchers(
                         "/api/secure/admin/categories",
-                        "/api/secure/admin/categories/{categoryId}"
+                        "/api/secure/admin/categories/{categoryId}",
+                        "/api/secure/admin/users",
+                        "/api/secure/admin/users/{userId}",
+                        "/api/secure/admin/librarians/pending"
                 ).hasRole("ADMIN")
                 // LIBRARIAN
                 .requestMatchers("/api/librarian/**").hasRole("LIBRARIAN")
