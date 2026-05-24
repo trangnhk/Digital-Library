@@ -20,45 +20,81 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class DocumentFileRepositoryImpl implements DocumentFileRepository{
+public class DocumentFileRepositoryImpl implements DocumentFileRepository {
 
     @Autowired
     private LocalSessionFactoryBean factory;
-    
+
     @Override
     public List<DocumentFile> getFilesByDocumentId(Long documentId) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         Query query = s.createNamedQuery("DocumentFile.findByDocumentId", DocumentFile.class);
-        
+
         query.setParameter("documentId", documentId);
-        
+
         return query.getResultList();
-        
+
     }
 
     @Override
     public DocumentFile add(DocumentFile file) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         s.persist(file);
-        
+
         return file;
     }
 
     @Override
     public void deleteByDocumentId(Long documentId) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         Query query = s.createQuery("FROM DocumentFile f WHERE f.document.id = :documentId", DocumentFile.class);
-        
+
         query.setParameter("documentId", documentId);
-        
+
         List<DocumentFile> files = query.getResultList();
-        
-        for(DocumentFile file: files){
+
+        for (DocumentFile file : files) {
             s.remove(file);
         }
     }
-    
+
+    @Override
+    public DocumentFile getFileByIdAndDocumnetId(Long fileId, Long documentId) {
+        Session s = this.factory.getObject().getCurrentSession();
+
+        Query query = s.createQuery("FROM DocumentFile f "
+                + "WHERE f.id = :fileId "
+                + "AND f.document.id = :documentId", DocumentFile.class);
+
+        query.setParameter("fileId", fileId);
+        query.setParameter("documentId", documentId);
+
+        try {
+            return (DocumentFile) query.getSingleResult();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public DocumentFile getFirstFileByDocumentId(Long documentId) {
+        Session s = this.factory.getObject().getCurrentSession();
+
+        Query query = s.createQuery("FROM DocumentFile f "
+                + "WHERE f.document.id = :documentId "
+                + "ORDER BY f.uploadedDate ASC", DocumentFile.class);
+
+        query.setParameter("documentId", documentId);
+        query.setMaxResults(1);
+
+        try {
+            return (DocumentFile) query.getSingleResult();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
 }
