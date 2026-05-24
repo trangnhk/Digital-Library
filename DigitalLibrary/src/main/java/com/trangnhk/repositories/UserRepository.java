@@ -5,6 +5,8 @@
 package com.trangnhk.repositories;
 
 import com.trangnhk.pojo.User;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,4 +20,9 @@ public interface UserRepository {
     User addUser(User u);
     User update(User u);
     boolean authenticate(String username, String password);
+    
+    List<User> getUsers(Map<String, String> params);
+    public User getUserById(Long userId);
+    
+    List<User> getPendingLibrarians();
 }
