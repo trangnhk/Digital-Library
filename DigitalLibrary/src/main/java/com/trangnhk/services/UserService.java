@@ -7,6 +7,7 @@ package com.trangnhk.services;
 import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.dto.UpdateProfileRequestDTO;
+import com.trangnhk.dto.UpdateUserActiveRequestDTO;
 import com.trangnhk.dto.UserResponseDTO;
 import com.trangnhk.pojo.User;
 import java.util.List;
@@ -27,6 +28,9 @@ public interface UserService extends UserDetailsService{
     
     List<UserResponseDTO> getUsers(Map<String, String> params);
     public UserResponseDTO getUserDetail(Long userId);
+    UserResponseDTO updateUserActive(String adminUsername, Long userId, UpdateUserActiveRequestDTO dto);
     
     List<UserResponseDTO> getPendingLibrarians();
+    UserResponseDTO approveLibrarian(String adminUsername, Long userId);
+    UserResponseDTO rejectLibrarian(String adminUsernmae, Long userId);
 }

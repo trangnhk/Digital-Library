@@ -9,6 +9,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.trangnhk.dto.ChangePasswordRequestDTO;
 import com.trangnhk.dto.RegisterRequestDTO;
 import com.trangnhk.dto.UpdateProfileRequestDTO;
+import com.trangnhk.dto.UpdateUserActiveRequestDTO;
 import com.trangnhk.dto.UserResponseDTO;
 import com.trangnhk.pojo.User;
 import com.trangnhk.pojo.enums.UserRole;
@@ -99,6 +100,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean authenticate(String username, String password) throws UsernameNotFoundException {
+        User u = this.userRepo.getUserByUsername(username);
+        
+        if (!u.getActive()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found or was deactive");
+        }
+        
         return this.userRepo.authenticate(username, password);
     }
 
@@ -235,4 +242,87 @@ public class UserServiceImpl implements UserService {
 
         return users.stream().map(UserResponseDTO::fromUser).toList();
     }
+
+    @Override
+    public UserResponseDTO updateUserActive(String adminUsername, Long userId, UpdateUserActiveRequestDTO dto) {
+        User currentAdmin = this.userRepo.getUserByUsername(adminUsername);
+        
+        if (currentAdmin == null){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        
+        User userEdited = this.userRepo.getUserById(userId);
+        
+        if (userEdited == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        
+        // Admin can't deactive yourself
+        if (currentAdmin.getId().equals(userEdited.getId()) && Boolean.FALSE.equals(dto.getActive())){
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Admin can't deactive yourself");
+        }
+        
+        userEdited.setActive(dto.getActive());
+        
+        User updatedUser = this.userRepo.update(userEdited);
+        
+        return UserResponseDTO.fromUser(updatedUser);
+        
+    }
+
+    @Override
+    public UserResponseDTO approveLibrarian(String adminUsername, Long userId) {
+        User currentAdmin = this.userRepo.getUserByUsername(adminUsername);
+        
+        if (currentAdmin == null){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        
+        User userLibrarian = this.userRepo.getUserById(userId);
+        
+        if (userLibrarian == null || Boolean.FALSE.equals(userLibrarian.getActive())){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        
+        if (userLibrarian.getRole() != UserRole.ROLE_LIBRARIAN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User if not librarian");
+        }
+        
+        if (Boolean.TRUE.equals(userLibrarian.getLibrarianVerified())){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Librarian has already been approved");
+        }
+        
+        userLibrarian.setLibrarianVerified(true);
+        
+        User updatedLibrarian = this.userRepo.update(userLibrarian);
+        
+        return UserResponseDTO.fromUser(updatedLibrarian);
+        
+    }
+
+    @Override
+    public UserResponseDTO rejectLibrarian(String adminUsernmae, Long userId) {
+        User currentAdmin = this.userRepo.getUserByUsername(adminUsernmae);
+        
+        if (currentAdmin == null){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        
+        User userLibrarian = this.userRepo.getUserById(userId);
+        
+        if (userLibrarian == null || Boolean.FALSE.equals(userLibrarian.getActive())){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        
+        if (userLibrarian.getRole() != UserRole.ROLE_LIBRARIAN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User if not librarian");
+        }
+        
+        userLibrarian.setLibrarianVerified(false);
+        
+        User updatedLibrarian = this.userRepo.update(userLibrarian);
+        
+        return UserResponseDTO.fromUser(updatedLibrarian);
+    }
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               

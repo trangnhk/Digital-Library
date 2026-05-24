@@ -43,14 +43,10 @@ public class ApiSecurityConfigs {
                 ).permitAll()
                 //ADMIN
                 .requestMatchers(
-                        "/api/secure/admin/categories",
-                        "/api/secure/admin/categories/{categoryId}",
-                        "/api/secure/admin/users",
-                        "/api/secure/admin/users/{userId}",
-                        "/api/secure/admin/librarians/pending"
+                        "/api/secure/admin/**"
                 ).hasRole("ADMIN")
                 // LIBRARIAN
-                .requestMatchers("/api/librarian/**").hasRole("LIBRARIAN")
+                .requestMatchers("/api/secure/librarian/**").hasRole("LIBRARIAN")
                 .requestMatchers(
                         "/api/secure/librarian/documents/{documentId}"
                 ).hasAnyRole("LIBRARIAN", "ADMIN")
