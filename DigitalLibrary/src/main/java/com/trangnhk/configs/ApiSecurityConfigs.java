@@ -48,7 +48,8 @@ public class ApiSecurityConfigs {
                 // LIBRARIAN
                 .requestMatchers("/api/secure/librarian/**").hasRole("LIBRARIAN")
                 .requestMatchers(
-                        "/api/secure/librarian/documents/{documentId}"
+                        "/api/secure/librarian/documents/{documentId}",
+                        "/api/secure/librarian/documents/{documentId}/borrowers"
                 ).hasAnyRole("LIBRARIAN", "ADMIN")
                 // SECURE API
                 .requestMatchers("/api/secure/**").authenticated()

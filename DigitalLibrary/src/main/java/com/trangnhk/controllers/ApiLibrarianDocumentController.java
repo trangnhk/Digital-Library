@@ -5,13 +5,16 @@
 package com.trangnhk.controllers;
 
 import com.trangnhk.dto.CreateLibrarianDocumentRequestDTO;
+import com.trangnhk.dto.DocumentBorrowerDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
 import com.trangnhk.dto.UpdateLibrarianDocumentRequestDTO;
 import com.trangnhk.services.DocumentService;
+import com.trangnhk.services.SecureDocumentService;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
@@ -41,6 +44,9 @@ public class ApiLibrarianDocumentController {
 
     @Autowired
     private DocumentService docService;
+    
+    @Autowired
+    private SecureDocumentService secureDocService;
 
     @GetMapping
     public ResponseEntity<?> getMyDocuments(Principal principal, @RequestParam Map<String, String> params) {
@@ -129,5 +135,18 @@ public class ApiLibrarianDocumentController {
             return this.buildErrorResponse(ex);
         }
     }
+    
+    @GetMapping("/{documentId}/borrowers")
+    public ResponseEntity<?> getDocumentBorrowers(@PathVariable("documentId") Long documentId, @RequestParam Map<String, String> params, Principal principal){
+        try{
+            List<DocumentBorrowerDTO> borrowers = this.secureDocService.getDocumentBorrowers(principal.getName(), documentId, params);
+            
+            return ResponseEntity.ok(borrowers);
+        } catch (ResponseStatusException ex){
+            return this.buildErrorResponse(ex);
+        }
+        
+    }
+    
     
 }

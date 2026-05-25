@@ -4,7 +4,10 @@
  */
 package com.trangnhk.repositories;
 
+import com.trangnhk.dto.DocumentBorrowerDTO;
 import com.trangnhk.pojo.BorrowHistory;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -13,4 +16,7 @@ import com.trangnhk.pojo.BorrowHistory;
 public interface BorrowHistoryRepository {
     BorrowHistory add(BorrowHistory borrow);
     boolean existOpenBorrow(Long userId, Long documentId);
+    
+    // LIBRARIAN
+    List<DocumentBorrowerDTO> getBorrowerByDocumentId(Long documentId, Map<String, String> params);
 }

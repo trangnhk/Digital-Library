@@ -7,6 +7,7 @@ package com.trangnhk.repositories.impl;
 import com.trangnhk.pojo.Document;
 import com.trangnhk.pojo.User;
 import com.trangnhk.repositories.DocumentRepository;
+import com.trangnhk.utils.AdminDocumentSorts;
 import com.trangnhk.utils.DocumentSorts;
 import com.trangnhk.utils.SortUtils;
 import jakarta.persistence.Query;
@@ -363,6 +364,11 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     public Document update(Document document) {
         Session s = this.factory.getObject().getCurrentSession();
         
+        if (document.getId() == null){
+            s.persist(document);
+            return document;
+        }
+        
         return s.merge(document);
     }
 
@@ -372,5 +378,108 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         
         s.remove(document);
     }
+
+    @Override
+    public List<Document> getAdminDocuments(Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        StringBuilder hql = new StringBuilder();
+
+        hql.append("SELECT d FROM Document d WHERE 1 = 1 ");
+
+        this.appendAdminDocumentFilters(hql, params);
+        
+        hql.append(SortUtils.buildOrderBy(params, AdminDocumentSorts.ADMIN_DOCUMENT_SORT, AdminDocumentSorts.DEFAULT_SORT));
+        
+        Query query = s.createQuery(hql.toString(), Document.class);
+        
+        this.setAdminDocumentFilterParams(query, params);
+        
+        int page = this.getPage(params);
+        int size = this.getSize(params);
+        int start = (page - 1) * size;
+        
+        query.setFirstResult(start);
+        query.setMaxResults(size);
+        
+        return query.getResultList();
+        
+        
+    }
+    
+    private void appendAdminDocumentFilters(StringBuilder hql, Map<String, String> params){
+        if (params == null){
+            return;
+        }
+        
+        String kw = params.get("keyword");
+        if (kw != null && !kw.trim().isEmpty()){
+            hql.append(" AND (LOWER(d.title) LIKE :keyword ");
+            hql.append(" OR LOWER(d.author) LIKE :keyword ");
+            hql.append(" AND (LOWER(d.publisher) LIKE :keyword) ");
+            
+        }
+        
+        String approved = params.get("approved");
+        if (approved != null && !approved.trim().isEmpty()){
+            hql.append(" AND d.approved = :approved ");
+        }
+        
+        String cateId = params.get("categoryId");
+        if (cateId != null && !cateId.trim().isEmpty()){
+            hql.append(" AND d.category.id = :categoryId ");
+        }
+        
+        String uploadBy = params.get("uploadBy");
+        if (uploadBy != null && !uploadBy.trim().isEmpty()){
+            hql.append(" AND d.uploadedBy.id = :uploadBy ");
+        }
+        
+        
+    }
+
+    private void setAdminDocumentFilterParams(Query query, Map<String, String> params){
+        if (params == null){
+            return;
+        }
+        
+        String kw = params.get("keyword");
+        if (kw != null && !kw.trim().isEmpty()){
+            query.setParameter("keyword", "%" + kw.trim().toLowerCase() + "%");
+        }
+        
+        String approved = params.get("approved");
+        if (approved != null && !approved.trim().isEmpty()){
+            query.setParameter("approved", Boolean.valueOf(approved));
+        }
+        
+        String cateId = params.get("categoryId");
+        if (cateId != null && !cateId.trim().isEmpty()){
+            query.setParameter("categoryId", Long.valueOf(cateId));
+        }
+        
+        String uploadBy = params.get("uploadBy");
+        if (uploadBy != null && !uploadBy.trim().isEmpty()){
+            query.setParameter("uplaodBy", Long.valueOf(uploadBy));
+        }
+    }
+    
+    @Override
+    public long countAdminDocuments(Map<String, String> params) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        StringBuilder hql = new StringBuilder();
+        
+        hql.append("SELECT COUNT(d.id) FROM Document d WHERE 1 = 1");
+        
+        this.appendAdminDocumentFilters(hql, params);
+        
+        Query query = s.createQuery(hql.toString(), Long.class);
+        
+        this.setAdminDocumentFilterParams(query, params);
+        
+        return (long) query.getSingleResult();
+    }
+
 
 }

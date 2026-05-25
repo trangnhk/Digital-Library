@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="documentsContent">
+
+    <style>
+        .admin-documents-page {
+            color: #212529;
+        }
+
+        .admin-card {
+            border: 1px solid #dee2e6;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        .admin-card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 18px 22px;
+        }
+
+        .admin-card-body {
+            padding: 22px;
+        }
+
+        .page-heading-card {
+            border-left: 5px solid #0d6efd;
+        }
+
+        .page-heading-title {
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 4px;
+        }
+
+        .page-heading-desc {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #343a40;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            min-height: 44px;
+            font-size: 14px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.18rem rgba(13, 110, 253, 0.18);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            box-shadow: 0 3px 8px rgba(13, 110, 253, 0.22);
+        }
+
+        .filter-actions {
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-badge {
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 600;
+            background-color: #ffffff !important;
+        }
+
+        .documents-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 0;
+        }
+
+        .documents-table thead th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-weight: 700;
+            border-top: 1px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+            padding: 14px 16px;
+            white-space: nowrap;
+        }
+
+        .documents-table tbody td {
+            padding: 16px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .documents-table tbody tr:hover {
+            background-color: #f8fbff;
+        }
+
+        .documents-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .document-id-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #f1f3f5;
+            border: 1px solid #dee2e6;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .document-title {
+            font-weight: 700;
+            color: #212529;
+            line-height: 1.35;
+        }
+
+        .document-meta {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .table-badge {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .views-number {
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .pagination .page-link {
+            border-radius: 9px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            border: 1px dashed #ffc107;
+            border-radius: 12px;
+            background-color: #fff9e6;
+            color: #664d03;
+            padding: 18px;
+        }
+    </style>
+
+    <div class="admin-documents-page">
+
+        <!-- PAGE INTRO -->
+        <div class="card admin-card page-heading-card mb-4">
+            <div class="card-body admin-card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                    <div>
+                        <h4 class="page-heading-title">
+                            Document Management
+                        </h4>
+
+                        <p class="page-heading-desc">
+                            View, filter and manage all documents in the digital library.
+                        </p>
+                    </div>
+
+                    <div class="text-end">
+                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill"
+                              th:text="'Total: ' + ${documentsPage.totalItems}">
+                            Total: 0
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER CARD -->
+        <div class="card admin-card mb-4">
+
+            <div class="admin-card-header">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-1 fw-bold">
+                            Filter Documents
+                        </h5>
+
+                        <small class="text-muted">
+                            Search documents by keyword, status, category, uploader and sort order.
+                        </small>
+                    </div>
+
+                    <a th:href="@{/admin/documents}"
+                       class="btn btn-outline-secondary btn-sm px-3">
+                        Reset
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body admin-card-body">
+
+                <form th:action="@{/admin/documents}" method="get" class="row g-3">
+
+                    <!-- Keyword -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            Keyword
+                        </label>
+
+                        <input type="text"
+                               name="keyword"
+                               class="form-control"
+                               placeholder="Search by title, author, publisher..."
+                               th:value="${keyword}">
+                    </div>
+
+                    <!-- Approved status -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            Status
+                        </label>
+
+                        <select name="approved" class="form-select">
+                            <option value="" th:selected="${approved == ''}">
+                                All
+                            </option>
+
+                            <option value="false" th:selected="${approved == 'false'}">
+                                Pending
+                            </option>
+
+                            <option value="true" th:selected="${approved == 'true'}">
+                                Approved
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            Category ID
+                        </label>
+
+                        <input type="number"
+                               name="categoryId"
+                               class="form-control"
+                               placeholder="Ex: 1"
+                               th:value="${categoryId}">
+                    </div>
+
+                    <!-- Upload by -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            Upload By
+                        </label>
+
+                        <input type="number"
+                               name="uploadBy"
+                               class="form-control"
+                               placeholder="User ID"
+                               th:value="${uploadBy}">
+                    </div>
+
+                    <!-- Size -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            Page Size
+                        </label>
+
+                        <input type="number"
+                               name="size"
+                               class="form-control"
+                               min="1"
+                               max="20"
+                               th:value="${size}">
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            Sort
+                        </label>
+
+                        <select name="sort" class="form-select">
+                            <option value="newest" th:selected="${sort == 'newest'}">
+                                Newest first
+                            </option>
+
+                            <option value="pending" th:selected="${sort == 'pending'}">
+                                Pending first
+                            </option>
+
+                            <option value="approved" th:selected="${sort == 'approved'}">
+                                Approved first
+                            </option>
+
+                            <option value="title" th:selected="${sort == 'title'}">
+                                Title A-Z
+                            </option>
+
+                            <option value="publishYear" th:selected="${sort == 'publishYear'}">
+                                Publish year newest
+                            </option>
+
+                            <option value="popular" th:selected="${sort == 'popular'}">
+                                Most viewed
+                            </option>
+                        </select>
+                    </div>
+
+                    <input type="hidden" name="page" value="1">
+
+                    <div class="col-md-8 d-flex align-items-end filter-actions">
+                        <button type="submit" class="btn btn-primary px-4">
+                            Apply Filter
+                        </button>
+
+                        <a th:href="@{/admin/documents(approved=false, sort='pending')}"
+                           class="btn btn-outline-warning px-4">
+                            View Pending
+                        </a>
+
+                        <a th:href="@{/admin/documents(approved=true, sort='newest')}"
+                           class="btn btn-outline-success px-4">
+                            View Approved
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- ACTIVE FILTER SUMMARY -->
+        <div class="mb-3 d-flex flex-wrap gap-2">
+
+            <span class="badge text-dark border filter-badge"
+                  th:if="${keyword != null && keyword != ''}"
+                  th:text="'Keyword: ' + ${keyword}">
+                Keyword
+            </span>
+
+            <span class="badge text-dark border filter-badge"
+                  th:if="${approved == 'false'}">
+                Status: Pending
+            </span>
+
+            <span class="badge text-dark border filter-badge"
+                  th:if="${approved == 'true'}">
+                Status: Approved
+            </span>
+
+            <span class="badge text-dark border filter-badge"
+                  th:if="${categoryId != null && categoryId != ''}"
+                  th:text="'Category ID: ' + ${categoryId}">
+                Category
+            </span>
+
+            <span class="badge text-dark border filter-badge"
+                  th:if="${uploadBy != null && uploadBy != ''}"
+                  th:text="'Upload By: ' + ${uploadBy}">
+                Upload By
+            </span>
+
+            <span class="badge text-dark border filter-badge"
+                  th:text="'Sort: ' + ${sort}">
+                Sort
+            </span>
+
+        </div>
+
+        <!-- DOCUMENT TABLE -->
+        <div class="card admin-card">
+
+            <div class="admin-card-header">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-1 fw-bold">
+                            Documents
+                        </h5>
+
+                        <small class="text-muted">
+                            List of documents matching the current filters.
+                        </small>
+                    </div>
+
+                    <small class="text-muted fw-semibold"
+                           th:text="'Page ' + ${documentsPage.page} + ' of ' + ${documentsPage.totalPages}">
+                        Page 1 of 1
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+
+                <!-- Empty state -->
+                <div th:if="${#lists.isEmpty(documents)}" class="p-4">
+                    <div class="empty-state mb-0">
+                        No documents found. Try changing your filters.
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive" th:if="${!#lists.isEmpty(documents)}">
+
+                    <table class="table table-hover align-middle documents-table">
+
+                        <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th style="min-width: 280px;">Document</th>
+                            <th style="min-width: 140px;">Category</th>
+                            <th style="min-width: 140px;">Uploader</th>
+                            <th style="width: 110px;">Type</th>
+                            <th style="width: 110px;">Views</th>
+                            <th style="width: 130px;">Premium</th>
+                            <th style="width: 130px;">Status</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="d : ${documents}">
+
+                            <!-- ID -->
+                            <td>
+                                <span class="document-id-box"
+                                      th:text="${d.id}">
+                                    1
+                                </span>
+                            </td>
+
+                            <!-- Document info -->
+                            <td>
+                                <div class="document-title" th:text="${d.title}">
+                                    Spring Boot Basic
+                                </div>
+
+                                <div class="document-meta">
+                                    <span th:text="${d.author}">Author</span>
+
+                                    <span th:if="${d.publisher != null}">
+                                        ·
+                                        <span th:text="${d.publisher}">Publisher</span>
+                                    </span>
+
+                                    <span th:if="${d.publishYear != null}">
+                                        ·
+                                        <span th:text="${d.publishYear}">2026</span>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- Category -->
+                            <td>
+                                <span th:if="${d.categoryName != null}"
+                                      class="badge bg-light text-dark border table-badge"
+                                      th:text="${d.categoryName}">
+                                    Category
+                                </span>
+
+                                <span th:if="${d.categoryName == null}"
+                                      class="text-muted">
+                                    N/A
+                                </span>
+                            </td>
+
+                            <!-- Uploader -->
+                            <td>
+                                <span th:if="${d.uploadedByUsername != null}"
+                                      class="fw-semibold"
+                                      th:text="${d.uploadedByUsername}">
+                                    librarian01
+                                </span>
+
+                                <span th:if="${d.uploadedByUsername == null}"
+                                      class="text-muted">
+                                    N/A
+                                </span>
+                            </td>
+
+                            <!-- Type -->
+                            <td>
+                                <span class="badge bg-secondary table-badge"
+                                      th:text="${d.documentType}">
+                                    PDF
+                                </span>
+                            </td>
+
+                            <!-- Views -->
+                            <td>
+                                <span class="views-number"
+                                      th:text="${d.totalViews != null ? d.totalViews : 0}">
+                                    0
+                                </span>
+                            </td>
+
+                            <!-- Premium -->
+                            <td>
+                                <span th:if="${d.premium}"
+                                      class="badge bg-warning text-dark status-badge">
+                                    Premium
+                                </span>
+
+                                <span th:unless="${d.premium}"
+                                      class="badge bg-success status-badge">
+                                    Free
+                                </span>
+                            </td>
+
+                            <!-- Status -->
+                            <td>
+                                <span th:if="${d.approved}"
+                                      class="badge bg-success status-badge">
+                                    Approved
+                                </span>
+
+                                <span th:unless="${d.approved}"
+                                      class="badge bg-danger status-badge">
+                                    Pending
+                                </span>
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="card-footer bg-white border-top"
+                 th:if="${documentsPage.totalPages > 1}">
+
+                <nav>
+                    <ul class="pagination mb-0 justify-content-end">
+
+                        <!-- Previous -->
+                        <li class="page-item"
+                            th:classappend="${documentsPage.page <= 1} ? 'disabled'">
+
+                            <a class="page-link"
+                               th:href="@{/admin/documents(
+                                    page=${documentsPage.page - 1},
+                                    size=${size},
+                                    keyword=${keyword},
+                                    approved=${approved},
+                                    categoryId=${categoryId},
+                                    uploadBy=${uploadBy},
+                                    sort=${sort}
+                               )}">
+                                Previous
+                            </a>
+                        </li>
+
+                        <!-- Current -->
+                        <li class="page-item disabled">
+                            <span class="page-link"
+                                  th:text="${documentsPage.page}">
+                                1
+                            </span>
+                        </li>
+
+                        <!-- Next -->
+                        <li class="page-item"
+                            th:classappend="${documentsPage.page >= documentsPage.totalPages} ? 'disabled'">
+
+                            <a class="page-link"
+                               th:href="@{/admin/documents(
+                                    page=${documentsPage.page + 1},
+                                    size=${size},
+                                    keyword=${keyword},
+                                    approved=${approved},
+                                    categoryId=${categoryId},
+                                    uploadBy=${uploadBy},
+                                    sort=${sort}
+                               )}">
+                                Next
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>0
+
+</body>
+</html>
