@@ -4,7 +4,9 @@
  */
 package com.trangnhk.controllers;
 
+import com.trangnhk.dto.AdminStatisticsOverViewDTO;
 import com.trangnhk.dto.PageResponseDTO;
+import com.trangnhk.services.AdminStatisticService;
 import com.trangnhk.services.SecureDocumentService;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class AdminController {
     @Autowired
     private SecureDocumentService docService;
     
+    @Autowired
+    private AdminStatisticService adminStatisticService;
+    
     @GetMapping("/admin/login")
     public String loginView(){
         return "admin/login";
@@ -31,7 +36,10 @@ public class AdminController {
     @GetMapping("/admin")
     public String dashboard(Model model) {
         model.addAttribute("title", "Dashboard");
-
+        
+        AdminStatisticsOverViewDTO overview = this.adminStatisticService.getOverview();
+        model.addAttribute("overview", overview);
+        
         return "admin/dashboard";
     }
     

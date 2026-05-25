@@ -13,9 +13,12 @@ import com.trangnhk.services.UserService;
 import com.trangnhk.utils.JWTUtils;
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -84,9 +87,19 @@ public class ApiAuthController {
             
             String token = JWTUtils.generateToken(u.getUsername(), u.getRole().name());
             
+            ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
+                                                    .httpOnly(true)
+                                                    .secure(false)
+                                                    .path("/")
+                                                    .maxAge(Duration.ofDays(1))
+                                                    .sameSite("Lax")
+                                                    .build();
+            
+            
+            
             AuthRequestDTO response = new AuthRequestDTO(token, u.getUsername(), u.getRole().name());
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
         
         } catch (Exception ex){
             return ResponseEntity.internalServerError().body("JWT generation failed");

@@ -37,6 +37,7 @@ public class ApiSecurityConfigs {
                 .requestMatchers(
                         "/api/auth/login",
                         "/api/auth/register",
+                        "/api/auth/logout",
                         "/api/categories/**",
                         "/api/documents/**",
                         "/process-login"
@@ -46,11 +47,11 @@ public class ApiSecurityConfigs {
                         "/api/secure/admin/**"
                 ).hasRole("ADMIN")
                 // LIBRARIAN
-                .requestMatchers("/api/secure/librarian/**").hasRole("LIBRARIAN")
                 .requestMatchers(
                         "/api/secure/librarian/documents/{documentId}",
                         "/api/secure/librarian/documents/{documentId}/borrowers"
                 ).hasAnyRole("LIBRARIAN", "ADMIN")
+                .requestMatchers("/api/secure/librarian/**").hasRole("LIBRARIAN")
                 // SECURE API
                 .requestMatchers("/api/secure/**").authenticated()
                 // Any request
@@ -92,8 +93,9 @@ public class ApiSecurityConfigs {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:3000/"));
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Set-Cookie"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
