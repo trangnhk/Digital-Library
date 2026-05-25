@@ -5,14 +5,20 @@
 package com.trangnhk.repositories.impl;
 
 import com.trangnhk.pojo.Document;
+import com.trangnhk.pojo.Review;
 import com.trangnhk.pojo.User;
 import com.trangnhk.repositories.DocumentRepository;
 import com.trangnhk.utils.DocumentSorts;
 import com.trangnhk.utils.SortUtils;
-import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -349,12 +355,12 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         Query query = session.createQuery(
                 "FROM Document d "
                 + "WHERE d.id = :id", Document.class);
-        
+
         query.setParameter("id", documentId);
-        
-        try{
+
+        try {
             return (Document) query.getSingleResult();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -362,15 +368,16 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     @Override
     public Document update(Document document) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         return s.merge(document);
     }
 
     @Override
     public void delete(Document document) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         s.remove(document);
     }
+
 
 }

@@ -6,7 +6,9 @@ package com.trangnhk.controllers;
 
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
+import com.trangnhk.dto.ReviewResponseDTO;
 import com.trangnhk.services.DocumentService;
+import com.trangnhk.services.ReviewService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -22,19 +24,21 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Admin
  */
-
 @RestController
 @RequestMapping("/api/documents")
 public class ApiDocumentController {
-    
+
     @Autowired
     private DocumentService documentService;
-    
+
+    @Autowired
+    private ReviewService reviewService;
+
     @GetMapping
-    public ResponseEntity<?> getDocuments(@RequestParam Map<String, String> params){
+    public ResponseEntity<?> getDocuments(@RequestParam Map<String, String> params) {
         String validationError = this.documentService.validatePublicDocumentParams(params);
-        
-        if (validationError != null){
+
+        if (validationError != null) {
             if (validationError.equals("CATEGORY_NOT_FOUND")) {
                 return ResponseEntity.status(404).body(Map.of(
                         "timestamp", LocalDateTime.now().toString(),
@@ -51,11 +55,11 @@ public class ApiDocumentController {
                     "message", validationError
             ));
         }
-        
+
         return ResponseEntity.ok(this.documentService.getPublicDocuments(params));
-        
+
     }
-    
+
     @GetMapping("/{documentId}")
     public ResponseEntity<?> getDocumentById(@PathVariable("documentId") Long documentId) {
         DocumentResponseDTO document = this.documentService.getPublicDocumentById(documentId);
@@ -71,19 +75,33 @@ public class ApiDocumentController {
 
         return ResponseEntity.ok(document);
     }
-    
+
     @GetMapping("/{documentId}/files")
-    public ResponseEntity<?> getDocumentFiles(@PathVariable("documentId") Long documentId){
+    public ResponseEntity<?> getDocumentFiles(@PathVariable("documentId") Long documentId) {
         List<DocumentFileResponseDTO> files = this.documentService.getPublicDocumentFiles(documentId);
-        
-        if (files == null){
+
+        if (files == null) {
             return ResponseEntity.status(404).body(Map.of(
-                "timestamp", LocalDateTime.now().toString(),
-                "status", 404,
-                "error", "Not Found",
-                "message", "Document File not found"
+                    "timestamp", LocalDateTime.now().toString(),
+                    "status", 404,
+                    "error", "Not Found",
+                    "message", "Document File not found"
             ));
         }
         return ResponseEntity.ok(files);
+    }
+
+    @GetMapping("/{documentId}/reviews")
+    public ResponseEntity<?> getDocumentReviews(@PathVariable("documentId") Long documentId, @RequestParam Map<String, String> params) {
+        List<ReviewResponseDTO> reviews =this.reviewService.getDocumentReviews(documentId,params);
+        if (reviews == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "timestamp", LocalDateTime.now().toString(),
+                    "status", 404,
+                    "error", "Not Found",
+                    "message", "Document not found"
+            ));
+        }
+        return ResponseEntity.ok(this.reviewService.getDocumentReviews(documentId, params));
     }
 }
