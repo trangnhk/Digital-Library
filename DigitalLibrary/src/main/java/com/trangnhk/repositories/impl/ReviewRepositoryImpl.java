@@ -4,7 +4,9 @@
  */
 package com.trangnhk.repositories.impl;
 
+import com.trangnhk.pojo.Document;
 import com.trangnhk.pojo.Review;
+import com.trangnhk.repositories.DocumentRepository;
 import com.trangnhk.repositories.ReviewRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -21,6 +23,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  *
@@ -29,13 +32,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @PropertySource("classpath:configs.properties")
 @Transactional
-public class ReviewRepositoryImpl implements ReviewRepository{
-    
+public class ReviewRepositoryImpl implements ReviewRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
 
     @Autowired
     private Environment env;
+
+    @Autowired
+    private DocumentRepository documentRepo;
+
     private int getPage(Map<String, String> params) {
         if (params == null) {
             return 1;
@@ -82,13 +89,13 @@ public class ReviewRepositoryImpl implements ReviewRepository{
             return defaultSize;
         }
     }
-    
+
     @Override
     public List<Review> getDocumentReviews(Long documentId, Map<String, String> params) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
 
-        CriteriaQuery<Review> query= builder.createQuery(Review.class);
+        CriteriaQuery<Review> query = builder.createQuery(Review.class);
 
         Root<Review> root = query.from(Review.class);
 
@@ -96,7 +103,7 @@ public class ReviewRepositoryImpl implements ReviewRepository{
 
         List<Predicate> predicates = new ArrayList<>();
 
-        predicates.add(builder.equal(root.get("document").get("id"),documentId));
+        predicates.add(builder.equal(root.get("document").get("id"), documentId));
 
         query.where(predicates.toArray(Predicate[]::new));
 
@@ -116,4 +123,51 @@ public class ReviewRepositoryImpl implements ReviewRepository{
 
         return q.getResultList();
     }
+
+    @Override
+    public void createReview(Review review) {
+        Session session = this.factory.getObject().getCurrentSession();
+        session.persist(review);
+    }
+
+    @Override
+    public boolean existsByUserAndDocument(Long userId, Long documentId) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query= builder.createQuery(Long.class);
+        Root<Review> root = query.from(Review.class);
+        query.select(builder.count(root));
+        List<Predicate> predicates= new ArrayList<>();
+
+        predicates.add(builder.equal(root.get("user").get("id"), userId));
+        predicates.add(builder.equal(root.get("document").get("id"),documentId));
+
+        query.where(predicates.toArray(Predicate[]::new));
+
+        Long count = session.createQuery(query).getSingleResult();
+
+        return count > 0;
+    }
+
+    @Override
+    public Review getReviewById(Long reviewId) {
+        Session session = this.factory.getObject().getCurrentSession();   
+        return session.get(Review.class, reviewId);
+    }
+
+    @Override
+    public void updateReview(Review review) {
+        Session session = this.factory.getObject().getCurrentSession();
+        if(review != null){
+            session.merge(review);
+        }
+    }
+
+    @Override
+    public void deleteReview(Review review) {
+        Session session = this.factory.getObject().getCurrentSession();
+        session.remove(review);
+    }
 }
+
+

@@ -4,6 +4,7 @@
  */
 package com.trangnhk.repositories;
 
+import com.trangnhk.dto.ReviewResponseDTO;
 import com.trangnhk.pojo.Review;
 import java.util.List;
 import java.util.Map;
@@ -14,5 +15,9 @@ import java.util.Map;
  */
 public interface ReviewRepository {
     List<Review> getDocumentReviews(Long documentId, Map<String, String> params);
-    
+    void createReview(Review review);
+    boolean existsByUserAndDocument(Long userId, Long documentId);
+    Review getReviewById(Long reviewId);
+    void updateReview(Review review);
+    void deleteReview(Review review);
 }
