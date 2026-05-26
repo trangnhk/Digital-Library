@@ -6,16 +6,23 @@ package com.trangnhk.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.trangnhk.utils.JWTUtils;
+import java.time.Duration;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -70,6 +77,43 @@ public class SpringSecurityConfigs {
                 .formLogin(form -> form.loginPage("/admin/login") // Đường dẫn tới trang đăng nhập // LOGIN -> ADMIN
                 .loginProcessingUrl("/process-login") // Đường dẫn xử lý POST
                 .defaultSuccessUrl("/admin", true) // Chuyển hướng khi thành công
+                //                .failureHandler((request, response, exception) -> {
+                //
+                //                    response.setContentType("text/plain;charset=UTF-8");
+                //
+                //                    response.getWriter().println("LOGIN ERROR");
+                //                    response.getWriter().println(exception.getClass().getName());
+                //                    response.getWriter().println(exception.getMessage());
+                //                }) // Chuyển hướng khi thất bại
+                .successHandler((request, response, authentication) -> {
+
+                    String username = authentication.getName();
+
+                    String role = authentication.getAuthorities()
+                            .stream()
+                            .findFirst()
+                            .map(GrantedAuthority::getAuthority)
+                            .orElse("ROLE_ADMIN");
+
+                    String token = null;
+                    try {
+                        token = JWTUtils.generateToken(username, role);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SpringSecurityConfigs.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                    ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
+                            .httpOnly(true)
+                            .secure(false)
+                            .path("/")
+                            .maxAge(Duration.ofDays(1))
+                            .sameSite("Lax")
+                            .build();
+
+                    response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
+                    response.sendRedirect(request.getContextPath() + "/admin");
+                })
                 .failureHandler((request, response, exception) -> {
 
                     response.setContentType("text/plain;charset=UTF-8");
@@ -77,9 +121,27 @@ public class SpringSecurityConfigs {
                     response.getWriter().println("LOGIN ERROR");
                     response.getWriter().println(exception.getClass().getName());
                     response.getWriter().println(exception.getMessage());
-                }) // Chuyển hướng khi thất bại
+                })
                 .permitAll()
-                ).logout((logout) -> logout.logoutSuccessUrl("/admin/login").permitAll());
+                )
+                //                .logout((logout) -> logout.logoutSuccessUrl("/admin/login").permitAll());
+                .logout(logout -> logout
+                .logoutSuccessHandler((request, response, authentication) -> {
+
+                    ResponseCookie deleteJwtCookie = ResponseCookie.from("jwt_token", "")
+                            .httpOnly(true)
+                            .secure(false)
+                            .path("/")
+                            .maxAge(0)
+                            .sameSite("Lax")
+                            .build();
+
+                    response.addHeader(HttpHeaders.SET_COOKIE, deleteJwtCookie.toString());
+
+                    response.sendRedirect(request.getContextPath() + "/admin/login");
+                })
+                .permitAll()
+                );
 
         return http.build();
     }

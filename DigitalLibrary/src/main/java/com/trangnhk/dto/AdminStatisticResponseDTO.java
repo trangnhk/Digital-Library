@@ -17,20 +17,24 @@ public class AdminStatisticResponseDTO {
     private String toDate;
     private String status;
     private Long total;
+    private Long categoryId;
     private List<AdminStatisticPointDTO> data;
 
     public AdminStatisticResponseDTO() {
     }
 
-    public AdminStatisticResponseDTO(String type, String period, String fromDate, String toDate, String status, Long total, List<AdminStatisticPointDTO> data) {
+    public AdminStatisticResponseDTO(String type, String period, String fromDate, String toDate, String status, Long total, Long categoryId, List<AdminStatisticPointDTO> data) {
         this.type = type;
         this.period = period;
         this.fromDate = fromDate;
         this.toDate = toDate;
         this.status = status;
         this.total = total;
+        this.categoryId = categoryId;
         this.data = data;
     }
+    
+    
 
     /**
      * @return the type
@@ -128,6 +132,20 @@ public class AdminStatisticResponseDTO {
      */
     public void setData(List<AdminStatisticPointDTO> data) {
         this.data = data;
+    }
+
+    /**
+     * @return the categoryId
+     */
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    /**
+     * @param categoryId the categoryId to set
+     */
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
     
     

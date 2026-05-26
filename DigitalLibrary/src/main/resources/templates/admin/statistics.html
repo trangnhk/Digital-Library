@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Statistics</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f5f7fb;
+            color: #212529;
+        }
+
+        .dashboard-card {
+            border: 1px solid #dee2e6;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        .header-card {
+            border-left: 5px solid #0d6efd;
+        }
+
+        .card-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #343a40;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            min-height: 44px;
+            font-size: 14px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.18rem rgba(13, 110, 253, 0.18);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .filter-badge {
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 600;
+            background-color: #ffffff;
+        }
+
+        .stat-number {
+            font-size: 34px;
+            font-weight: 800;
+            margin-bottom: 0;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .empty-row {
+            padding: 28px;
+            color: #6c757d;
+        }
+
+        .summary-box {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px;
+            background-color: #f8f9fa;
+        }
+
+        .api-note {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        code {
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5 mb-5">
+
+    <!-- HEADER -->
+    <div class="card dashboard-card header-card mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+                <h1 class="h3 fw-bold mb-1">
+                    ADMIN DASHBOARD
+                </h1>
+
+                <p class="text-muted mb-0">
+                    Xin chào Admin. Đây là thống kê lượt truy cập và lượt mượn học liệu.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin}" class="btn btn-outline-secondary">
+                    Back to Dashboard
+                </a>
+
+                <a th:href="@{/admin/statistics}" class="btn btn-outline-primary">
+                    Reset
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div class="alert alert-danger dashboard-card"
+         th:if="${errorMessage != null}">
+        <strong th:text="'Error ' + ${errorStatus} + ': '">
+            Error:
+        </strong>
+
+        <span th:text="${errorMessage}">
+            Invalid filter.
+        </span>
+    </div>
+
+    <!-- FILTER FORM -->
+    <div class="card dashboard-card mb-4">
+
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h5 class="section-title">
+                        Filter Statistics
+                    </h5>
+
+                    <p class="section-subtitle">
+                        Lọc thống kê theo tháng/năm, khoảng thời gian, category và trạng thái mượn.
+                    </p>
+                </div>
+
+                <span class="badge bg-primary rounded-pill px-3 py-2">
+                    Query Filter
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <form th:action="@{/admin/statistics}" method="get" class="row g-3">
+
+                <!-- Period -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        Period
+                    </label>
+
+                    <select name="period" class="form-select">
+                        <option value="month"
+                                th:selected="${params != null && params['period'] == 'month'}">
+                            Month
+                        </option>
+
+                        <option value="year"
+                                th:selected="${params != null && params['period'] == 'year'}">
+                            Year
+                        </option>
+                    </select>
+                </div>
+
+                <!-- From Date -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        From Date
+                    </label>
+
+                    <input type="date"
+                           name="fromDate"
+                           class="form-control"
+                           th:value="${params != null ? params['fromDate'] : accessStatistics.fromDate}">
+                </div>
+
+                <!-- To Date -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        To Date
+                    </label>
+
+                    <input type="date"
+                           name="toDate"
+                           class="form-control"
+                           th:value="${params != null ? params['toDate'] : accessStatistics.toDate}">
+                </div>
+
+                <!-- Category ID -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        Category ID
+                    </label>
+
+                    <input type="number"
+                           name="categoryId"
+                           class="form-control"
+                           placeholder="Optional"
+                           th:value="${params != null ? params['categoryId'] : ''}">
+                </div>
+
+                <!-- Borrow Status -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">
+                        Borrow Status
+                    </label>
+
+                    <select name="status" class="form-select">
+                        <option value=""
+                                th:selected="${params == null || params['status'] == null || params['status'] == ''}">
+                            All
+                        </option>
+
+                        <option value="BORROWING"
+                                th:selected="${params != null && params['status'] == 'BORROWING'}">
+                            BORROWING
+                        </option>
+
+                        <option value="RETURNED"
+                                th:selected="${params != null && params['status'] == 'RETURNED'}">
+                            RETURNED
+                        </option>
+
+                        <option value="EXPIRED"
+                                th:selected="${params != null && params['status'] == 'EXPIRED'}">
+                            EXPIRED
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-md-12 d-flex justify-content-end gap-2 flex-wrap">
+
+                    <button type="submit" class="btn btn-primary px-4">
+                        Apply Filter
+                    </button>
+
+                    <a th:href="@{/admin/statistics}"
+                       class="btn btn-outline-secondary px-4">
+                        Clear Filter
+                    </a>
+
+                </div>
+
+            </form>
+
+            <div class="api-note mt-3">
+                Query được gửi theo dạng:
+                <code>
+                    /admin/statistics?period=month&amp;fromDate=2026-01-01&amp;toDate=2026-12-31&amp;categoryId=1&amp;status=BORROWING
+                </code>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ACTIVE FILTER SUMMARY -->
+    <div class="mb-3 d-flex flex-wrap gap-2">
+
+        <span class="badge text-dark border filter-badge"
+              th:text="'Period: ' + ${params != null ? params['period'] : accessStatistics.period}">
+            Period
+        </span>
+
+        <span class="badge text-dark border filter-badge"
+              th:text="'From: ' + ${params != null ? params['fromDate'] : accessStatistics.fromDate}">
+            From
+        </span>
+
+        <span class="badge text-dark border filter-badge"
+              th:text="'To: ' + ${params != null ? params['toDate'] : accessStatistics.toDate}">
+            To
+        </span>
+
+        <span class="badge text-dark border filter-badge"
+              th:if="${params != null && params['categoryId'] != null && params['categoryId'] != ''}"
+              th:text="'Category ID: ' + ${params['categoryId']}">
+            Category ID
+        </span>
+
+        <span class="badge text-dark border filter-badge"
+              th:if="${params == null || params['categoryId'] == null || params['categoryId'] == ''}">
+            Category: All
+        </span>
+
+        <span class="badge text-dark border filter-badge"
+              th:if="${params != null && params['status'] != null && params['status'] != ''}"
+              th:text="'Borrow Status: ' + ${params['status']}">
+            Borrow Status
+        </span>
+
+        <span class="badge text-dark border filter-badge"
+              th:if="${params == null || params['status'] == null || params['status'] == ''}">
+            Borrow Status: All
+        </span>
+
+    </div>
+
+    <!-- STATISTICS CONTENT -->
+    <div class="row g-4">
+
+        <!-- ACCESS STATISTICS -->
+        <div class="col-md-6">
+            <div class="card dashboard-card h-100">
+
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="section-title">
+                                Access Statistics
+                            </h5>
+
+                            <p class="section-subtitle">
+                                Thống kê lượt truy cập tài liệu theo tháng/năm.
+                            </p>
+                        </div>
+
+                        <span class="badge bg-primary rounded-pill px-3 py-2">
+                            Access
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="summary-box mb-3">
+
+                        <div class="text-muted">
+                            Period:
+                            <span class="fw-semibold"
+                                  th:text="${accessStatistics.period}">
+                                month
+                            </span>
+                        </div>
+
+                        <div class="text-muted">
+                            From:
+                            <span th:text="${accessStatistics.fromDate}">
+                                2026-01-01
+                            </span>
+
+                            -
+
+                            To:
+                            <span th:text="${accessStatistics.toDate}">
+                                2026-12-31
+                            </span>
+                        </div>
+
+                        <div class="text-muted">
+                            Category:
+                            <span th:if="${accessStatistics.categoryId != null}"
+                                  th:text="${accessStatistics.categoryId}">
+                                1
+                            </span>
+
+                            <span th:if="${accessStatistics.categoryId == null}">
+                                All
+                            </span>
+                        </div>
+
+                        <div class="stat-number text-primary mt-2"
+                             th:text="${accessStatistics.total}">
+                            0
+                        </div>
+
+                        <div class="text-muted">
+                            Total accesses
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+
+                            <thead>
+                            <tr>
+                                <th style="width: 50%;">Time</th>
+                                <th>Total Accesses</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+
+                            <tr th:each="item : ${accessStatistics.data}">
+                                <td th:text="${item.label}">
+                                    2026-01
+                                </td>
+
+                                <td class="fw-bold text-primary"
+                                    th:text="${item.total}">
+                                    0
+                                </td>
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(accessStatistics.data)}">
+                                <td colspan="2" class="text-center empty-row">
+                                    No access data found.
+                                </td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- BORROW STATISTICS -->
+        <div class="col-md-6">
+            <div class="card dashboard-card h-100">
+
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="section-title">
+                                Borrow Statistics
+                            </h5>
+
+                            <p class="section-subtitle">
+                                Thống kê lượt mượn học liệu theo tháng/năm.
+                            </p>
+                        </div>
+
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            Borrow
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="summary-box mb-3">
+
+                        <div class="text-muted">
+                            Period:
+                            <span class="fw-semibold"
+                                  th:text="${borrowStatistics.period}">
+                                month
+                            </span>
+                        </div>
+
+                        <div class="text-muted">
+                            From:
+                            <span th:text="${borrowStatistics.fromDate}">
+                                2026-01-01
+                            </span>
+
+                            -
+
+                            To:
+                            <span th:text="${borrowStatistics.toDate}">
+                                2026-12-31
+                            </span>
+                        </div>
+
+                        <div class="text-muted">
+                            Status:
+                            <span th:if="${borrowStatistics.status != null}"
+                                  th:text="${borrowStatistics.status}">
+                                BORROWING
+                            </span>
+
+                            <span th:if="${borrowStatistics.status == null}">
+                                All
+                            </span>
+                        </div>
+
+                        <div class="stat-number text-success mt-2"
+                             th:text="${borrowStatistics.total}">
+                            0
+                        </div>
+
+                        <div class="text-muted">
+                            Total borrows
+                        </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+
+                            <thead>
+                            <tr>
+                                <th style="width: 50%;">Time</th>
+                                <th>Total Borrows</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+
+                            <tr th:each="item : ${borrowStatistics.data}">
+                                <td th:text="${item.label}">
+                                    2026-01
+                                </td>
+
+                                <td class="fw-bold text-success"
+                                    th:text="${item.total}">
+                                    0
+                                </td>
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(borrowStatistics.data)}">
+                                <td colspan="2" class="text-center empty-row">
+                                    No borrow data found.
+                                </td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
