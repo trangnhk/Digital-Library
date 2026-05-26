@@ -6,9 +6,11 @@ package com.trangnhk.controllers;
 
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
+import com.trangnhk.dto.ReviewResponseDTO;
 import com.trangnhk.services.DocumentService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import com.trangnhk.services.ReviewService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -32,6 +34,10 @@ public class ApiDocumentController {
 
     @Autowired
     private DocumentService documentService;
+    
+    @Autowired
+    private ReviewService reviewService;
+
 
     @GetMapping
     public ResponseEntity<?> getDocuments(@RequestParam Map<String, String> params,
@@ -158,5 +164,20 @@ public class ApiDocumentController {
         documentIdCookie.setHttpOnly(false);
         
         response.addCookie(documentIdCookie);
+    }
+
+    @GetMapping("/{documentId}/reviews")
+    public ResponseEntity<?> getDocumentReviews(@PathVariable("documentId") Long documentId, @RequestParam Map<String, String> params) {
+        List<ReviewResponseDTO> reviews =this.reviewService.getDocumentReviews(documentId,params);
+        if (reviews == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "timestamp", LocalDateTime.now().toString(),
+                    "status", 404,
+                    "error", "Not Found",
+                    "message", "Document not found"
+            ));
+        }
+        return ResponseEntity.ok(this.reviewService.getDocumentReviews(documentId, params));
+
     }
 }

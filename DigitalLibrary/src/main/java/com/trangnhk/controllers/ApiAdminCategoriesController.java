@@ -81,9 +81,7 @@ public class ApiAdminCategoriesController {
 
         } catch (ResponseStatusException ex) {
 
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .body(ex.getReason());
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         }
     }
 

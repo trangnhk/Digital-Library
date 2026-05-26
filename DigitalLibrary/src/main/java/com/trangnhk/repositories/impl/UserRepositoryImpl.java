@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -32,6 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
  * @author Admin
  */
 @Repository
+@PropertySource("classpath:configs.properties")
 //@Transactional
 public class UserRepositoryImpl implements UserRepository {
 
@@ -52,9 +54,7 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
 
-            int page = Integer.parseInt(
-                    params.getOrDefault("page", "1")
-            );
+            int page = Integer.parseInt(params.getOrDefault("page", "1"));
 
             if (page < 1) {
                 return 1;
@@ -70,17 +70,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     private int getSize(Map<String, String> params) {
 
-        int defaultSize = this.env.getProperty(
-                "users.page_size",
-                Integer.class,
-                10
-        );
+        int defaultSize = this.env.getProperty("users.page_size", Integer.class, 10);
 
-        int maxSize = this.env.getProperty(
-                "users.max_page_size",
-                Integer.class,
-                20
-        );
+        int maxSize = this.env.getProperty("users.max_page_size", Integer.class, 20);
 
         if (params == null) {
             return defaultSize;
@@ -88,12 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
 
-            int size = Integer.parseInt(
-                    params.getOrDefault(
-                            "size",
-                            String.valueOf(defaultSize)
-                    )
-            );
+            int size = Integer.parseInt(params.getOrDefault("size", String.valueOf(defaultSize)));
 
             if (size < 1) {
                 return defaultSize;
@@ -261,59 +248,31 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
         Query query = session.createQuery(q);
-
-        // pagination
         if (params != null) {
-
-            int pageSize = this.env.getProperty(
-                    "users.page_size",
-                    Integer.class,
-                    10
-            );
-
-            int maxPageSize = this.env.getProperty(
-                    "users.max_page_size",
-                    Integer.class,
-                    20
-            );
-
+            int pageSize = this.env.getProperty("users.page_size",Integer.class,10);
+            int maxPageSize = this.env.getProperty( "users.max_page_size",Integer.class,20);
             int page;
 
             try {
-
                 page = Integer.parseInt(
                         params.getOrDefault("page", "1")
                 );
-
                 if (page < 1) {
                     page = 1;
                 }
-
             } catch (NumberFormatException ex) {
 
                 page = 1;
             }
-
-            // size
             int size;
-
             try {
-
-                size = Integer.parseInt(
-                        params.getOrDefault(
-                                "size",
-                                String.valueOf(pageSize)
-                        )
-                );
-
+                size = Integer.parseInt( params.getOrDefault("size",String.valueOf(pageSize)));
                 if (size < 1) {
                     size = pageSize;
                 }
-
                 if (size > maxPageSize) {
                     size = maxPageSize;
                 }
-
             } catch (NumberFormatException ex) {
 
                 size = pageSize;
@@ -360,7 +319,7 @@ public class UserRepositoryImpl implements UserRepository {
                 User.class
         );
 
-        query.setParameter("role",UserRole.ROLE_LIBRARIAN);
+        query.setParameter("role", UserRole.ROLE_LIBRARIAN);
         return query.getResultList();
     }
 
