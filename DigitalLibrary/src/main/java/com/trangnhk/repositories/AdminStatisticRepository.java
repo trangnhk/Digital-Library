@@ -4,6 +4,10 @@
  */
 package com.trangnhk.repositories;
 
+import com.trangnhk.pojo.enums.BorrowStatus;
+import java.util.Date;
+import java.util.List;
+
 /**
  *
  * @author Admin
@@ -15,4 +19,9 @@ public interface AdminStatisticRepository {
     Long countTotalPendingLibrarians();
     Long countTotalBorrows();
     Long countTotalAccesses();
+    
+    List<Object[]> countAccessByMonth(Date fromDate, Date toDate, Long categoryId);
+    List<Object[]> countAccessByYear(Date fromDate, Date toDate, Long categoryId);
+    List<Object[]> countBorrowsByMonth(Date fromDate, Date toDate, BorrowStatus status, String ownerUsername);
+    List<Object[]> countBorrowsByYear(Date fromDate, Date toDate, BorrowStatus status, String ownerUsername);
 }

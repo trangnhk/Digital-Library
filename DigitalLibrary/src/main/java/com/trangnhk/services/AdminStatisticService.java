@@ -4,7 +4,9 @@
  */
 package com.trangnhk.services;
 
+import com.trangnhk.dto.AdminStatisticResponseDTO;
 import com.trangnhk.dto.AdminStatisticsOverViewDTO;
+import java.util.Map;
 
 /**
  *
@@ -12,4 +14,6 @@ import com.trangnhk.dto.AdminStatisticsOverViewDTO;
  */
 public interface AdminStatisticService {
     AdminStatisticsOverViewDTO getOverview();
+    AdminStatisticResponseDTO getAccessStatistics(Map<String, String> params);
+    AdminStatisticResponseDTO getBorrowStatistics(Map<String, String> params, String username);
 }
