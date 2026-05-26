@@ -4,6 +4,7 @@
  */
 package com.trangnhk.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.trangnhk.pojo.Review;
 import java.util.Date;
 
@@ -19,7 +20,8 @@ public class ReviewResponseDTO {
     private String comment;
 
     private String username;
-
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date createdAt;
 
     public static ReviewResponseDTO fromReview(Review review) {

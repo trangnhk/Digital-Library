@@ -38,12 +38,12 @@ public class ApiReviewController {
     }
 
     @PatchMapping("/{reviewId}")
-    public ResponseEntity<?> updateReview(@PathVariable Long reviewId, @RequestBody UpdateReviewRequestDTO dto, Principal principal) {
+    public ResponseEntity<?> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody UpdateReviewRequestDTO dto, Principal principal) {
         return ResponseEntity.ok(this.reviewService.updateReview(reviewId, dto, principal.getName()));
     }
 
-    @DeleteMapping("/{reviewId")
-    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId, Principal principal) {
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable("reviewId") Long reviewId, Principal principal) {
         this.reviewService.deleteReview(reviewId, principal.getName());
 
         return ResponseEntity.noContent().build();
