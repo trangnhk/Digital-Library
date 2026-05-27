@@ -7,6 +7,7 @@ package com.trangnhk.repositories.impl;
 import com.trangnhk.pojo.Document;
 import com.trangnhk.pojo.Review;
 import com.trangnhk.pojo.User;
+import com.trangnhk.pojo.enums.DocumentType;
 import com.trangnhk.repositories.DocumentRepository;
 import com.trangnhk.utils.AdminDocumentSorts;
 import com.trangnhk.utils.DocumentSorts;
@@ -197,7 +198,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
         String documentType = params.get("documentType");
         if (documentType != null && !documentType.trim().isEmpty()) {
-            query.setParameter("documentType", documentType.trim());
+            query.setParameter("documentType", DocumentType.valueOf(documentType.trim().toUpperCase()));
         }
 
         String premium = params.get("premium");
