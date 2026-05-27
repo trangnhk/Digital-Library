@@ -7,11 +7,15 @@ package com.trangnhk.controllers;
 import com.trangnhk.dto.AdminStatisticResponseDTO;
 import com.trangnhk.dto.AdminStatisticsOverViewDTO;
 import com.trangnhk.dto.PageResponseDTO;
+import com.trangnhk.dto.UserResponseDTO;
 import com.trangnhk.services.AdminStatisticService;
+import com.trangnhk.services.CategoryService;
 import com.trangnhk.services.SecureDocumentService;
+import com.trangnhk.services.UserService;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,32 +28,39 @@ import org.springframework.web.server.ResponseStatusException;
  *
  * @author Admin
  */
-
 @Controller
 public class AdminController {
+
     @Autowired
     private SecureDocumentService docService;
-    
+
     @Autowired
     private AdminStatisticService adminStatisticService;
+
+    @Autowired
+    private UserService userService;
     
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping("/admin/login")
-    public String loginView(){
+    public String loginView() {
+        
         return "admin/login";
     }
-    
+
     @GetMapping("/admin")
     public String dashboard(Model model) {
         model.addAttribute("title", "Dashboard");
-        
+
         AdminStatisticsOverViewDTO overview = this.adminStatisticService.getOverview();
         model.addAttribute("overview", overview);
-        
+
         return "admin/dashboard";
     }
-    
+
     @GetMapping("/admin/documents")
-    public String documentsView(@RequestParam Map<String, String> params, Model model){
+    public String documentsView(@RequestParam Map<String, String> params, Model model) {
         PageResponseDTO documentsPage = this.docService.getAdminDocuments(params);
 
         model.addAttribute("title", "Documents Management");
@@ -63,6 +74,8 @@ public class AdminController {
         model.addAttribute("sort", params.getOrDefault("sort", "newest"));
         model.addAttribute("page", params.getOrDefault("page", "1"));
         model.addAttribute("size", params.getOrDefault("size", "10"));
+
+        model.addAttribute("categories", categoryService.getCates());
 
         model.addAttribute("content", "~{admin/documents :: documentsContent}");
 
@@ -153,5 +166,26 @@ public class AdminController {
 
         return result;
     }
-    
+
+    @GetMapping("/admin/librarians/pending")
+    public String pendingLibrarians(Model model) {
+
+        model.addAttribute("librarians", userService.getPendingLibrarians());
+        model.addAttribute("content", "~{admin/librarians :: pendingLibrariansContent}");
+        return "admin/librarians";
+    }
+
+    @GetMapping("/admin/users")
+    public String usersView(
+            @RequestParam Map<String, String> params,
+            Model model
+    ) {
+
+        List<UserResponseDTO> users = userService.getUsers(params);
+
+        model.addAttribute("title", "Users Management");
+        model.addAttribute("users", users);
+
+        return "admin/users";
+    }
 }

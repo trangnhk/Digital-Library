@@ -1,893 +1,906 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Documents Management</title>
+    <head>
+        <meta charset="UTF-8">
+        <title>Documents Management</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+              rel="stylesheet">
 
-    <style>
-        body {
-            background-color: #f5f7fb;
-            color: #212529;
-        }
+        <style>
+            body {
+                background-color: #f5f7fb;
+                color: #212529;
+            }
 
-        .dashboard-card {
-            border: 1px solid #dee2e6;
-            border-radius: 14px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-            background-color: #ffffff;
-            overflow: hidden;
-        }
+            .dashboard-card {
+                border: 1px solid #dee2e6;
+                border-radius: 14px;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+                background-color: #ffffff;
+                overflow: hidden;
+            }
 
-        .header-card {
-            border-left: 5px solid #0d6efd;
-        }
+            .header-card {
+                border-left: 5px solid #0d6efd;
+            }
 
-        .card-header {
-            border-bottom: 1px solid #dee2e6;
-        }
+            .card-header {
+                border-bottom: 1px solid #dee2e6;
+            }
 
-        .section-title {
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
+            .section-title {
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
 
-        .section-subtitle {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 0;
-        }
+            .section-subtitle {
+                font-size: 14px;
+                color: #6c757d;
+                margin-bottom: 0;
+            }
 
-        .form-label {
-            font-size: 14px;
-            color: #343a40;
-        }
+            .form-label {
+                font-size: 14px;
+                color: #343a40;
+            }
 
-        .form-control,
-        .form-select {
-            border-radius: 10px;
-            border: 1px solid #ced4da;
-            min-height: 44px;
-            font-size: 14px;
-        }
+            .form-control,
+            .form-select {
+                border-radius: 10px;
+                border: 1px solid #ced4da;
+                min-height: 44px;
+                font-size: 14px;
+            }
 
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.18rem rgba(13, 110, 253, 0.18);
-        }
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.18rem rgba(13, 110, 253, 0.18);
+            }
 
-        .btn {
-            border-radius: 10px;
-            font-weight: 600;
-        }
+            .btn {
+                border-radius: 10px;
+                font-weight: 600;
+            }
 
-        .filter-badge {
-            border-radius: 999px;
-            padding: 8px 12px;
-            font-weight: 600;
-            background-color: #ffffff;
-        }
+            .filter-badge {
+                border-radius: 999px;
+                padding: 8px 12px;
+                font-weight: 600;
+                background-color: #ffffff;
+            }
 
-        .documents-table {
-            margin-bottom: 0;
-        }
+            .documents-table {
+                margin-bottom: 0;
+            }
 
-        .documents-table th {
-            background-color: #f8f9fa;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            color: #495057;
-            border-bottom: 2px solid #dee2e6;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
+            .documents-table th {
+                background-color: #f8f9fa;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                color: #495057;
+                border-bottom: 2px solid #dee2e6;
+                white-space: nowrap;
+                vertical-align: middle;
+            }
 
-        .documents-table td {
-            vertical-align: middle;
-            font-size: 14px;
-        }
+            .documents-table td {
+                vertical-align: middle;
+                font-size: 14px;
+            }
 
-        .documents-table tbody tr:hover {
-            background-color: #f8fbff;
-        }
+            .documents-table tbody tr:hover {
+                background-color: #f8fbff;
+            }
 
-        .document-id-box {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 42px;
-            height: 32px;
-            border-radius: 8px;
-            background-color: #f1f3f5;
-            border: 1px solid #dee2e6;
-            font-weight: 700;
-            color: #495057;
-        }
+            .document-id-box {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 42px;
+                height: 32px;
+                border-radius: 8px;
+                background-color: #f1f3f5;
+                border: 1px solid #dee2e6;
+                font-weight: 700;
+                color: #495057;
+            }
 
-        .document-title {
-            font-weight: 700;
-            color: #212529;
-            line-height: 1.35;
-        }
+            .document-title {
+                font-weight: 700;
+                color: #212529;
+                line-height: 1.35;
+            }
 
-        .document-meta {
-            color: #6c757d;
-            font-size: 13px;
-            margin-top: 4px;
-        }
+            .document-meta {
+                color: #6c757d;
+                font-size: 13px;
+                margin-top: 4px;
+            }
 
-        .table-badge,
-        .status-badge {
-            border-radius: 999px;
-            padding: 7px 11px;
-            font-weight: 700;
-            font-size: 12px;
-        }
+            .table-badge,
+            .status-badge {
+                border-radius: 999px;
+                padding: 7px 11px;
+                font-weight: 700;
+                font-size: 12px;
+            }
 
-        .views-number {
-            font-weight: 700;
-            color: #495057;
-        }
+            .views-number {
+                font-weight: 700;
+                color: #495057;
+            }
 
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+            .action-buttons {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
 
-        .action-buttons .btn {
-            padding: 6px 12px;
-            font-size: 13px;
-        }
+            .action-buttons .btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
 
-        .empty-state {
-            border: 1px dashed #ffc107;
-            border-radius: 12px;
-            background-color: #fff9e6;
-            color: #664d03;
-            padding: 18px;
-        }
+            .empty-state {
+                border: 1px dashed #ffc107;
+                border-radius: 12px;
+                background-color: #fff9e6;
+                color: #664d03;
+                padding: 18px;
+            }
 
-        .pagination .page-link {
-            border-radius: 9px;
-            margin-left: 6px;
-            font-weight: 600;
-        }
+            .pagination .page-link {
+                border-radius: 9px;
+                margin-left: 6px;
+                font-weight: 600;
+            }
 
-        .api-message {
-            display: none;
-        }
+            .api-message {
+                display: none;
+            }
 
-        .api-message.show {
-            display: block;
-        }
-    </style>
-</head>
+            .api-message.show {
+                display: block;
+            }
+        </style>
+    </head>
 
-<body>
+    <body>
 
-<div class="container mt-5 mb-5" th:fragment="documentsContent">
+        <div class="container mt-5 mb-5" th:fragment="documentsContent">
 
-    <!-- HEADER -->
-    <div class="card dashboard-card header-card mb-4">
-        <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <!-- HEADER -->
+            <div class="card dashboard-card header-card mb-4">
+                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-            <div>
-                <h1 class="h3 fw-bold mb-1">
-                    Document Management
-                </h1>
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">
+                            Document Management
+                        </h1>
 
-                <p class="text-muted mb-0">
-                    View, filter, approve and reject documents in the digital library.
-                </p>
+                        <p class="text-muted mb-0">
+                            View, filter, approve and reject documents in the digital library.
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap align-items-center">
+                        <a th:href="@{/admin}" class="btn btn-outline-secondary">
+                            Back to Dashboard
+                        </a>
+
+                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill"
+                              th:text="'Total: ' + ${documentsPage.totalItems}">
+                            Total: 0
+                        </span>
+                    </div>
+
+                </div>
             </div>
 
-            <div class="d-flex gap-2 flex-wrap align-items-center">
-                <a th:href="@{/admin}" class="btn btn-outline-secondary">
-                    Back to Dashboard
-                </a>
-
-                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill"
-                      th:text="'Total: ' + ${documentsPage.totalItems}">
-                    Total: 0
+            <!-- API MESSAGE -->
+            <div id="apiMessage" class="alert api-message mb-4" role="alert">
+                <span id="apiMessageText">
+                    Message
                 </span>
             </div>
 
-        </div>
-    </div>
+            <!-- FILTER FORM -->
+            <div class="card dashboard-card mb-4">
 
-    <!-- API MESSAGE -->
-    <div id="apiMessage" class="alert api-message mb-4" role="alert">
-        <span id="apiMessageText">
-            Message
-        </span>
-    </div>
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="section-title">
+                                Filter Documents
+                            </h5>
 
-    <!-- FILTER FORM -->
-    <div class="card dashboard-card mb-4">
+                            <p class="section-subtitle">
+                                Search documents by keyword, status, category, uploader and sort order.
+                            </p>
+                        </div>
 
-        <div class="card-header bg-white">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
-                    <h5 class="section-title">
-                        Filter Documents
-                    </h5>
-
-                    <p class="section-subtitle">
-                        Search documents by keyword, status, category, uploader and sort order.
-                    </p>
+                        <span class="badge bg-primary rounded-pill px-3 py-2">
+                            Query Filter
+                        </span>
+                    </div>
                 </div>
 
-                <span class="badge bg-primary rounded-pill px-3 py-2">
-                    Query Filter
-                </span>
-            </div>
-        </div>
+                <div class="card-body">
 
-        <div class="card-body">
+                    <form th:action="@{/admin/documents}" method="get" class="row g-3">
 
-            <form th:action="@{/admin/documents}" method="get" class="row g-3">
+                        <!-- Keyword -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                Keyword
+                            </label>
 
-                <!-- Keyword -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">
-                        Keyword
-                    </label>
+                            <input type="text"
+                                   name="keyword"
+                                   class="form-control"
+                                   placeholder="Search by title, author, publisher..."
+                                   th:value="${keyword}">
+                        </div>
 
-                    <input type="text"
-                           name="keyword"
-                           class="form-control"
-                           placeholder="Search by title, author, publisher..."
-                           th:value="${keyword}">
-                </div>
+                        <!-- Approved status -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">
+                                Status
+                            </label>
 
-                <!-- Approved status -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">
-                        Status
-                    </label>
+                            <select name="approved" class="form-select">
+                                <option value="" th:selected="${approved == ''}">
+                                    All
+                                </option>
 
-                    <select name="approved" class="form-select">
-                        <option value="" th:selected="${approved == ''}">
-                            All
-                        </option>
+                                <option value="false" th:selected="${approved == 'false'}">
+                                    Pending
+                                </option>
 
-                        <option value="false" th:selected="${approved == 'false'}">
-                            Pending
-                        </option>
-
-                        <option value="true" th:selected="${approved == 'true'}">
-                            Approved
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Category -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">
-                        Category ID
-                    </label>
-
-                    <input type="number"
-                           name="categoryId"
-                           class="form-control"
-                           placeholder="Optional"
-                           th:value="${categoryId}">
-                </div>
-
-                <!-- Upload by -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">
-                        Upload By
-                    </label>
-
-                    <input type="number"
-                           name="uploadBy"
-                           class="form-control"
-                           placeholder="User ID"
-                           th:value="${uploadBy}">
-                </div>
-
-                <!-- Size -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">
-                        Page Size
-                    </label>
-
-                    <input type="number"
-                           name="size"
-                           class="form-control"
-                           min="1"
-                           max="20"
-                           th:value="${size}">
-                </div>
-
-                <!-- Sort -->
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">
-                        Sort
-                    </label>
-
-                    <select name="sort" class="form-select">
-                        <option value="newest" th:selected="${sort == 'newest'}">
-                            Newest first
-                        </option>
-
-                        <option value="pending" th:selected="${sort == 'pending'}">
-                            Pending first
-                        </option>
-
-                        <option value="approved" th:selected="${sort == 'approved'}">
-                            Approved first
-                        </option>
-
-                        <option value="title" th:selected="${sort == 'title'}">
-                            Title A-Z
-                        </option>
-
-                        <option value="publishYear" th:selected="${sort == 'publishYear'}">
-                            Publish year newest
-                        </option>
-
-                        <option value="popular" th:selected="${sort == 'popular'}">
-                            Most viewed
-                        </option>
-                    </select>
-                </div>
-
-                <input type="hidden" name="page" value="1">
-
-                <!-- Actions -->
-                <div class="col-md-8 d-flex align-items-end justify-content-end gap-2 flex-wrap">
-
-                    <button type="submit" class="btn btn-primary px-4">
-                        Apply Filter
-                    </button>
-
-                    <a th:href="@{/admin/documents}"
-                       class="btn btn-outline-secondary px-4">
-                        Clear Filter
-                    </a>
-
-                    <a th:href="@{/admin/documents(approved=false, sort='pending')}"
-                       class="btn btn-outline-warning px-4">
-                        View Pending
-                    </a>
-
-                    <a th:href="@{/admin/documents(approved=true, sort='newest')}"
-                       class="btn btn-outline-success px-4">
-                        View Approved
-                    </a>
-
-                </div>
-
-            </form>
-
-            <div class="text-muted mt-3" style="font-size: 13px;">
-                Query được gửi theo dạng:
-                <code>
-                    /admin/documents?keyword=spring&amp;approved=false&amp;categoryId=1&amp;uploadBy=2&amp;sort=pending&amp;size=10
-                </code>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ACTIVE FILTER SUMMARY -->
-    <div class="mb-3 d-flex flex-wrap gap-2">
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${keyword != null && keyword != ''}"
-              th:text="'Keyword: ' + ${keyword}">
-            Keyword
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${keyword == null || keyword == ''}">
-            Keyword: All
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${approved == 'false'}">
-            Status: Pending
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${approved == 'true'}">
-            Status: Approved
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${approved == null || approved == ''}">
-            Status: All
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${categoryId != null && categoryId != ''}"
-              th:text="'Category ID: ' + ${categoryId}">
-            Category
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${categoryId == null || categoryId == ''}">
-            Category: All
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${uploadBy != null && uploadBy != ''}"
-              th:text="'Upload By: ' + ${uploadBy}">
-            Upload By
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:if="${uploadBy == null || uploadBy == ''}">
-            Upload By: All
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:text="'Sort: ' + ${sort}">
-            Sort
-        </span>
-
-        <span class="badge text-dark border filter-badge"
-              th:text="'Size: ' + ${size}">
-            Size
-        </span>
-
-    </div>
-
-    <!-- DOCUMENT TABLE -->
-    <div class="card dashboard-card">
-
-        <div class="card-header bg-white">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
-                    <h5 class="section-title">
-                        Documents
-                    </h5>
-
-                    <p class="section-subtitle">
-                        List of documents matching the current filters.
-                    </p>
-                </div>
-
-                <small class="text-muted fw-semibold"
-                       th:text="'Page ' + ${documentsPage.page} + ' of ' + ${documentsPage.totalPages}">
-                    Page 1 of 1
-                </small>
-            </div>
-        </div>
-
-        <div class="card-body p-0">
-
-            <!-- Empty state -->
-            <div th:if="${#lists.isEmpty(documents)}" class="p-4">
-                <div class="empty-state mb-0">
-                    No documents found. Try changing your filters.
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="table-responsive" th:if="${!#lists.isEmpty(documents)}">
-
-                <table class="table table-bordered table-hover align-middle documents-table">
-
-                    <thead>
-                    <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th style="min-width: 280px;">Document</th>
-                        <th style="min-width: 140px;">Category</th>
-                        <th style="min-width: 140px;">Uploader</th>
-                        <th style="width: 110px;">Type</th>
-                        <th style="width: 110px;">Views</th>
-                        <th style="width: 130px;">Premium</th>
-                        <th style="width: 130px;">Status</th>
-                        <th style="min-width: 180px;">Action</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-
-                    <tr th:each="d : ${documents}">
-
-                        <!-- ID -->
-                        <td>
-                            <span class="document-id-box"
-                                  th:text="${d.id}">
-                                1
-                            </span>
-                        </td>
-
-                        <!-- Document info -->
-                        <td>
-                            <div class="document-title" th:text="${d.title}">
-                                Spring Boot Basic
-                            </div>
-
-                            <div class="document-meta">
-                                <span th:text="${d.author}">Author</span>
-
-                                <span th:if="${d.publisher != null}">
-                                    ·
-                                    <span th:text="${d.publisher}">Publisher</span>
-                                </span>
-
-                                <span th:if="${d.publishYear != null}">
-                                    ·
-                                    <span th:text="${d.publishYear}">2026</span>
-                                </span>
-                            </div>
-                        </td>
+                                <option value="true" th:selected="${approved == 'true'}">
+                                    Approved
+                                </option>
+                            </select>
+                        </div>
 
                         <!-- Category -->
-                        <td>
-                            <span th:if="${d.categoryName != null}"
-                                  class="badge bg-light text-dark border table-badge"
-                                  th:text="${d.categoryName}">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
                                 Category
-                            </span>
+                            </label>
 
-                            <span th:if="${d.categoryName == null}"
-                                  class="text-muted">
-                                N/A
-                            </span>
-                        </td>
+                            <select class="form-select"
+                                    name="categoryId">
 
-                        <!-- Uploader -->
-                        <td>
-                            <span th:if="${d.uploadedByUsername != null}"
-                                  class="fw-semibold"
-                                  th:text="${d.uploadedByUsername}">
-                                librarian01
-                            </span>
+                                <option value=""
+                                        th:selected="${categoryId == null || categoryId == ''}">
+                                    All
+                                </option>
 
-                            <span th:if="${d.uploadedByUsername == null}"
-                                  class="text-muted">
-                                N/A
-                            </span>
-                        </td>
+                                <option th:each="c : ${categories}"
+                                        th:value="${c.id}"
+                                        th:text="${c.name}"
+                                        th:selected="${categoryId == c.id.toString()}">
+                                </option>
 
-                        <!-- Type -->
-                        <td>
-                            <span class="badge bg-secondary table-badge"
-                                  th:text="${d.documentType}">
-                                PDF
-                            </span>
-                        </td>
+                            </select>
+                        </div>
 
-                        <!-- Views -->
-                        <td>
-                            <span class="views-number"
-                                  th:text="${d.totalViews != null ? d.totalViews : 0}">
-                                0
-                            </span>
-                        </td>
+                        <!-- Upload by -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">
+                                Upload By
+                            </label>
 
-                        <!-- Premium -->
-                        <td>
-                            <span th:if="${d.premium}"
-                                  class="badge bg-warning text-dark status-badge">
-                                Premium
-                            </span>
+                            <input type="number"
+                                   name="uploadBy"
+                                   min="1"
+                                   step="1"
+                                   oninput="this.value = this.value < 1 ? '' : this.value"
+                                   class="form-control"
+                                   placeholder="User ID"
+                                   th:value="${uploadBy}">
+                        </div>
 
-                            <span th:unless="${d.premium}"
-                                  class="badge bg-success status-badge">
-                                Free
-                            </span>
-                        </td>
+                        <!-- Size -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">
+                                Page Size
+                            </label>
 
-                        <!-- Status -->
-                        <td>
-                            <span th:if="${d.approved}"
-                                  class="badge bg-success status-badge">
-                                Approved
-                            </span>
+                            <input type="number"
+                                   name="size"
+                                   class="form-control"
+                                   min="1"
+                                   max="20"
+                                   th:value="${size}">
+                        </div>
 
-                            <span th:unless="${d.approved}"
-                                  class="badge bg-danger status-badge">
-                                Pending
-                            </span>
-                        </td>
+                        <!-- Sort -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                Sort
+                            </label>
 
-                        <!-- Action -->
-                        <td>
-                            <div class="action-buttons">
+                            <select name="sort" class="form-select">
+                                <option value="newest" th:selected="${sort == 'newest'}">
+                                    Newest first
+                                </option>
 
-                                <!-- Nếu pending: hiện Approve + Reject -->
-                                <button type="button"
-                                        th:unless="${d.approved}"
-                                        class="btn btn-success btn-sm approve-document-btn"
-                                        th:attr="data-document-id=${d.id}, data-document-title=${d.title}">
-                                    Approve
-                                </button>
+                                <option value="pending" th:selected="${sort == 'pending'}">
+                                    Pending first
+                                </option>
 
-                                <!-- Pending hoặc Approved đều có Reject -->
-                                <button type="button"
-                                        class="btn btn-outline-danger btn-sm reject-document-btn"
-                                        th:attr="data-document-id=${d.id}, data-document-title=${d.title}">
-                                    Reject
-                                </button>
+                                <option value="approved" th:selected="${sort == 'approved'}">
+                                    Approved first
+                                </option>
 
-                            </div>
-                        </td>
+                                <option value="title" th:selected="${sort == 'title'}">
+                                    Title A-Z
+                                </option>
 
-                    </tr>
+                                <option value="publishYear" th:selected="${sort == 'publishYear'}">
+                                    Publish year newest
+                                </option>
 
-                    </tbody>
+                                <option value="popular" th:selected="${sort == 'popular'}">
+                                    Most viewed
+                                </option>
+                            </select>
+                        </div>
 
-                </table>
+                        <input type="hidden" name="page" value="1">
+
+                        <!-- Actions -->
+                        <div class="col-md-8 d-flex align-items-end justify-content-end gap-2 flex-wrap">
+
+                            <button type="submit" class="btn btn-primary px-4">
+                                Apply Filter
+                            </button>
+
+                            <a th:href="@{/admin/documents}"
+                               class="btn btn-outline-secondary px-4">
+                                Clear Filter
+                            </a>
+
+<!--                            <a th:href="@{/admin/documents(approved=false, sort='pending')}"
+                               class="btn btn-outline-warning px-4">
+                                View Pending
+                            </a>
+
+                            <a th:href="@{/admin/documents(approved=true, sort='newest')}"
+                               class="btn btn-outline-success px-4">
+                                View Approved
+                            </a>-->
+
+                        </div>
+
+                    </form>
+
+                    <div class="text-muted mt-3" style="font-size: 13px;">
+                        Query được gửi theo dạng:
+                        <code>
+                            /admin/documents?keyword=spring&amp;approved=false&amp;categoryId=1&amp;uploadBy=2&amp;sort=pending&amp;size=10
+                        </code>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ACTIVE FILTER SUMMARY -->
+            <div class="mb-3 d-flex flex-wrap gap-2">
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${keyword != null && keyword != ''}"
+                      th:text="'Keyword: ' + ${keyword}">
+                    Keyword
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${keyword == null || keyword == ''}">
+                    Keyword: All
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${approved == 'false'}">
+                    Status: Pending
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${approved == 'true'}">
+                    Status: Approved
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${approved == null || approved == ''}">
+                    Status: All
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${categoryId != null && categoryId != ''}"
+                      th:text="'Category ID: ' + ${categoryId}">
+                    Category
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${categoryId == null || categoryId == ''}">
+                    Category: All
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${uploadBy != null && uploadBy != ''}"
+                      th:text="'Upload By: ' + ${uploadBy}">
+                    Upload By
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:if="${uploadBy == null || uploadBy == ''}">
+                    Upload By: All
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:text="'Sort: ' + ${sort}">
+                    Sort
+                </span>
+
+                <span class="badge text-dark border filter-badge"
+                      th:text="'Size: ' + ${size}">
+                    Size
+                </span>
+
+            </div>
+
+            <!-- DOCUMENT TABLE -->
+            <div class="card dashboard-card">
+
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h5 class="section-title">
+                                Documents
+                            </h5>
+
+                            <p class="section-subtitle">
+                                List of documents matching the current filters.
+                            </p>
+                        </div>
+
+                        <small class="text-muted fw-semibold"
+                               th:text="'Page ' + ${documentsPage.page} + ' of ' + ${documentsPage.totalPages}">
+                            Page 1 of 1
+                        </small>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+
+                    <!-- Empty state -->
+                    <div th:if="${#lists.isEmpty(documents)}" class="p-4">
+                        <div class="empty-state mb-0">
+                            No documents found. Try changing your filters.
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive" th:if="${!#lists.isEmpty(documents)}">
+
+                        <table class="table table-bordered table-hover align-middle documents-table">
+
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">ID</th>
+                                    <th style="min-width: 280px;">Document</th>
+                                    <th style="min-width: 140px;">Category</th>
+                                    <th style="min-width: 140px;">Uploader</th>
+                                    <th style="width: 110px;">Type</th>
+                                    <th style="width: 110px;">Views</th>
+                                    <th style="width: 130px;">Premium</th>
+                                    <th style="width: 130px;">Status</th>
+                                    <th style="min-width: 180px;">Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr th:each="d : ${documents}">
+
+                                    <!-- ID -->
+                                    <td>
+                                        <span class="document-id-box"
+                                              th:text="${d.id}">
+                                            1
+                                        </span>
+                                    </td>
+
+                                    <!-- Document info -->
+                                    <td>
+                                        <div class="document-title" th:text="${d.title}">
+                                            Spring Boot Basic
+                                        </div>
+
+                                        <div class="document-meta">
+                                            <span th:text="${d.author}">Author</span>
+
+                                            <span th:if="${d.publisher != null}">
+                                                ·
+                                                <span th:text="${d.publisher}">Publisher</span>
+                                            </span>
+
+                                            <span th:if="${d.publishYear != null}">
+                                                ·
+                                                <span th:text="${d.publishYear}">2026</span>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Category -->
+                                    <td>
+                                        <span th:if="${d.categoryName != null}"
+                                              class="badge bg-light text-dark border table-badge"
+                                              th:text="${d.categoryName}">
+                                            Category
+                                        </span>
+
+                                        <span th:if="${d.categoryName == null}"
+                                              class="text-muted">
+                                            N/A
+                                        </span>
+                                    </td>
+
+                                    <!-- Uploader -->
+                                    <td>
+                                        <span th:if="${d.uploadedByUsername != null}"
+                                              class="fw-semibold"
+                                              th:text="${d.uploadedByUsername}">
+                                            librarian01
+                                        </span>
+
+                                        <span th:if="${d.uploadedByUsername == null}"
+                                              class="text-muted">
+                                            N/A
+                                        </span>
+                                    </td>
+
+                                    <!-- Type -->
+                                    <td>
+                                        <span class="badge bg-secondary table-badge"
+                                              th:text="${d.documentType}">
+                                            PDF
+                                        </span>
+                                    </td>
+
+                                    <!-- Views -->
+                                    <td>
+                                        <span class="views-number"
+                                              th:text="${d.totalViews != null ? d.totalViews : 0}">
+                                            0
+                                        </span>
+                                    </td>
+
+                                    <!-- Premium -->
+                                    <td>
+                                        <span th:if="${d.premium}"
+                                              class="badge bg-warning text-dark status-badge">
+                                            Premium
+                                        </span>
+
+                                        <span th:unless="${d.premium}"
+                                              class="badge bg-success status-badge">
+                                            Free
+                                        </span>
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td>
+                                        <span th:if="${d.approved}"
+                                              class="badge bg-success status-badge">
+                                            Approved
+                                        </span>
+
+                                        <span th:unless="${d.approved}"
+                                              class="badge bg-danger status-badge">
+                                            Pending
+                                        </span>
+                                    </td>
+
+                                    <!-- Action -->
+                                    <td>
+                                        <div class="action-buttons">
+
+                                            <!-- Nếu pending: hiện Approve + Reject -->
+                                            <button type="button"
+                                                    th:unless="${d.approved}"
+                                                    class="btn btn-success btn-sm approve-document-btn"
+                                                    th:attr="data-document-id=${d.id}, data-document-title=${d.title}">
+                                                Approve
+                                            </button>
+
+                                            <!-- Pending hoặc Approved đều có Reject -->
+                                            <button type="button"
+                                                    class="btn btn-outline-danger btn-sm reject-document-btn"
+                                                    th:attr="data-document-id=${d.id}, data-document-title=${d.title}">
+                                                Reject
+                                            </button>
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="card-footer bg-white border-top"
+                     th:if="${documentsPage.totalPages > 1}">
+
+                    <nav>
+                        <ul class="pagination mb-0 justify-content-end">
+
+                            <!-- Previous -->
+                            <li class="page-item"
+                                th:classappend="${documentsPage.page <= 1} ? 'disabled'">
+
+                                <a class="page-link"
+                                   th:href="@{/admin/documents(
+                                   page=${documentsPage.page - 1},
+                                   size=${size},
+                                   keyword=${keyword},
+                                   approved=${approved},
+                                   categoryId=${categoryId},
+                                   uploadBy=${uploadBy},
+                                   sort=${sort}
+                                   )}">
+                                    Previous
+                                </a>
+                            </li>
+
+                            <!-- Current -->
+                            <li class="page-item disabled">
+                                <span class="page-link"
+                                      th:text="${documentsPage.page}">
+                                    1
+                                </span>
+                            </li>
+
+                            <!-- Next -->
+                            <li class="page-item"
+                                th:classappend="${documentsPage.page >= documentsPage.totalPages} ? 'disabled'">
+
+                                <a class="page-link"
+                                   th:href="@{/admin/documents(
+                                   page=${documentsPage.page + 1},
+                                   size=${size},
+                                   keyword=${keyword},
+                                   approved=${approved},
+                                   categoryId=${categoryId},
+                                   uploadBy=${uploadBy},
+                                   sort=${sort}
+                                   )}">
+                                    Next
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+
+                </div>
 
             </div>
 
         </div>
 
-        <!-- PAGINATION -->
-        <div class="card-footer bg-white border-top"
-             th:if="${documentsPage.totalPages > 1}">
+        <!-- REJECT MODAL -->
+        <div class="modal fade" id="rejectDocumentModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content dashboard-card">
 
-            <nav>
-                <ul class="pagination mb-0 justify-content-end">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">
+                            Reject Document
+                        </h5>
 
-                    <!-- Previous -->
-                    <li class="page-item"
-                        th:classappend="${documentsPage.page <= 1} ? 'disabled'">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
 
-                        <a class="page-link"
-                           th:href="@{/admin/documents(
-                                page=${documentsPage.page - 1},
-                                size=${size},
-                                keyword=${keyword},
-                                approved=${approved},
-                                categoryId=${categoryId},
-                                uploadBy=${uploadBy},
-                                sort=${sort}
-                           )}">
-                            Previous
-                        </a>
-                    </li>
+                    <div class="modal-body">
+                        <input type="hidden" id="rejectDocumentId">
 
-                    <!-- Current -->
-                    <li class="page-item disabled">
-                        <span class="page-link"
-                              th:text="${documentsPage.page}">
-                            1
-                        </span>
-                    </li>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Document
+                            </label>
 
-                    <!-- Next -->
-                    <li class="page-item"
-                        th:classappend="${documentsPage.page >= documentsPage.totalPages} ? 'disabled'">
+                            <input type="text"
+                                   id="rejectDocumentTitle"
+                                   class="form-control"
+                                   readonly>
+                        </div>
 
-                        <a class="page-link"
-                           th:href="@{/admin/documents(
-                                page=${documentsPage.page + 1},
-                                size=${size},
-                                keyword=${keyword},
-                                approved=${approved},
-                                categoryId=${categoryId},
-                                uploadBy=${uploadBy},
-                                sort=${sort}
-                           )}">
-                            Next
-                        </a>
-                    </li>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Reject Reason
+                            </label>
 
-                </ul>
-            </nav>
+                            <textarea id="rejectReason"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter reason for rejection..."></textarea>
+                        </div>
 
+                        <div class="alert alert-warning mb-0">
+                            This action will set document status to Pending and send a notification to the librarian.
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="button"
+                                id="confirmRejectBtn"
+                                class="btn btn-danger">
+                            Send Reject
+                        </button>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
-    </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+        </script>
 
-</div>
+        <script th:inline="javascript">
+            const contextPath = /*[[@{/}]]*/ "/";
+            const apiBaseUrl = contextPath.replace(/\/$/, "") + "/api/secure/admin/documents";
 
-<!-- REJECT MODAL -->
-<div class="modal fade" id="rejectDocumentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content dashboard-card">
+            const apiMessage = document.getElementById("apiMessage");
+            const apiMessageText = document.getElementById("apiMessageText");
 
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">
-                    Reject Document
-                </h5>
+            const rejectDocumentModalElement = document.getElementById("rejectDocumentModal");
+            const rejectDocumentModal = new bootstrap.Modal(rejectDocumentModalElement);
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
-            </div>
+            const rejectDocumentIdInput = document.getElementById("rejectDocumentId");
+            const rejectDocumentTitleInput = document.getElementById("rejectDocumentTitle");
+            const rejectReasonInput = document.getElementById("rejectReason");
+            const confirmRejectBtn = document.getElementById("confirmRejectBtn");
 
-            <div class="modal-body">
-                <input type="hidden" id="rejectDocumentId">
+            function showApiMessage(type, message) {
+                apiMessage.className = "alert api-message show mb-4 alert-" + type;
+                apiMessageText.textContent = message;
+            }
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">
-                        Document
-                    </label>
+            function setButtonsDisabled(disabled) {
+                document.querySelectorAll(".approve-document-btn, .reject-document-btn")
+                        .forEach(button => {
+                            button.disabled = disabled;
+                        });
 
-                    <input type="text"
-                           id="rejectDocumentTitle"
-                           class="form-control"
-                           readonly>
-                </div>
+                confirmRejectBtn.disabled = disabled;
+            }
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">
-                        Reject Reason
-                    </label>
+            async function callPatchApi(url, body) {
+                const options = {
+                    method: "PATCH",
+                    credentials: "include",
+                    headers: {}
+                };
 
-                    <textarea id="rejectReason"
-                              class="form-control"
-                              rows="4"
-                              placeholder="Enter reason for rejection..."></textarea>
-                </div>
+                if (body !== null && body !== undefined) {
+                    options.headers["Content-Type"] = "application/json";
+                    options.body = JSON.stringify(body);
+                }
 
-                <div class="alert alert-warning mb-0">
-                    This action will set document status to Pending and send a notification to the librarian.
-                </div>
-            </div>
+                const response = await fetch(url, options);
 
-            <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-outline-secondary"
-                        data-bs-dismiss="modal">
-                    Cancel
-                </button>
+                let data = null;
 
-                <button type="button"
-                        id="confirmRejectBtn"
-                        class="btn btn-danger">
-                    Send Reject
-                </button>
-            </div>
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    data = null;
+                }
 
-        </div>
-    </div>
-</div>
+                if (!response.ok) {
+                    const message = data && data.message
+                            ? data.message
+                            : "Request failed with status " + response.status;
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+                    throw new Error(message);
+                }
 
-<script th:inline="javascript">
-    const contextPath = /*[[@{/}]]*/ "/";
-    const apiBaseUrl = contextPath.replace(/\/$/, "") + "/api/secure/admin/documents";
+                return data;
+            }
 
-    const apiMessage = document.getElementById("apiMessage");
-    const apiMessageText = document.getElementById("apiMessageText");
+            document.querySelectorAll(".approve-document-btn").forEach(button => {
+                button.addEventListener("click", async function () {
+                    const documentId = this.dataset.documentId;
+                    const documentTitle = this.dataset.documentTitle;
 
-    const rejectDocumentModalElement = document.getElementById("rejectDocumentModal");
-    const rejectDocumentModal = new bootstrap.Modal(rejectDocumentModalElement);
+                    const confirmed = confirm("Approve document: " + documentTitle + "?");
 
-    const rejectDocumentIdInput = document.getElementById("rejectDocumentId");
-    const rejectDocumentTitleInput = document.getElementById("rejectDocumentTitle");
-    const rejectReasonInput = document.getElementById("rejectReason");
-    const confirmRejectBtn = document.getElementById("confirmRejectBtn");
+                    if (!confirmed) {
+                        return;
+                    }
 
-    function showApiMessage(type, message) {
-        apiMessage.className = "alert api-message show mb-4 alert-" + type;
-        apiMessageText.textContent = message;
-    }
+                    try {
+                        setButtonsDisabled(true);
 
-    function setButtonsDisabled(disabled) {
-        document.querySelectorAll(".approve-document-btn, .reject-document-btn")
-            .forEach(button => {
-                button.disabled = disabled;
+                        await callPatchApi(apiBaseUrl + "/" + documentId + "/approve");
+
+                        showApiMessage("success", "Document approved successfully.");
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 800);
+
+                    } catch (error) {
+                        showApiMessage("danger", error.message);
+                        setButtonsDisabled(false);
+                    }
+                });
             });
 
-        confirmRejectBtn.disabled = disabled;
-    }
+            document.querySelectorAll(".reject-document-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const documentId = this.dataset.documentId;
+                    const documentTitle = this.dataset.documentTitle;
 
-    async function callPatchApi(url, body) {
-        const options = {
-            method: "PATCH",
-            credentials: "include",
-            headers: {}
-        };
+                    rejectDocumentIdInput.value = documentId;
+                    rejectDocumentTitleInput.value = documentTitle;
+                    rejectReasonInput.value = "";
 
-        if (body !== null && body !== undefined) {
-            options.headers["Content-Type"] = "application/json";
-            options.body = JSON.stringify(body);
-        }
+                    rejectDocumentModal.show();
+                });
+            });
 
-        const response = await fetch(url, options);
+            confirmRejectBtn.addEventListener("click", async function () {
+                const documentId = rejectDocumentIdInput.value;
+                const reason = rejectReasonInput.value.trim();
 
-        let data = null;
-
-        try {
-            data = await response.json();
-        } catch (error) {
-            data = null;
-        }
-
-        if (!response.ok) {
-            const message = data && data.message
-                ? data.message
-                : "Request failed with status " + response.status;
-
-            throw new Error(message);
-        }
-
-        return data;
-    }
-
-    document.querySelectorAll(".approve-document-btn").forEach(button => {
-        button.addEventListener("click", async function () {
-            const documentId = this.dataset.documentId;
-            const documentTitle = this.dataset.documentTitle;
-
-            const confirmed = confirm("Approve document: " + documentTitle + "?");
-
-            if (!confirmed) {
-                return;
-            }
-
-            try {
-                setButtonsDisabled(true);
-
-                await callPatchApi(apiBaseUrl + "/" + documentId + "/approve");
-
-                showApiMessage("success", "Document approved successfully.");
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 800);
-
-            } catch (error) {
-                showApiMessage("danger", error.message);
-                setButtonsDisabled(false);
-            }
-        });
-    });
-
-    document.querySelectorAll(".reject-document-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            const documentId = this.dataset.documentId;
-            const documentTitle = this.dataset.documentTitle;
-
-            rejectDocumentIdInput.value = documentId;
-            rejectDocumentTitleInput.value = documentTitle;
-            rejectReasonInput.value = "";
-
-            rejectDocumentModal.show();
-        });
-    });
-
-    confirmRejectBtn.addEventListener("click", async function () {
-        const documentId = rejectDocumentIdInput.value;
-        const reason = rejectReasonInput.value.trim();
-
-        if (!reason) {
-            rejectReasonInput.focus();
-            showApiMessage("warning", "Please enter reject reason.");
-            return;
-        }
-
-        try {
-            setButtonsDisabled(true);
-
-            await callPatchApi(
-                apiBaseUrl + "/" + documentId + "/reject",
-                {
-                    reason: reason
+                if (!reason) {
+                    rejectReasonInput.focus();
+                    showApiMessage("warning", "Please enter reject reason.");
+                    return;
                 }
-            );
 
-            rejectDocumentModal.hide();
+                try {
+                    setButtonsDisabled(true);
 
-            showApiMessage("success", "Document rejected successfully.");
+                    await callPatchApi(
+                            apiBaseUrl + "/" + documentId + "/reject",
+                            {
+                                reason: reason
+                            }
+                    );
 
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+                    rejectDocumentModal.hide();
 
-        } catch (error) {
-            showApiMessage("danger", error.message);
-            setButtonsDisabled(false);
-        }
-    });
-</script>
+                    showApiMessage("success", "Document rejected successfully.");
 
-</body>
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 800);
+
+                } catch (error) {
+                    showApiMessage("danger", error.message);
+                    setButtonsDisabled(false);
+                }
+            });
+        </script>
+
+    </body>
 </html>

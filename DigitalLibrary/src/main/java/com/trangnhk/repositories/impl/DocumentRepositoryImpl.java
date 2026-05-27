@@ -423,6 +423,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
             hql.append(" AND (LOWER(d.title) LIKE :keyword ");
             hql.append(" OR LOWER(d.author) LIKE :keyword ");
             hql.append(" AND (LOWER(d.publisher) LIKE :keyword) ");
+            hql.append(") ");
             
         }
         
@@ -466,7 +467,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         
         String uploadBy = params.get("uploadBy");
         if (uploadBy != null && !uploadBy.trim().isEmpty()){
-            query.setParameter("uplaodBy", Long.valueOf(uploadBy));
+            query.setParameter("uploadBy", Long.valueOf(uploadBy));
         }
     }
     
