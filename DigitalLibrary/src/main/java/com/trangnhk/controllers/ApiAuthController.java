@@ -14,6 +14,7 @@ import com.trangnhk.utils.JWTUtils;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.time.Duration;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -105,6 +106,21 @@ public class ApiAuthController {
             return ResponseEntity.internalServerError().body("JWT generation failed");
         }
         
+    }
+    
+    // LOgout
+    @PostMapping("/auth/logout")
+    public ResponseEntity<?> logout(){
+        ResponseCookie deleteJWTCookie = ResponseCookie.from("jwt_token", "")
+                                                       .httpOnly(true)
+                                                       .secure(false)
+                                                       .path("/")
+                                                       .maxAge(0)
+                                                       .sameSite("Lax")
+                                                       .build();
+        
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteJWTCookie.toString())
+                                  .body(Map.of("message", "Logout Successfully"));
     }
     
     // Change password
