@@ -35,7 +35,7 @@ public class ApiSecurityConfigs {
                 .authorizeHttpRequests(auth -> auth
                 // Public API
                 .requestMatchers(
-                        "admin/login",
+                        "/admin/login",
                         "/api/auth/login",
                         "/api/auth/register",
                         "/api/auth/logout",
