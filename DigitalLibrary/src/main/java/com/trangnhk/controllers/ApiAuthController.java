@@ -129,8 +129,13 @@ public class ApiAuthController {
             Principal principal,
             @Valid @RequestBody ChangePasswordRequestDTO dto
     ){
-        this.userService.changePassword(principal.getName(), dto);
+        try{
+            this.userService.changePassword(principal.getName(), dto);
         
-        return ResponseEntity.ok("Successfully change password");
+            return ResponseEntity.ok("Successfully change password");
+        }
+        catch (Exception ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 }

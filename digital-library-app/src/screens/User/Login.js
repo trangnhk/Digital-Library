@@ -53,11 +53,13 @@ const Login = () => {
 
         try {
             setLoading(true);
+            console.time("LOGIN_API");
 
             const res = await Apis.post(endpoints.login, {
                 username: user.username,
                 password: user.password
             });
+            console.timeEnd("LOGIN_API");
 
             const loginUser = {
                 username: res.data.username,

@@ -21,7 +21,7 @@ const Home = () => {
         publishYear: q.get("publishYear") || "",
         sort: q.get("sort") || "popular",
         page: q.get("page") || "1",
-        size: q.get("size") || "6"
+        size: q.get("size") || "10"
     });
 
     const loadCategories = async () => {
@@ -130,14 +130,14 @@ const Home = () => {
             publishYear: "",
             sort: "popular",
             page: "1",
-            size: "6"
+            size: "10"
         };
 
         setFilters(defaultFilters);
 
         setQ({
             page: "1",
-            size: "6",
+            size: "10",
             sort: "popular"
         });
     };
@@ -153,14 +153,6 @@ const Home = () => {
         });
 
         setQ(params);
-    };
-
-    const getThumbnail = (document) => {
-        if (document.thumbnail) {
-            return document.thumbnail;
-        }
-
-        return "https://placehold.co/600x360?text=Digital+Library";
     };
 
     const getDocumentTypeLabel = (documentType) => {
@@ -339,7 +331,7 @@ const Home = () => {
                             <Col key={d.id} xs={12} md={6} lg={4}>
                                 <Card className="h-100 shadow-sm border-0 rounded-4 overflow-hidden">
                                     <Image
-                                        src={getThumbnail(d)}
+                                        src={d.thumbnail}
                                         alt={d.title}
                                         style={{
                                             height: "180px",
