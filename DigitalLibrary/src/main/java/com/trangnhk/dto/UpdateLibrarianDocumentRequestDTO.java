@@ -21,6 +21,7 @@ public class UpdateLibrarianDocumentRequestDTO {
     private Integer publishYear;
     private Long categoryId;
     private String documentType;
+    private Boolean isPremium;
     
     @Min(value = 0, message = "Price must be positive number")
     private Double price;
@@ -123,7 +124,7 @@ public class UpdateLibrarianDocumentRequestDTO {
      * @param price the price to set
      */
     public void setPrice(Double price) {
-        this.setPrice(price);
+        this.price = price;
     }
 
     
@@ -168,6 +169,20 @@ public class UpdateLibrarianDocumentRequestDTO {
      */
     public void setFiles(List<MultipartFile> files) {
         this.files = files;
+    }
+
+    /**
+     * @return the isPremium
+     */
+    public Boolean getIsPremium() {
+        return isPremium;
+    }
+
+    /**
+     * @param isPremium the isPremium to set
+     */
+    public void setIsPremium(Boolean isPremium) {
+        this.isPremium = isPremium;
     }
 
     

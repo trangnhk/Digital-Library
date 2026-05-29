@@ -79,6 +79,9 @@ public class Document implements Serializable{
     
     @Column(name = "approved")
     private Boolean approved = false;
+    
+    @Column(name = "deleted")
+    private Boolean deleted = false;
 
     @Column(name = "total_views")
     private Integer totalViews = 0;
@@ -461,6 +464,20 @@ public class Document implements Serializable{
      */
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    /**
+     * @return the deleted
+     */
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    /**
+     * @param deleted the deleted to set
+     */
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     

@@ -16,6 +16,9 @@ export const endpoints = {
     documentFiles: (documentId) => `/documents/${documentId}/files`,
     documentReviews: (documentId) => `/documents/${documentId}/reviews`,
 
+    librarianDocuments: "/secure/librarian/documents",
+    librarianDocumentDetails: (documentId) => `/secure/librarian/documents/${documentId}`,
+
 };
 
 const Api = axios.create({

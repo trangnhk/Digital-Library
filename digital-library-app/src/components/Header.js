@@ -5,6 +5,7 @@ import cookies from "react-cookies";
 
 import { MyUserContext } from "../configs/Context";
 import Apis, { endpoints } from "../configs/Apis";
+import LibrarianHeader from "./LibrarianHeader";
 
 const Header = () => {
     const [user, dispatch] = useContext(MyUserContext);
@@ -49,7 +50,19 @@ const Header = () => {
         nav("/login");
     };
 
+    const normalizeRole = (role) => {
+        return (role || "").toUpperCase();
+    };
 
+    const isLibrarianRole = (role) => {
+        const normalizedRole = normalizeRole(role);
+
+        return normalizedRole === "ROLE_LIBRARIAN";
+    };
+
+    if (user !== null && isLibrarianRole(user.role)) {
+        return <LibrarianHeader />;
+    }
 
     return (
         <Navbar expand="lg" bg="light" className="border-bottom shadow-sm">

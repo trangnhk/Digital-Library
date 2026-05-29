@@ -137,6 +137,10 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         if (Boolean.FALSE.equals(doc.getApproved())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document is not approved");
         }
+        
+        if (Boolean.TRUE.equals(doc.getDeleted())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
+        }
 
         return doc;
 

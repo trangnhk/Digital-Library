@@ -50,6 +50,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
         hql.append("SELECT d from Document d ");
         hql.append("WHERE d.approved = true ");
+        hql.append("AND (d.deleted = false OR d.deleted IS NULL) ");
 
         this.appendFilters(hql, params);
 
@@ -233,6 +234,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
         if (!isAdmin) {
             hql.append(" AND d.uploadedBy.id = :userId");
+            hql.append(" AND d.deleted = false OR d.deleted IS NULL");
         }
 
         this.appendManagedFilters(hql, params);
@@ -305,6 +307,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
         if (!isAdmin) {
             hql.append(" AND d.uploadedBy.id = :userId");
+            hql.append(" AND d.deleted = false OR d.deleted IS NULL");
         }
 
         this.appendManagedFilters(hql, params);

@@ -20,6 +20,7 @@ import com.trangnhk.pojo.enums.DocumentType;
 import com.trangnhk.repositories.CategoryRepository;
 import com.trangnhk.repositories.DocumentFileRepository;
 import com.trangnhk.repositories.DocumentRepository;
+import com.trangnhk.repositories.PaymentRepository;
 import com.trangnhk.repositories.UserRepository;
 import com.trangnhk.services.DocumentService;
 import com.trangnhk.services.UserService;
@@ -66,6 +67,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private PaymentRepository paymentRepo;
 
     @Override
     public PageResponseDTO<DocumentResponseDTO> getPublicDocuments(Map<String, String> params) {
@@ -576,7 +580,7 @@ public class DocumentServiceImpl implements DocumentService {
             if (dto.getAuthor().trim().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Author is required");
             }
-            doc.setTitle(dto.getAuthor().trim());
+            doc.setAuthor(dto.getAuthor().trim());
 
         }
 
@@ -590,26 +594,34 @@ public class DocumentServiceImpl implements DocumentService {
 
         if (dto.getPublishYear() != null) {
             Integer yearNow = Year.now().getValue();
-            
-            if (dto.getPublishYear() > yearNow){
+
+            if (dto.getPublishYear() > yearNow) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PublishYear can't be more than this year");
             }
-            
+
             doc.setPublishYear(dto.getPublishYear());
         }
 
-        if (dto.getPrice() != null) {
-            if (dto.getPrice() < 0) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Price must be a positive number");
+        if (dto.getIsPremium() != null) {
+            doc.setPremium(dto.getIsPremium());
+
+            if (Boolean.TRUE.equals(doc.getPremium())) {
+                if (dto.getPrice() == null) {
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Price is required for premium document");
+                }
+                if (dto.getPrice() < 0) {
+                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Price must be a positive number");
+                }
+                doc.setPrice(dto.getPrice());
             }
-            doc.setPrice(dto.getPrice());
+            else{
+                doc.setPrice(0.0);
+            }
+
+            
         }
 
-        if (!Boolean.TRUE.equals(doc.getPremium())) {
-            doc.setPrice(0.0);
-        }
-
-        if (Boolean.TRUE.equals(doc.getPremium()) && doc.getPrice() != null && doc.getPrice() < 0) {
+        if (Boolean.TRUE.equals(doc.getPremium()) && dto.getPrice() != null && doc.getPrice() < 0) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Price must be positive number");
         }
 
@@ -620,18 +632,18 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         if (dto.getFiles() != null && !dto.getFiles().isEmpty()) {
-            for (MultipartFile file: dto.getFiles()) {
+            for (MultipartFile file : dto.getFiles()) {
                 this.validateDocumentFile((MultipartFile) file, finalDocType);
                 DocumentFile documentFile = this.uploadDocumentFile((MultipartFile) file, doc);
                 this.documentFileRepo.add(documentFile);
             }
         }
-        
+
         // Reset approved
         doc.setApproved(Boolean.FALSE);
-        
+
         Document updatedDoc = this.documentRepo.update(doc);
-        
+
         return LibrarianDocumentResponseDTO.fromDocument(updatedDoc);
 
     }
@@ -663,18 +675,19 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void deleteLibrarianDocument(String username, Long documentId) {
         User currentU = this.userService.getUserByUsername(username);
-        
+
         Document doc = this.documentRepo.getDocumentById(documentId);
-        
-        if (doc == null){
+
+        if (doc == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "document not found");
         }
-        
+
         this.checkCanModifyDocument(currentU, doc);
-        
+
         this.documentFileRepo.deleteByDocumentId(documentId);
-        
-        this.documentRepo.delete(doc);
+        doc.setDeleted(Boolean.TRUE);
+
+//        this.documentRepo.delete(doc);
     }
 
 }

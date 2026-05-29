@@ -42,6 +42,16 @@ const Login = () => {
         return true;
     };
 
+    const normalUser = (role) => {
+        return (role || "").toUpperCase();
+    };
+
+    const isLirarianRole = (role) => {
+        const normalizedRole = normalUser(role);
+
+        return normalizedRole === "ROLE_LIBRARIAN";
+    };
+
     const login = async (e) => {
         e.preventDefault();
 
@@ -80,6 +90,8 @@ const Login = () => {
 
             if (next) {
                 nav(next);
+            } else if (isLirarianRole(loginUser.role)){
+                nav("/librarian/dashboard");
             } else {
                 nav("/home");
             }
