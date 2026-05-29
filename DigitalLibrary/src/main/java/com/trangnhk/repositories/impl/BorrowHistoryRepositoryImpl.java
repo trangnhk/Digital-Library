@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,9 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
     @Autowired
     private LocalSessionFactoryBean factory;
 
+    @Autowired
+    private Environment env;
+    
     @Override
     public BorrowHistory add(BorrowHistory borrow) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -76,26 +80,26 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
                         JOIN b.user u
                         WHERE d.id = :documentId
                     """);
-        
+
         BorrowStatus status = this.getValidBorrowStatus(params);
-        
-        if (status != null){
+
+        if (status != null) {
             hql.append(" AND b.status = :status ");
         }
-        
+
         hql.append(this.buildOrderBy(params));
         Query query = s.createQuery(hql.toString(), DocumentBorrowerDTO.class);
-        
+
         query.setParameter("documentId", documentId);
-        
-        if (status != null){
+
+        if (status != null) {
             query.setParameter("status", status);
         }
-        
+
         return query.getResultList();
-        
-        
+
     }
+
     private BorrowStatus getValidBorrowStatus(Map<String, String> params) {
         if (params == null) {
             return null;
@@ -113,7 +117,7 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
             return null;
         }
     }
-    
+
     private String buildOrderBy(Map<String, String> params) {
         String sort = "borrowDate";
         String direction = "desc";
@@ -156,5 +160,75 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
                 return " ORDER BY b.borrowDate " + orderDirection;
         }
     }
-    
+
+    private int getPage(Map<String, String> params) {
+        if (params == null) {
+            return 1;
+        }
+
+        try {
+            int page = Integer.parseInt(params.getOrDefault("page", "1"));
+
+            if (page < 1) {
+                return 1;
+            }
+
+            return page;
+
+        } catch (NumberFormatException ex) {
+            return 1;
+        }
+    }
+
+    private int getSize(Map<String, String> params) {
+        int defaultSize = this.env.getProperty("documents.page_size", Integer.class, 10);
+        int maxSize = this.env.getProperty("documents.max_page_size", Integer.class, 20);
+
+        if (params == null) {
+            return defaultSize;
+        }
+
+        try {
+            int size = Integer.parseInt(
+                    params.getOrDefault("size", String.valueOf(defaultSize))
+            );
+
+            if (size < 1) {
+                return defaultSize;
+            }
+
+            if (size > maxSize) {
+                return maxSize;
+            }
+
+            return size;
+
+        } catch (NumberFormatException ex) {
+            return defaultSize;
+        }
+    }
+
+    @Override
+    public List<BorrowHistory> getMyBorrows(Long userId, Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        StringBuilder hql = new StringBuilder();
+
+        hql.append("SELECT b FROM BorrowHistory b ");
+        hql.append("JOIN FETCH b.document ");
+        hql.append("WHERE b.user.id = :userId ");
+
+        Query query = session.createQuery(hql.toString(), BorrowHistory.class);
+        query.setParameter("userId", userId);
+
+        int page = this.getPage(params);
+        int size = this.getSize(params);
+        int start = (page - 1) * size;
+        
+        query.setFirstResult(start);
+        query.setMaxResults(size);
+        
+        return query.getResultList();
+    }
+
 }

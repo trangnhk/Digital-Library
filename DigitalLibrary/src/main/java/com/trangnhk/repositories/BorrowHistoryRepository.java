@@ -19,4 +19,7 @@ public interface BorrowHistoryRepository {
     
     // LIBRARIAN
     List<DocumentBorrowerDTO> getBorrowerByDocumentId(Long documentId, Map<String, String> params);
+    
+    public List<BorrowHistory> getMyBorrows(Long userId, Map<String, String> params);
+    
 }
