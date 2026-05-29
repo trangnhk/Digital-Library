@@ -64,20 +64,20 @@ const Header = () => {
                     <Nav className="me-auto">
                         {user && (user.role === "ROLE_LIBRARIAN") ? (
                             <>
-                            <Link to="/home" className="nav-link">Thư viện</Link>
-                            <Link to="/librarian/dashboard" className="nav-link">Dashboard</Link>
-                            <Link to="/librarian/documents" className="nav-link">Tài liệu của tôi</Link>
+                                <Link to="/home" className="nav-link">Thư viện</Link>
+                                <Link to="/librarian/dashboard" className="nav-link">Dashboard</Link>
+                                <Link to="/librarian/documents" className="nav-link">Tài liệu của tôi</Link>
                             </>
 
-                        ): 
-                        <>
-                        <Link to="/home" className="nav-link">Tài liệu</Link>
+                        ) :
+                            <>
+                                <Link to="/home" className="nav-link">Tài liệu</Link>
 
-                        <Link to="/favorites" className="nav-link">Yêu thích</Link>
-                        </>
-                        
+                                <Link to="/bookmarks" className="nav-link">Yêu thích</Link>
+                            </>
+
                         }
-                        
+
                     </Nav>
 
                     <Nav className="ms-auto align-items-lg-center">
@@ -86,12 +86,15 @@ const Header = () => {
                         ) : (
                             <>
                                 <Link to="/me" className="nav-link">
-                                    <Image src={avatarUrl} roundedCircle width={36} height={36} style={{ objectFit: "cover", border: "1px solid #dee2e6" }} />
+                                    {avatarUrl && (
+                                        <Image src={avatarUrl} roundedCircle width={36} height={36} style={{ objectFit: "cover", border: "1px solid #dee2e6" }} />
+
+                                    )}
                                     <strong>{user.username}</strong>
                                 </Link>
 
                                 <Button variant="outline-danger" size="sm" onClick={logout} >Đăng xuất</Button>
-                                
+
                             </>
                         )}
                     </Nav>

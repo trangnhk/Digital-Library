@@ -10,6 +10,8 @@ import { MyUserContext } from "./configs/Context";
 import { useReducer } from "react";
 import MyUserReducer from "./reducers/MyUserReducer";
 import cookies from "react-cookies";
+import Profile from "./screens/User/Profile";
+import ChangePassword from "./screens/User/ChangePassword";
 
 const App = () => {
     const [user, dispatch] = useReducer(
@@ -28,6 +30,8 @@ const App = () => {
                         <Route path="/home" element={<Home />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/login" element={<Login />} />
+                        <Route path="/me" element={<Profile />} />
+                        <Route path="/change-password" element={<ChangePassword />} />
                     </Routes>
                 </Container>
 

@@ -5,6 +5,8 @@
 package com.trangnhk.repositories;
 
 import com.trangnhk.pojo.Notification;
+import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,4 +15,11 @@ import org.springframework.stereotype.Repository;
  */
 public interface NotificationRepository{
     Notification save(Notification notification);
+    
+    List<Notification> getNotificationByUsername(String username, Map<String, String> params);
+    long countNotificationByUsername(String username);
+    long countUnReadNotificationByUsername(String username);
+    Notification getNotificationById(Long notificationId);
+    Notification update(Notification notification);
+    
 }
