@@ -16,6 +16,7 @@ public class DocumentFileResponseDTO {
     private String fileExtension;
     private Long fileSize;
     private Date uploadedDate;
+    private Boolean active;
     private String accessUrl; // Muốn mở/tải file A thì phải gọi API secure nào?
 
     public static DocumentFileResponseDTO fromDocumentFile(DocumentFile file) {
@@ -25,6 +26,7 @@ public class DocumentFileResponseDTO {
         dto.setFileExtension(file.getFileExtension());
         dto.setFileSize(file.getFileSize());
         dto.setUploadedDate(file.getUploadedDate());
+        dto.setActive(file.getActive());
 
         if (file.getDocument() != null) {
             dto.setAccessUrl("/api/secure/documents/"
@@ -103,6 +105,20 @@ public class DocumentFileResponseDTO {
      */
     public void setAccessUrl(String accessUrl) {
         this.accessUrl = accessUrl;
+    }
+
+    /**
+     * @return the active
+     */
+    public Boolean getActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
     }
     
     

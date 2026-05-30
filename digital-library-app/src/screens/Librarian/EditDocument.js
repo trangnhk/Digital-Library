@@ -19,7 +19,6 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
     const [categories, setCategories] = useState([]);
     const [thumbnailFile, setThumbnailFile] = useState(null);
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
-    const [documentFiles, setDocumentFiles] = useState([]);
 
     const [loadingCategories, setLoadingCategories] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -44,7 +43,6 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
 
             setThumbnailFile(null);
             setThumbnailPreview(document.thumbnail || null);
-            setDocumentFiles([]);
             setErr("");
 
             loadCategories();
@@ -105,11 +103,6 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
 
         setThumbnailFile(file);
         setThumbnailPreview(URL.createObjectURL(file));
-    };
-
-    const handleFilesChange = (e) => {
-        const files = Array.from(e.target.files || []);
-        setDocumentFiles(files);
     };
 
     const validate = () => {
@@ -181,45 +174,10 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
             }
         }
 
-        if (documentFiles.length > 0) {
-            for (let file of documentFiles) {
-                if (!isValidFileForDocumentType(file, form.documentType)) {
-                    setErr(`File "${file.name}" không phù hợp với documentType ${form.documentType}.`);
-                    return false;
-                }
-            }
-        }
 
         return true;
     };
 
-    const isValidFileForDocumentType = (file, documentType) => {
-        if (!file || !file.name || !documentType) {
-            return false;
-        }
-
-        const extension = file.name.split(".").pop().toLowerCase();
-
-        switch (documentType) {
-            case "PDF":
-                return extension === "pdf";
-
-            case "DOCX":
-                return extension === "docx";
-
-            case "EPUB":
-                return extension === "epub";
-
-            case "VIDEO":
-                return extension === "mp4";
-
-            case "AUDIO":
-                return extension === "mp3" || extension === "wav";
-
-            default:
-                return false;
-        }
-    };
 
     const getErrorMessage = (ex) => {
         if (!ex.response) {
@@ -253,10 +211,6 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
 
         if (status === 404) {
             return "Không tìm thấy tài liệu hoặc category.";
-        }
-
-        if (status === 415) {
-            return "File upload không đúng định dạng.";
         }
 
         if (status === 422) {
@@ -316,12 +270,6 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                 formData.append("thumbnail", thumbnailFile);
             }
 
-            if (documentFiles.length > 0) {
-                documentFiles.forEach(file => {
-                    formData.append("files", file);
-                });
-            }
-
             // Debug dữ liệu gửi lên
             for (let pair of formData.entries()) {
                 console.log(pair[0], pair[1]);
@@ -355,26 +303,14 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
     };
 
     return (
-        <Modal
-            show={show}
-            onHide={closeModal}
-            size="lg"
-            centered
-            backdrop="static"
-        >
+        <Modal show={show} onHide={closeModal} size="lg" centered backdrop="static" >
             <Form onSubmit={submitEdit}>
                 <Modal.Header closeButton={!saving}>
-                    <Modal.Title>
-                        Sửa tài liệu
-                    </Modal.Title>
+                    <Modal.Title>Sửa tài liệu</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
-                    {err && (
-                        <Alert variant="danger">
-                            {err}
-                        </Alert>
-                    )}
+                    {err && (<Alert variant="danger">{err}</Alert>)}
 
                     <Alert variant="info">
                         Sau khi sửa, tài liệu sẽ chuyển về trạng thái Pending để admin duyệt lại.
@@ -383,31 +319,17 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                     <Row>
                         <Col md={8}>
                             <Form.Group className="mb-3" controlId="title">
-                                <Form.Label>
-                                    Title
-                                </Form.Label>
+                                <Form.Label>Title</Form.Label>
 
-                                <Form.Control
-                                    type="text"
-                                    value={form.title}
-                                    onChange={(e) => updateField("title", e.target.value)}
-                                    disabled={saving}
-                                />
+                                <Form.Control type="text" value={form.title} onChange={(e) => updateField("title", e.target.value)} disabled={saving} />
                             </Form.Group>
                         </Col>
 
                         <Col md={4}>
                             <Form.Group className="mb-3" controlId="publishYear">
-                                <Form.Label>
-                                    Publish year
-                                </Form.Label>
+                                <Form.Label>Publish year</Form.Label>
 
-                                <Form.Control
-                                    type="number"
-                                    value={form.publishYear}
-                                    onChange={(e) => updateField("publishYear", e.target.value)}
-                                    disabled={saving}
-                                />
+                                <Form.Control type="number" value={form.publishYear} onChange={(e) => updateField("publishYear", e.target.value)} disabled={saving} />
                             </Form.Group>
                         </Col>
                     </Row>
@@ -415,64 +337,37 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                     <Row>
                         <Col md={6}>
                             <Form.Group className="mb-3" controlId="author">
-                                <Form.Label>
-                                    Author
-                                </Form.Label>
+                                <Form.Label>Author</Form.Label>
 
-                                <Form.Control
-                                    type="text"
-                                    value={form.author}
-                                    onChange={(e) => updateField("author", e.target.value)}
-                                    disabled={saving}
-                                />
+                                <Form.Control type="text" value={form.author} onChange={(e) => updateField("author", e.target.value)} disabled={saving} />
                             </Form.Group>
                         </Col>
 
                         <Col md={6}>
                             <Form.Group className="mb-3" controlId="publisher">
-                                <Form.Label>
-                                    Publisher
-                                </Form.Label>
+                                <Form.Label>Publisher</Form.Label>
 
-                                <Form.Control
-                                    type="text"
-                                    value={form.publisher}
-                                    onChange={(e) => updateField("publisher", e.target.value)}
-                                    disabled={saving}
-                                />
+                                <Form.Control type="text" value={form.publisher} onChange={(e) => updateField("publisher", e.target.value)} disabled={saving} />
                             </Form.Group>
                         </Col>
                     </Row>
 
                     <Form.Group className="mb-3" controlId="description">
-                        <Form.Label>
-                            Description
-                        </Form.Label>
+                        <Form.Label>Description</Form.Label>
 
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            value={form.description}
-                            onChange={(e) => updateField("description", e.target.value)}
-                            disabled={saving}
-                        />
+                        <Form.Control as="textarea" rows={3} value={form.description} onChange={(e) => updateField("description", e.target.value)} disabled={saving} />
                     </Form.Group>
 
                     <Row>
                         <Col md={6}>
                             <Form.Group className="mb-3" controlId="categoryId">
-                                <Form.Label>
-                                    Category
-                                </Form.Label>
+                                <Form.Label>Category</Form.Label>
 
                                 <Form.Select
                                     value={form.categoryId}
                                     onChange={(e) => updateField("categoryId", e.target.value)}
-                                    disabled={saving || loadingCategories}
-                                >
-                                    <option value="">
-                                        Chọn category
-                                    </option>
+                                    disabled={saving || loadingCategories} >
+                                    <option value="">Chọn category</option>
 
                                     {categories.map(c => (
                                         <option key={c.id} value={c.id}>
@@ -485,38 +380,20 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
 
                         <Col md={6}>
                             <Form.Group className="mb-3" controlId="documentType">
-                                <Form.Label>
-                                    Document type
-                                </Form.Label>
+                                <Form.Label>Document type</Form.Label>
 
                                 <Form.Select
                                     value={form.documentType}
                                     onChange={(e) => updateField("documentType", e.target.value)}
                                     disabled={saving}
                                 >
-                                    <option value="">
-                                        Chọn type
-                                    </option>
+                                    <option value="">Chọn type </option>
 
-                                    <option value="PDF">
-                                        PDF
-                                    </option>
-
-                                    <option value="DOCX">
-                                        DOCX
-                                    </option>
-
-                                    <option value="EPUB">
-                                        EPUB
-                                    </option>
-
-                                    <option value="VIDEO">
-                                        VIDEO
-                                    </option>
-
-                                    <option value="AUDIO">
-                                        AUDIO
-                                    </option>
+                                    <option value="PDF">PDF</option>
+                                    <option value="DOCX">DOCX</option>
+                                    <option value="EPUB">EPUB</option>
+                                    <option value="VIDEO">VIDEO</option>
+                                    <option value="AUDIO">AUDIO</option>
                                 </Form.Select>
                             </Form.Group>
                         </Col>
@@ -525,18 +402,10 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3" controlId="isPremium">
-                                <Form.Label>
-                                    Premium
-                                </Form.Label>
+                                <Form.Label>Premium</Form.Label>
 
                                 <div className="border rounded-3 px-3 py-2 bg-light">
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="IsPremium"
-                                        checked={form.isPremium}
-                                        onChange={(e) => updatePremium(e.target.checked)}
-                                        disabled={saving}
-                                    />
+                                    <Form.Check type="checkbox" label="IsPremium" checked={form.isPremium} onChange={(e) => updatePremium(e.target.checked)} disabled={saving} />
                                 </div>
 
                                 <Form.Text className="text-muted">
@@ -547,9 +416,7 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
 
                         <Col md={8}>
                             <Form.Group className="mb-3" controlId="price">
-                                <Form.Label>
-                                    Price
-                                </Form.Label>
+                                <Form.Label>Price</Form.Label>
 
                                 <Form.Control
                                     type="number"
@@ -560,9 +427,6 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                                     placeholder="Nhập giá tài liệu premium"
                                 />
 
-                                <Form.Text className="text-muted">
-                                    Nếu không tick Premium, price sẽ bị khóa và backend tự set 0.0.
-                                </Form.Text>
                             </Form.Group>
                         </Col>
                     </Row>
@@ -570,9 +434,7 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                     <Row>
                         <Col md={5}>
                             <Form.Group className="mb-3" controlId="thumbnail">
-                                <Form.Label>
-                                    Thumbnail
-                                </Form.Label>
+                                <Form.Label>Thumbnail</Form.Label>
 
                                 <Form.Control
                                     type="file"
@@ -587,65 +449,25 @@ const EditDocument = ({ show, document, onHide, onUpdated }) => {
                             </Form.Group>
 
                             {thumbnailPreview && (
-                                <Image
-                                    src={thumbnailPreview}
-                                    rounded
+                                <Image src={thumbnailPreview} rounded
                                     width={160}
                                     height={200}
                                     style={{
                                         objectFit: "cover",
                                         border: "1px solid #dee2e6"
-                                    }}
-                                />
+                                    }} />
                             )}
                         </Col>
 
-                        <Col md={7}>
-                            <Form.Group className="mb-3" controlId="files">
-                                <Form.Label>
-                                    Document files
-                                </Form.Label>
-
-                                <Form.Control
-                                    type="file"
-                                    multiple
-                                    onChange={handleFilesChange}
-                                    disabled={saving}
-                                />
-
-                                <Form.Text className="text-muted">
-                                    Không bắt buộc. Nếu chọn file mới, file phải phù hợp với document type.
-                                </Form.Text>
-                            </Form.Group>
-
-                            {documentFiles.length > 0 && (
-                                <div className="small text-muted">
-                                    {documentFiles.map(file => (
-                                        <div key={file.name}>
-                                            {file.name}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </Col>
                     </Row>
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button
-                        type="button"
-                        variant="outline-secondary"
-                        onClick={closeModal}
-                        disabled={saving}
-                    >
+                    <Button type="button" variant="outline-secondary" onClick={closeModal} disabled={saving} >
                         Hủy
                     </Button>
 
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={saving}
-                    >
+                    <Button type="submit" variant="primary" disabled={saving} >
                         {saving ? (
                             <>
                                 <MySpinner />

@@ -124,6 +124,28 @@ public class ApiLibrarianDocumentController {
         }
     }
     
+    @GetMapping("/{documentId}/files")
+    public ResponseEntity<?> getDocumentFiles(@PathVariable("documentId") Long documentId, Principal principal){
+        try{
+            return ResponseEntity.ok(this.docService.getManagedDocumentFiles(principal.getName(), documentId));
+            
+        } catch (ResponseStatusException ex){
+            return this.buildErrorResponse(ex);
+        }
+    }
+    
+    @DeleteMapping("/{documentId}/files/{fileId}")
+    public ResponseEntity<?> deleteDocumentFile(@PathVariable("documentId") Long documentId, @PathVariable("fileId") Long fileId, Principal principal){
+        try{
+            this.docService.deleteLibrarianDocumentFile(principal.getName(), documentId, fileId);
+            
+            return ResponseEntity.noContent().build();
+            
+        } catch (ResponseStatusException ex){
+            return this.buildErrorResponse(ex);
+        }
+    }
+    
     @DeleteMapping("/{documentId}")
     public ResponseEntity<?> deleteDocument(@PathVariable("documentId") Long documentId, Principal principal){
         try{

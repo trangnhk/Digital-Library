@@ -10,6 +10,7 @@ import com.trangnhk.dto.AdminDocumentResponseDTO;
 import com.trangnhk.dto.BorrowResponseDTO;
 import com.trangnhk.dto.DocumentBorrowerDTO;
 import com.trangnhk.dto.DocumentContentResponseDTO;
+import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.PageResponseDTO;
 import com.trangnhk.dto.RejectDocumentRequestDTO;
 import java.util.List;

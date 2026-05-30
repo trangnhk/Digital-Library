@@ -47,18 +47,10 @@ public class DocumentFileRepositoryImpl implements DocumentFileRepository {
     }
 
     @Override
-    public void deleteByDocumentId(Long documentId) {
+    public DocumentFile update(DocumentFile file) {
         Session s = this.factory.getObject().getCurrentSession();
-
-        Query query = s.createQuery("FROM DocumentFile f WHERE f.document.id = :documentId", DocumentFile.class);
-
-        query.setParameter("documentId", documentId);
-
-        List<DocumentFile> files = query.getResultList();
-
-        for (DocumentFile file : files) {
-            s.remove(file);
-        }
+        
+        return s.merge(file);
     }
 
     @Override
@@ -67,7 +59,8 @@ public class DocumentFileRepositoryImpl implements DocumentFileRepository {
 
         Query query = s.createQuery("FROM DocumentFile f "
                 + "WHERE f.id = :fileId "
-                + "AND f.document.id = :documentId", DocumentFile.class);
+                + "AND f.document.id = :documentId "
+                + "AND (f.active = true OR f.active IS NULL)", DocumentFile.class);
 
         query.setParameter("fileId", fileId);
         query.setParameter("documentId", documentId);
@@ -80,21 +73,14 @@ public class DocumentFileRepositoryImpl implements DocumentFileRepository {
     }
 
     @Override
-    public DocumentFile getFirstFileByDocumentId(Long documentId) {
+    public List<DocumentFile> getAllFilesByDocumentId(Long documentId) {
         Session s = this.factory.getObject().getCurrentSession();
-
-        Query query = s.createQuery("FROM DocumentFile f "
-                + "WHERE f.document.id = :documentId "
-                + "ORDER BY f.uploadedDate ASC", DocumentFile.class);
-
+        
+        Query query = s.createNamedQuery("DocumentFile.findAllByDocumentId", DocumentFile.class);
+        
         query.setParameter("documentId", documentId);
-        query.setMaxResults(1);
-
-        try {
-            return (DocumentFile) query.getSingleResult();
-        } catch (Exception ex) {
-            return null;
-        }
+        
+        return query.getResultList();
     }
 
 }

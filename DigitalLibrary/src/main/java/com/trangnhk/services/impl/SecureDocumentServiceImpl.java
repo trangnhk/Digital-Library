@@ -10,6 +10,7 @@ import com.trangnhk.dto.AdminDocumentResponseDTO;
 import com.trangnhk.dto.BorrowResponseDTO;
 import com.trangnhk.dto.DocumentBorrowerDTO;
 import com.trangnhk.dto.DocumentContentResponseDTO;
+import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.PageResponseDTO;
 import com.trangnhk.dto.RejectDocumentRequestDTO;
 import com.trangnhk.pojo.AccessHistory;
@@ -155,14 +156,12 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         if (Boolean.TRUE.equals(doc.getPremium()) && !this.hasPaidDocument(u, doc)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment required for premium document");
         }
-
-        DocumentFile file;
-
-        if (fileId != null) {
-            file = this.docFileRepo.getFileByIdAndDocumnetId(fileId, documentId);
-        } else {
-            file = this.docFileRepo.getFirstFileByDocumentId(documentId);
+        
+        if (fileId == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fileId is required");
         }
+
+        DocumentFile file = this.docFileRepo.getFileByIdAndDocumnetId(fileId, documentId);
 
         if (file == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document file not found");

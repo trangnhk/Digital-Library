@@ -483,6 +483,8 @@ public class DocumentServiceImpl implements DocumentService {
             documentFile.setFileSize(file.getSize());
             documentFile.setFileExtension(this.getFileExtension(file.getOriginalFilename()));
             documentFile.setDocument(document);
+            
+            documentFile.refreshActiveByDocumentType();
 
             return documentFile;
 
@@ -499,6 +501,24 @@ public class DocumentServiceImpl implements DocumentService {
         return filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
     }
 
+    //refresh active all files in document
+    private void refreshActiveForDocumentFiles(Document document){
+        List<DocumentFile> files = this.documentFileRepo.getAllFilesByDocumentId(document.getId());
+        
+        if (files == null || files.isEmpty()){
+            return;
+        }
+        
+        for (DocumentFile file: files){
+            file.setDocument(document);
+            file.refreshActiveByDocumentType();
+            
+            this.documentFileRepo.update(file);
+        }
+        
+    }
+    
+    
     @Override
     public DocumentResponseDTO getDocumentDetail(Long documentId, String username) {
 
@@ -551,7 +571,12 @@ public class DocumentServiceImpl implements DocumentService {
 
         if (dto.getDocumentType() != null && !dto.getDocumentType().trim().isEmpty()) {
             finalDocType = this.parseDocumentType(dto.getDocumentType());
-            doc.setDocumentType(finalDocType);
+            
+            if (!finalDocType.equals(doc.getDocumentType())){
+                doc.setDocumentType(finalDocType);
+                this.refreshActiveForDocumentFiles(doc);
+            }
+            
         }
 
         if (dto.getCategoryId() != null) {
@@ -684,10 +709,64 @@ public class DocumentServiceImpl implements DocumentService {
 
         this.checkCanModifyDocument(currentU, doc);
 
-        this.documentFileRepo.deleteByDocumentId(documentId);
+        
+        // soft delete
         doc.setDeleted(Boolean.TRUE);
-
+        doc.setApproved(Boolean.FALSE);
+        
+        List<DocumentFile> files = this.documentFileRepo.getAllFilesByDocumentId(documentId);
+        
+        for (DocumentFile file: files){
+            file.setActive(Boolean.FALSE);
+            this.documentFileRepo.update(file);
+        }
+        
+        this.documentRepo.update(doc);
 //        this.documentRepo.delete(doc);
+    }
+    
+    @Override
+    public List<DocumentFileResponseDTO> getManagedDocumentFiles(String username, Long documentId) {
+        User currentU = this.userService.getUserByUsername(username);
+        
+        Document doc = this.documentRepo.getDocumentById(documentId);
+        
+        if (doc == null || Boolean.TRUE.equals(doc.getDeleted())){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
+        }
+        
+        this.checkCanModifyDocument(currentU, doc);
+        
+        List<DocumentFile> files = this.documentFileRepo.getAllFilesByDocumentId(documentId);
+        
+        return files.stream().map(DocumentFileResponseDTO::fromDocumentFile)
+                             .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteLibrarianDocumentFile(String username, Long documentId, Long fileId) {
+        User currentU = this.userService.getUserByUsername(username);
+        
+        Document doc = this.documentRepo.getDocumentById(documentId);
+        
+        if (doc == null || Boolean.TRUE.equals(doc.getDeleted())){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
+        }
+        
+        this.checkCanModifyDocument(currentU, doc);
+        
+        DocumentFile file = this.documentFileRepo.getFileByIdAndDocumnetId(fileId, documentId);
+        
+        if (file == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document file not found");
+        }
+        
+        
+        file.setActive(Boolean.FALSE);
+        this.documentFileRepo.update(file);
+        
+        
+        
     }
 
 }

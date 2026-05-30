@@ -27,6 +27,8 @@ public interface DocumentService {
     LibrarianDocumentResponseDTO createLibrarianDocument(String username, CreateLibrarianDocumentRequestDTO dto);
     LibrarianDocumentResponseDTO updateLibrarianDocument(String username, Long documentId, UpdateLibrarianDocumentRequestDTO dto);
     void deleteLibrarianDocument(String username, Long documentId);
+    List<DocumentFileResponseDTO> getManagedDocumentFiles(String username, Long documentId);
+    void deleteLibrarianDocumentFile(String username, Long documentId, Long fileId);
     
     DocumentResponseDTO getDocumentDetail(Long documentId, String username);
 }

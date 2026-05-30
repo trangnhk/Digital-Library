@@ -13,6 +13,8 @@ import cookies from "react-cookies";
 import Profile from "./screens/User/Profile";
 import ChangePassword from "./screens/User/ChangePassword";
 import LibrarianDashboard from "./screens/Librarian/Dashboard";
+import LibrarianDocumentDetail from "./screens/Librarian/DocumentDetail";
+import NewDocument from "./screens/Librarian/DocumentForm";
 
 const App = () => {
     const [user, dispatch] = useReducer(
@@ -35,6 +37,8 @@ const App = () => {
                         <Route path="/change-password" element={<ChangePassword />} />
                         <Route path="/librarian/dashboard" element={<LibrarianDashboard />} />
                         <Route path="/librarian/documents" element={<LibrarianDashboard />} />
+                        <Route path="/librarian/documents/:documentId" element={<LibrarianDocumentDetail />} />
+                        <Route path="/librarian/documents/create" element={<NewDocument />} />
                     </Routes>
                 </Container>
 

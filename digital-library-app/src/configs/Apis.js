@@ -18,6 +18,9 @@ export const endpoints = {
 
     librarianDocuments: "/secure/librarian/documents",
     librarianDocumentDetails: (documentId) => `/secure/librarian/documents/${documentId}`,
+    librarianDocumentFiles: (documentId) => `/secure/librarian/documents/${documentId}/files`,
+    librarianDeleteDocumentFiles: (documentId, fileId) => `/secure/librarian/documents/${documentId}/files/${fileId}`,
+
 
 };
 

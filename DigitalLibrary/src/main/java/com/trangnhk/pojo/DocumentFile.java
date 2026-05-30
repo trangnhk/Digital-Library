@@ -16,10 +16,10 @@ import java.util.Date;
 @Entity
 @Table(name = "document_files")
 @NamedQueries({
-    @NamedQuery(name = "DocumentFile.findAll", query = "SELECT d FROM DocumentFile d"),
+    @NamedQuery(name = "DocumentFile.findAllByDocumentId", query = "SELECT d FROM DocumentFile d WHERE d.document.id = :documentId ORDER BY d.uploadedDate DESC"),
     @NamedQuery(name = "DocumentFile.findById", query = "SELECT d FROM DocumentFile d WHERE d.id = :id"),
     @NamedQuery(name = "DocumentFile.findByDocumentId",
-                query = "SELECT d FROM DocumentFile d WHERE d.document.id = :documentId ORDER BY d.uploadedDate DESC"),
+                query = "SELECT d FROM DocumentFile d WHERE d.document.id = :documentId AND (d.active = true OR d.active IS NULL) ORDER BY d.uploadedDate DESC"),
     @NamedQuery(name = "DocumentFile.findByUploadedDate", query = "SELECT d FROM DocumentFile d WHERE d.uploadedDate = :uploadedDate")})
 public class DocumentFile implements Serializable{
     private static final long serialVersionUID = 1L;
@@ -43,6 +43,9 @@ public class DocumentFile implements Serializable{
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "uploaded_date")
     private Date uploadedDate = new Date();
+    
+    @Column(name = "active")
+    private Boolean active = true;
 
     @ManyToOne
     @JoinColumn(name = "document_id")
@@ -144,5 +147,56 @@ public class DocumentFile implements Serializable{
      */
     public void setDocument(Document document) {
         this.document = document;
+    }
+
+    /**
+     * @return the active
+     */
+    public Boolean getActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+    
+    public boolean isMatchingDocumentType(){
+        if (this.document == null || this.document.getDocumentType() == null){
+            return false;
+        }
+        
+        if (this.fileExtension == null || this.fileExtension.trim().isEmpty()){
+            return false;
+        }
+        
+        String ext = this.fileExtension.trim().toLowerCase();
+        
+        switch (this.document.getDocumentType()){
+            case PDF:
+                return ext.equals("pdf");
+            
+            case DOCX:
+                return ext.equals("docx");
+                
+            case EPUB:
+                return ext.equals("epub");
+
+            case VIDEO:
+                return ext.equals("mp4");
+                
+            case AUDIO:
+                return ext.equals("mp3") || ext.equals("wav");
+                
+            default:
+                return false;
+        }
+        
+    }
+    
+    public void refreshActiveByDocumentType(){
+        this.active = this.isMatchingDocumentType();
     }
 }
