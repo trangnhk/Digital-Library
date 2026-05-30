@@ -11,20 +11,10 @@ export const endpoints = {
     
     categories: "/categories",
 
-    myBookmarks: "/secure/bookmarks/me",
-
     documents: "/documents",
     documentDetails: (documentId) => `/documents/${documentId}`,
     documentFiles: (documentId) => `/documents/${documentId}/files`,
     documentReviews: (documentId) => `/documents/${documentId}/reviews`,
-    bookmark: (documentId) => `/secure/bookmarks/${documentId}`,
-    
-
-    librarianDocuments: "/secure/librarian/documents",
-    librarianDocumentDetails: (documentId) => `/secure/librarian/documents/${documentId}`,
-    librarianDocumentFiles: (documentId) => `/secure/librarian/documents/${documentId}/files`,
-    librarianDeleteDocumentFiles: (documentId, fileId) => `/secure/librarian/documents/${documentId}/files/${fileId}`,
-
 
 };
 

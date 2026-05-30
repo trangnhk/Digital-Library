@@ -12,10 +12,6 @@ import MyUserReducer from "./reducers/MyUserReducer";
 import cookies from "react-cookies";
 import Profile from "./screens/User/Profile";
 import ChangePassword from "./screens/User/ChangePassword";
-import LibrarianDashboard from "./screens/Librarian/Dashboard";
-import LibrarianDocumentDetail from "./screens/Librarian/DocumentDetail";
-import NewDocument from "./screens/Librarian/DocumentForm";
-import DocumentDetail from "./screens/Home/DocumentDetail";
 
 const App = () => {
     const [user, dispatch] = useReducer(
@@ -36,12 +32,7 @@ const App = () => {
                         <Route path="/login" element={<Login />} />
                         <Route path="/me" element={<Profile />} />
                         <Route path="/change-password" element={<ChangePassword />} />
-                        <Route path="/librarian/dashboard" element={<LibrarianDashboard />} />
-                        <Route path="/librarian/documents" element={<LibrarianDashboard />} />
-                        <Route path="/librarian/documents/:documentId" element={<LibrarianDocumentDetail />} />
-                        <Route path="/librarian/documents/create" element={<NewDocument />} />
-                        <Route path="/documents/:documentId" element={<DocumentDetail />} />
-                    </Routes> 
+                    </Routes>
                 </Container>
 
                 <Footer />
