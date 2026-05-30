@@ -13,6 +13,7 @@ import java.util.Date;
  * @author user
  */
 public class ReviewResponseDTO {
+
     private Long id;
 
     private Integer rating;
@@ -21,6 +22,8 @@ public class ReviewResponseDTO {
 
     private String username;
     
+    private String avatar;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Date createdAt;
 
@@ -31,6 +34,7 @@ public class ReviewResponseDTO {
         dto.setRating(review.getRating());
         dto.setComment(review.getComment());
         dto.setUsername(review.getUser().getUsername());
+        dto.setAvatar(review.getUser().getAvatar());
         dto.setCreatedAt(review.getCreatedDate());
         return dto;
     }
@@ -103,5 +107,19 @@ public class ReviewResponseDTO {
      */
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    /**
+     * @return the avatar
+     */
+    public String getAvatar() {
+        return avatar;
+    }
+
+    /**
+     * @param avatar the avatar to set
+     */
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

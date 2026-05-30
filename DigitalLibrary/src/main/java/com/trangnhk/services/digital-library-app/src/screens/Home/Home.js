@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {Alert, Badge, Button, Card, Col, Form, Image, Pagination, Row, Spinner} from "react-bootstrap";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import Apis, { endpoints } from "../../configs/Apis";
 
@@ -8,7 +8,6 @@ const Home = () => {
     const [documentsPage, setDocumentsPage] = useState(null);
     const [documents, setDocuments] = useState([]);
     const [categories, setCategories] = useState([]);
-    const nav = useNavigate();
 
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState("");
@@ -390,7 +389,6 @@ const Home = () => {
                                                 as={Link}
                                                 to={`/documents/${d.id}`}
                                                 variant="outline-primary"
-                                                onClick={() => nav(`/documents/${d.id}`)}
                                             >
                                                 Xem
                                             </Button>
