@@ -13,6 +13,8 @@ export const endpoints = {
 
     myBookmarks: "/secure/bookmarks/me",
 
+    myBorrows: "/secure/borrows/me",
+
     addReview: "/secure/reviews",
 
     documents: "/documents",

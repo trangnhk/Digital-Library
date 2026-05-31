@@ -116,11 +116,7 @@ const Bookmark = () => {
 
                                         <Button
                                             variant="dark"
-                                            onClick={() =>
-                                                navigate(
-                                                    `/documents/${b.documentId}`
-                                                )
-                                            }
+                                            onClick={() => navigate(`/documents/${b.documentId}`)}
                                         >
                                             View
                                         </Button>

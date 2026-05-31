@@ -525,6 +525,7 @@ const Profile = () => {
                     </Modal.Footer>
                 </Form>
             </Modal>
+            
         </div>
     );
 };

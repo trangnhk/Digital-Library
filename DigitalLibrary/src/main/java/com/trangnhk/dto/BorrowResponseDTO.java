@@ -14,6 +14,7 @@ import java.util.Date;
 public class BorrowResponseDTO {
     private Long id;
     private Long documentId;
+    private String title;
     private Long userId;
     private String status;
     private Date borrowDate;
@@ -32,6 +33,7 @@ public class BorrowResponseDTO {
         
         if (borrow.getDocument() != null){
             dto.setDocumentId(borrow.getDocument().getId());
+            dto.setTitle(borrow.getDocument().getTitle());
         }
         
         if (borrow.getUser()!= null){
@@ -124,6 +126,20 @@ public class BorrowResponseDTO {
      */
     public void setReturnDate(Date returnDate) {
         this.returnDate = returnDate;
+    }
+
+    /**
+     * @return the title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * @param title the title to set
+     */
+    public void setTitle(String title) {
+        this.title = title;
     }
     
     
