@@ -110,7 +110,7 @@ const LibrarianDocumentDetail = () => {
 
     const getErrorMessage = (ex, defaultMessage) => {
         if (!ex.response) {
-            return "Không thể kết nối đén server";
+            return "Không thể kết nối đến server";
         }
 
         const status = ex.response.status;
@@ -120,7 +120,7 @@ const LibrarianDocumentDetail = () => {
             case 401:
                 return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại";
             case 403:
-                return "Bạn không có quyền truy cập tài liệu này haowjc tài khoản thủ thư của bạn chưa được duyệt";
+                return "Bạn không có quyền truy cập tài liệu này hoặc tài khoản thủ thư của bạn chưa được duyệt";
             case 404: {
                 if (data && data.message) {
                     return data.message;

@@ -13,11 +13,15 @@ export const endpoints = {
 
     myBookmarks: "/secure/bookmarks/me",
 
+    addReview: "/secure/reviews",
+
     documents: "/documents",
     documentDetails: (documentId) => `/documents/${documentId}`,
     documentFiles: (documentId) => `/documents/${documentId}/files`,
     documentReviews: (documentId) => `/documents/${documentId}/reviews`,
+    documentAccess: (documentId) => `/secure/documents/${documentId}/access`,
     bookmark: (documentId) => `/secure/bookmarks/${documentId}`,
+    
     
 
     librarianDocuments: "/secure/librarian/documents",

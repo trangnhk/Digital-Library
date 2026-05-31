@@ -86,7 +86,7 @@ const Header = () => {
                             <>
                                 <Link to="/home" className="nav-link">Tài liệu</Link>
 
-                                <Link to="/bookmarks" className="nav-link">Yêu thích</Link>
+                                <Link to="secure/bookmarks/me" className="nav-link">Yêu thích</Link>
                             </>
 
                         }

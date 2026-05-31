@@ -98,7 +98,7 @@ public class ApiAuthController {
             
             
             
-            AuthRequestDTO response = new AuthRequestDTO(token, u.getUsername(), u.getRole().name());
+            AuthRequestDTO response = new AuthRequestDTO(token, u.getId(), u.getUsername(), u.getRole().name());
             
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(response);
         

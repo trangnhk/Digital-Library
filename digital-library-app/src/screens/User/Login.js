@@ -72,6 +72,7 @@ const Login = () => {
             console.timeEnd("LOGIN_API");
 
             const loginUser = {
+                userId: res.data.userId,
                 username: res.data.username,
                 role: res.data.role
             };

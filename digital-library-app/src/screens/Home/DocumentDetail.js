@@ -1,25 +1,62 @@
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Badge, Col, Image, ListGroup, Row } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { Badge, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
 
 const DocumentDetail = () => {
     const { documentId } = useParams();
     const [document, setDocument] = useState(null);
-    const [reviews, setReviews] = useState([])
+
     const [bookmark, setBookmark] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
     const [user,] = useContext(MyUserContext);
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [editingReview, setEditingReview] = useState(null);
+    const nav = useNavigate();
+    const [page, setPage] = useState(1);
+    const size = 2;
+
+    const [reviews, setReviews] = useState([])
+    const [reviewsPage, setReviewsPage] = useState(null);
 
     const loadDocument = async () => {
         let res = await Apis.get(endpoints['documentDetails'](documentId));
         setDocument(res.data);
     }
-    const loadReviews = async () => {
-        let res = await Apis.get(endpoints['documentReviews'](documentId));
-        setReviews(res.data);
-    }
+    const loadReviews = async (page) => {
+        try {
+            console.log("LOAD PAGE:", page);
+
+            const res = await Apis.get(
+                endpoints['documentReviews'](documentId),
+                {
+                    params: {
+                        page,
+                        size
+                    }
+                }
+            );
+
+            const data = res.data;
+
+            // nếu backend trả array
+            setReviews(Array.isArray(data) ? data : data.content);
+
+            // FIX TOTAL PAGES thủ công (nếu backend không trả)
+            const totalPages = data.totalPages
+                || Math.ceil((data.totalItems || data.length || 1) / size);
+
+            setReviewsPage({
+                page: page,
+                totalPages: totalPages
+            });
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
     const checkBookmark = async () => {
         if (!user)
             return;
@@ -68,18 +105,116 @@ const DocumentDetail = () => {
             setBookmark(false);
         }
     };
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
+    const getMyReview = () => {
+        if (!user) return null;
+
+        return reviews.find(r => r.userId === user.userId);
+    };
+
+    const addReview = async () => {
+        if (!user) {
+            nav("/login");
+            return;
+        }
+        const myReview = getMyReview();
+        if (reviews && !editingReview) {
+            alert("Đã review tài liệu");
+        }
+
+        try {
+            setError("");
+            setSuccess("");
+
+            if (editingReview) {
+                await Apis.patch(
+                    `/secure/reviews/${editingReview}`,
+                    {
+                        rating,
+                        comment
+                    }
+                );
+
+                setSuccess("Đã cập nhật review!");
+            } else {
+                await Apis.post(
+                    endpoints.addReview,
+                    {
+                        documentId,
+                        rating,
+                        comment
+                    }
+                );
+
+                setSuccess("Đã thêm review!");
+            }
+
+            setRating(0);
+            setComment("");
+            setEditingReview(null);
+
+            await loadReviews(page);
+
+        } catch (err) {
+            console.error(err);
+            setError("Không thể xử lý review.");
+        }
+    };
+    const editReview = (r) => {
+        setEditingReview(r.id);
+        setRating(r.rating);
+        setComment(r.comment);
+    };
+    const deleteReview = async (id) => {
+        if (!window.confirm("Xóa review này?")) return;
+
+        try {
+            await Apis.delete(`/secure/reviews/${id}`);
+
+            setSuccess("Đã xoá review!");
+
+            if (editingReview === id) {
+                setEditingReview(null);
+                setRating(0);
+                setComment("");
+            }
+
+            loadReviews(page);
+        } catch (err) {
+            console.error(err);
+            setError("Không thể xoá review.");
+        }
+    };
+    const changePage = (newPage) => {
+        setPage(newPage);
+    };
+
+    const getCurrentPage = () => page;
+
+    const getTotalPages = () => {
+        return reviewsPage?.totalPages || 1;
+    };
 
 
     useEffect(() => {
+        if (!documentId) return;
+
         loadDocument();
-        loadReviews();
-
-        if (user) {
-            checkBookmark();
-        }
-
     }, [documentId]);
+
+    useEffect(() => {
+        if (!documentId) return;
+
+        loadReviews(page);
+    }, [documentId, page]);
+
+    useEffect(() => {
+        if (!user || !documentId) return;
+
+        checkBookmark();
+    }, [user, documentId]);
 
     return (
         <>
@@ -89,7 +224,6 @@ const DocumentDetail = () => {
 
                     <Row className="g-5 align-items-start">
 
-                        {/* IMAGE */}
                         <Col md={4} lg={3}>
                             <img
                                 src={document?.thumbnail}
@@ -185,11 +319,6 @@ const DocumentDetail = () => {
                             </div>
 
                             <div className="d-flex flex-wrap gap-3">
-
-                                <button className="btn btn-dark rounded-pill px-4 py-2 fw-semibold">
-                                    Access
-                                </button>
-
                                 <button
                                     onClick={addorDeleteBookmark}
                                     disabled={bookmark}
@@ -221,9 +350,9 @@ const DocumentDetail = () => {
             <div className="container p-3 mb-2">
                 <div className="bg-white rounded-4 shadow-sm p-4">
                     <div className="mb-3">
-                        <span className="fw-bold fs-5 text-dark">
+                        <h4 className="fw-bold mb-4">
                             Description
-                        </span>
+                        </h4>
                     </div>
 
                     <div className="fs-5">
@@ -232,72 +361,148 @@ const DocumentDetail = () => {
 
                 </div>
             </div>
+            <div className="container p-3 mb-2">
+                <h4 className="fw-bold mb-4">
+                    Review
+                </h4>
+
+                <div className="mb-3">
+                    <div className="d-flex align-items-baseline gap-3 mb-3">
+
+                        <span
+                            className="fw-semibold fs-5"
+                            style={{ marginTop: "-4px" }}
+                        >
+                            Rating:
+                        </span>
+
+                        <div
+                            className="d-flex align-items-center"
+                            style={{ fontSize: "32px", lineHeight: 1 }}
+                        >
+                            {[1, 2, 3, 4, 5].map(star => (
+                                <span
+                                    key={star}
+                                    onClick={() => setRating(star)}
+                                    style={{
+                                        cursor: "pointer",
+                                        color:
+                                            star <= rating
+                                                ? "#ffc107"
+                                                : "#dee2e6"
+                                    }}
+                                >
+                                    ★
+                                </span>
+                            ))}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div className="mb-3">
+                    <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder="Write your review..."
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                    />
+                </div>
+
+                <button
+                    className="btn btn-primary"
+                    onClick={addReview}
+                >
+                    {editingReview ? "Update Review" : "Submit Review"}
+                </button>
+            </div>
             <div className="container p-3 mb-4">
                 <div className="bg-white rounded-4 shadow-sm p-4">
 
                     <h4 className="fw-bold mb-4">
                         Reviews ({reviews.length})
                     </h4>
+                    <Card.Body className="p-0">
 
-                    {reviews.length === 0 ? (
-                        <p className="text-muted">
-                            Chưa có đánh giá nào.
-                        </p>
-                    ) : (
-                        <ListGroup variant="flush">
+                        {reviews.length === 0 ? (
+                            <p className="text-muted">
+                                Chưa có đánh giá nào.
+                            </p>
+                        ) : (
+                            <ListGroup variant="flush">
+                                {reviews.map(r => (
+                                    <ListGroup.Item key={r.id} className="py-3 border-0 border-bottom">
+                                        <div className="d-flex">
+                                            <Image
+                                                src={r.avatar}
+                                                roundedCircle
+                                                width={55}
+                                                height={55}
+                                                className="me-3"
+                                            />
 
-                            {reviews.map(r => (
-                                <ListGroup.Item
-                                    key={r.id}
-                                    className="py-3 border-0 border-bottom"
-                                >
-                                    <div className="d-flex">
+                                            <div className="flex-grow-1">
+                                                <div className="d-flex justify-content-between">
+                                                    <h6 className="fw-bold mb-1">{r.username}</h6>
+                                                    <small className="text-muted">{r.createdAt}</small>
+                                                </div>
 
-                                        <Image
-                                            src={r.avatar}
-                                            roundedCircle
-                                            width={55}
-                                            height={55}
-                                            className="me-3"
-                                            style={{
-                                                objectFit: "cover"
-                                            }}
-                                        />
+                                                <div className="text-warning mb-2">
+                                                    {"★".repeat(r.rating)}
+                                                    {"☆".repeat(5 - r.rating)}
+                                                </div>
 
-                                        <div className="flex-grow-1">
-
-                                            <div className="d-flex justify-content-between">
-                                                <h6 className="fw-bold mb-1">
-                                                    {r.username}
-                                                </h6>
-
-                                                <small className="text-muted">
-                                                    {r.createdAt}
-                                                </small>
+                                                <p className="mb-0">{r.comment}</p>
                                             </div>
 
-                                            <div
-                                                className="text-warning mb-2"
-                                                style={{ fontSize: "18px" }}
-                                            >
-                                                {"★".repeat(r.rating)}
-                                                {"☆".repeat(5 - r.rating)}
-                                            </div>
+                                            {user && user?.userId === r.userId && (
+                                                <div className="mt-5">
+                                                    <button
+                                                        className="btn btn-sm btn-outline-primary me-2"
+                                                        onClick={() => editReview(r)}
+                                                    >
+                                                        Sửa
+                                                    </button>
 
-                                            <p className="mb-0">
-                                                {r.comment}
-                                            </p>
-
+                                                    <button
+                                                        className="btn btn-sm btn-outline-danger"
+                                                        onClick={() => deleteReview(r.id)}
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-
-                                    </div>
-                                </ListGroup.Item>
-                            ))}
-
-                        </ListGroup>
-                    )}
+                                    </ListGroup.Item>
+                                ))}
+                            </ListGroup>
+                        )}
+                    </Card.Body>
 
                 </div>
+            </div>
+            <div className="d-flex justify-content-between align-items-center mt-3">
+                <button
+                    className="btn btn-outline-secondary"
+                    disabled={page <= 1}
+                    onClick={() => changePage(page - 1)}
+                >
+                    Trang trước
+                </button>
+
+                <span>
+                    Page {page} / {getTotalPages()}
+                </span>
+
+                <button
+                    className="btn btn-outline-secondary"
+                    disabled={page >= getTotalPages()}
+                    onClick={() => changePage(page + 1)}
+                >
+                    Trang sau
+                </button>
             </div>
 
         </>

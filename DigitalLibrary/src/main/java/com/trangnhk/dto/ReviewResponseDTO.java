@@ -19,6 +19,8 @@ public class ReviewResponseDTO {
     private Integer rating;
 
     private String comment;
+    
+    private Long userId;
 
     private String username;
     
@@ -36,6 +38,7 @@ public class ReviewResponseDTO {
         dto.setUsername(review.getUser().getUsername());
         dto.setAvatar(review.getUser().getAvatar());
         dto.setCreatedAt(review.getCreatedDate());
+        dto.setUserId(review.getUser().getId());
         return dto;
     }
 
@@ -121,5 +124,19 @@ public class ReviewResponseDTO {
      */
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    /**
+     * @return the userId
+     */
+    public Long getUserId() {
+        return userId;
+    }
+
+    /**
+     * @param userId the userId to set
+     */
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

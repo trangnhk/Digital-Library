@@ -16,6 +16,7 @@ public class BookmarkResponseDTO {
     private Date createDate;
     private Long documentId;
     private Long userId;
+    private String thumbnail;
 
     public static BookmarkResponseDTO fromBookmark(Bookmark bookmark){
         BookmarkResponseDTO dto = new BookmarkResponseDTO();
@@ -24,6 +25,8 @@ public class BookmarkResponseDTO {
         dto.setDocumentId(bookmark.getDocument().getId());
         dto.setCreateDate(bookmark.getCreatedDate());
         dto.setUserId(bookmark.getUser().getId());
+        dto.setThumbnail(bookmark.getDocument().getThumbnail());
+        
         
         return dto;
     }
@@ -81,5 +84,19 @@ public class BookmarkResponseDTO {
      */
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    /**
+     * @return the thumbnail
+     */
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    /**
+     * @param thumbnail the thumbnail to set
+     */
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
-import {Alert, Badge, Button, Card, Col, Form, Image, Pagination, Row, Spinner} from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
+import { Alert, Badge, Button, Card, Col, Form, Image, Pagination, Row, Spinner } from "react-bootstrap";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import Apis, { endpoints } from "../../configs/Apis";
+import { MyUserContext } from "../../configs/Context";
 
 const Home = () => {
     const [documentsPage, setDocumentsPage] = useState(null);
     const [documents, setDocuments] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [user,] = useContext(MyUserContext);
     const nav = useNavigate();
 
     const [loading, setLoading] = useState(false);
@@ -96,6 +98,22 @@ const Home = () => {
 
         return params;
     };
+    const documentAccess = async (documentId) => {
+        if (!user) {
+            nav("/login");
+            return;
+        }
+
+        try {
+            await Apis.post(
+                endpoints.documentAccess(documentId)
+            );
+            nav(`/documents/${documentId}`);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         loadCategories();
@@ -118,7 +136,7 @@ const Home = () => {
         const params = buildParams();
         params.page = "1";
 
-        setFilters({...filters, page: "1"});
+        setFilters({ ...filters, page: "1" });
 
         setQ(params);
     };
@@ -163,7 +181,7 @@ const Home = () => {
     return (
         <div className="py-4">
 
-            
+
             <Card className="shadow-sm border-0 rounded-4 mb-4">
                 <Card.Body className="p-4">
                     <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
@@ -387,10 +405,8 @@ const Home = () => {
 
                                         <div className="mt-auto d-grid">
                                             <Button
-                                                as={Link}
-                                                to={`/documents/${d.id}`}
                                                 variant="outline-primary"
-                                                onClick={() => nav(`/documents/${d.id}`)}
+                                                onClick={() => documentAccess(d.id)}
                                             >
                                                 Xem
                                             </Button>

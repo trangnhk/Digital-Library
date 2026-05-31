@@ -16,6 +16,8 @@ import LibrarianDashboard from "./screens/Librarian/Dashboard";
 import LibrarianDocumentDetail from "./screens/Librarian/DocumentDetail";
 import NewDocument from "./screens/Librarian/DocumentForm";
 import DocumentDetail from "./screens/Home/DocumentDetail";
+import Bookmark from "./screens/User/Bookmark";
+
 
 const App = () => {
     const [user, dispatch] = useReducer(
@@ -41,7 +43,8 @@ const App = () => {
                         <Route path="/librarian/documents/:documentId" element={<LibrarianDocumentDetail />} />
                         <Route path="/librarian/documents/create" element={<NewDocument />} />
                         <Route path="/documents/:documentId" element={<DocumentDetail />} />
-                    </Routes> 
+                        <Route path="secure/bookmarks/me" element={<Bookmark />}/>
+                    </Routes>
                 </Container>
 
                 <Footer />
