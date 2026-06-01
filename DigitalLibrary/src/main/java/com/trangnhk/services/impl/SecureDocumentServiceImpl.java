@@ -33,6 +33,7 @@ import com.trangnhk.services.UserService;
 import com.trangnhk.utils.AdminDocumentSorts;
 import com.trangnhk.utils.SortUtils;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -158,9 +159,18 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         }
         
         boolean isBorrowing = this.borrowRepo.existOpenBorrow(u.getId(), documentId);
+        BorrowHistory borrow = this.borrowRepo.getOpenBorrow(u.getId(), documentId);
         
         if (!isBorrowing){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must borrow this document befor viewing content");
+        }
+        
+        Date now = new Date();
+        if (borrow.getDueDate() != null && now.after(borrow.getDueDate())){
+            borrow.setStatus(BorrowStatus.EXPIRED);
+            this.borrowRepo.update(borrow);
+            
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Borrowing period has expired");
         }
         
         if (fileId == null){
@@ -200,6 +210,13 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         borrow.setUser(u);
         borrow.setDocument(doc);
         borrow.setStatus(BorrowStatus.BORROWING);
+        
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.DAY_OF_MONTH, 4); // RULE: return after 4 days
+        
+        borrow.setDueDate(calendar.getTime());
 
         BorrowHistory savedBorrow = this.borrowRepo.add(borrow);
 

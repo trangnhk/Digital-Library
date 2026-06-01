@@ -19,6 +19,7 @@ public class BorrowResponseDTO {
     private String status;
     private Date borrowDate;
     private Date returnDate;
+    private Date dueDate;
     
     public static BorrowResponseDTO fromBorrowHistory(BorrowHistory borrow){
         BorrowResponseDTO dto = new BorrowResponseDTO();
@@ -26,6 +27,7 @@ public class BorrowResponseDTO {
         dto.setId(borrow.getId());
         dto.setBorrowDate(borrow.getBorrowDate());
         dto.setReturnDate(borrow.getReturnDate());
+        dto.setDueDate(borrow.getDueDate());
         
         if (borrow.getStatus() != null){
             dto.setStatus(borrow.getStatus().toString());
@@ -140,6 +142,20 @@ public class BorrowResponseDTO {
      */
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    /**
+     * @return the dueDate
+     */
+    public Date getDueDate() {
+        return dueDate;
+    }
+
+    /**
+     * @param dueDate the dueDate to set
+     */
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
     }
     
     

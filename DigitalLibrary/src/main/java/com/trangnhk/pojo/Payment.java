@@ -37,7 +37,33 @@ public class Payment implements  Serializable{
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "payment_date")
-    private Date paymentDate = new Date();
+    private Date paymentDate;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_date")
+    private Date createdDate = new Date();
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_date")
+    private Date updatedDate;
+    
+    @Column(name = "stripe_session_id", unique = true)
+    private String stripeSessionId;
+
+    @Column(name = "stripe_payment_intent_id", unique = true)
+    private String stripePaymentIntentId;
+
+    @Column(name = "checkout_url", length = 1000)
+    private String checkoutUrl;
+
+    @Column(length = 10)
+    private String currency = "usd";
+
+    @Column(length = 255)
+    private String description;
+
+    @Column(name = "failure_reason", length = 500)
+    private String failureReason;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -46,7 +72,12 @@ public class Payment implements  Serializable{
     @ManyToOne
     @JoinColumn(name = "document_id")
     private Document document;
-
+    
+    @PreUpdate
+    public void preUpdate(){
+        this.setUpdatedDate(new Date());
+    }
+    
     /**
      * @return the id
      */
@@ -157,6 +188,104 @@ public class Payment implements  Serializable{
      */
     public void setDocument(Document document) {
         this.document = document;
+    }
+
+    /**
+     * @return the stripeSessionId
+     */
+    public String getStripeSessionId() {
+        return stripeSessionId;
+    }
+
+    /**
+     * @param stripeSessionId the stripeSessionId to set
+     */
+    public void setStripeSessionId(String stripeSessionId) {
+        this.stripeSessionId = stripeSessionId;
+    }
+
+    /**
+     * @return the stripePaymentIntentId
+     */
+    public String getStripePaymentIntentId() {
+        return stripePaymentIntentId;
+    }
+
+    /**
+     * @param stripePaymentIntentId the stripePaymentIntentId to set
+     */
+    public void setStripePaymentIntentId(String stripePaymentIntentId) {
+        this.stripePaymentIntentId = stripePaymentIntentId;
+    }
+
+    /**
+     * @return the checkoutUrl
+     */
+    public String getCheckoutUrl() {
+        return checkoutUrl;
+    }
+
+    /**
+     * @param checkoutUrl the checkoutUrl to set
+     */
+    public void setCheckoutUrl(String checkoutUrl) {
+        this.checkoutUrl = checkoutUrl;
+    }
+
+    /**
+     * @return the currency
+     */
+    public String getCurrency() {
+        return currency;
+    }
+
+    /**
+     * @param currency the currency to set
+     */
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return the failureReason
+     */
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    /**
+     * @param failureReason the failureReason to set
+     */
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
+    }
+
+    /**
+     * @return the updatedDate
+     */
+    public Date getUpdatedDate() {
+        return updatedDate;
+    }
+
+    /**
+     * @param updatedDate the updatedDate to set
+     */
+    public void setUpdatedDate(Date updatedDate) {
+        this.updatedDate = updatedDate;
     }
     
     

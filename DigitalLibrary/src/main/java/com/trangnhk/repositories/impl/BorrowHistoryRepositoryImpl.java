@@ -9,6 +9,7 @@ import com.trangnhk.pojo.BorrowHistory;
 import com.trangnhk.pojo.enums.BorrowStatus;
 import com.trangnhk.repositories.BorrowHistoryRepository;
 import jakarta.persistence.Query;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
@@ -40,6 +41,15 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
 
         return borrow;
     }
+
+    @Override
+    public BorrowHistory update(BorrowHistory borrow) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        return s.merge(borrow);
+    }
+    
+    
 
     @Override
     public boolean existOpenBorrow(Long userId, Long documentId) {
@@ -229,6 +239,26 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
         query.setMaxResults(size);
         
         return query.getResultList();
+    }
+
+    @Override
+    public BorrowHistory getOpenBorrow(Long userId, Long documentId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        Query query = s.createQuery("FROM BorrowHistory b "
+                + "WHERE b.user.id = : userId "
+                + "AND b.document.id = :documentId "
+                + "AND b.status = :status", BorrowHistory.class);
+        
+        query.setParameter("userId", userId);
+        query.setParameter("documentId", documentId);
+        query.setParameter("status", BorrowStatus.BORROWING);
+        
+        try{
+            return (BorrowHistory) query.getSingleResult();
+        } catch (Exception ex){
+            return null;
+        }
     }
 
 }

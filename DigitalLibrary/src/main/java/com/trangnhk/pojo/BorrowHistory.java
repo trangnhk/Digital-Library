@@ -8,6 +8,7 @@ import com.trangnhk.pojo.enums.BorrowStatus;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+
 /**
  *
  * @author Admin
@@ -20,7 +21,8 @@ import java.util.Date;
     @NamedQuery(name = "BorrowHistory.findById", query = "SELECT b FROM BorrowHistory b WHERE b.id = :id"),
     @NamedQuery(name = "BorrowHistory.findByBorrowDate", query = "SELECT b FROM BorrowHistory b WHERE b.borrowDate = :borrowDate"),
     @NamedQuery(name = "BorrowHistory.findByStatus", query = "SELECT b FROM BorrowHistory b WHERE b.status = :status")})
-public class BorrowHistory implements Serializable{
+public class BorrowHistory implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +34,11 @@ public class BorrowHistory implements Serializable{
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "return_date")
     private Date returnDate;
-    
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "due_date")
+    private Date dueDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private BorrowStatus status = BorrowStatus.BORROWING;
@@ -127,5 +133,19 @@ public class BorrowHistory implements Serializable{
      */
     public void setDocument(Document document) {
         this.document = document;
+    }
+
+    /**
+     * @return the dueDate
+     */
+    public Date getDueDate() {
+        return dueDate;
+    }
+
+    /**
+     * @param dueDate the dueDate to set
+     */
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
     }
 }

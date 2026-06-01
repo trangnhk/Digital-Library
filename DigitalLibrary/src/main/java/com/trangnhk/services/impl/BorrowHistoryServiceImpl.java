@@ -7,9 +7,11 @@ package com.trangnhk.services.impl;
 import com.trangnhk.dto.BorrowResponseDTO;
 import com.trangnhk.pojo.BorrowHistory;
 import com.trangnhk.pojo.User;
+import com.trangnhk.pojo.enums.BorrowStatus;
 import com.trangnhk.repositories.BorrowHistoryRepository;
 import com.trangnhk.repositories.UserRepository;
 import com.trangnhk.services.BorrowHistoryService;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,14 @@ public class BorrowHistoryServiceImpl implements BorrowHistoryService{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
         List<BorrowHistory> list= this.borrowHistoryRepo.getMyBorrows(user.getId(), params);
+        
+        Date now = new Date();
+        for(BorrowHistory borrow: list){
+            if (borrow.getDueDate()!= null && now.after(borrow.getDueDate()) && BorrowStatus.BORROWING.equals(borrow.getStatus()) && Boolean.FALSE.equals(borrow.getDocument().getDeleted())){
+                borrow.setStatus(BorrowStatus.EXPIRED);
+                this.borrowHistoryRepo.update(borrow);
+            }
+        }
         
         return list.stream().map(BorrowResponseDTO::fromBorrowHistory).toList();
     }

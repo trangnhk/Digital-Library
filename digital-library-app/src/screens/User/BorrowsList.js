@@ -25,9 +25,12 @@ const BorrowsList = () => {
                 documentId: item.documentId,
                 documentTitle: item.title,
                 borrowDate: new Date(item.borrowDate).toLocaleDateString("vi-VN"),
-                dueDate: item.returnDate
+                returnDate: item.returnDate
                     ? new Date(item.returnDate).toLocaleDateString("vi-VN")
                     : "Chưa trả",
+                dueDate: item.dueDate
+                    ? new Date(item.dueDate).toLocaleDateString("vi-VN")
+                    : "Chưa xác định",
                 status: item.status
             }));
 
@@ -68,6 +71,7 @@ const BorrowsList = () => {
                         <th>Title</th>
                         <th>Borrow date</th>
                         <th>Return date</th>
+                        <th>Due date</th>
                         <th>Status</th>
                         <th></th>
                     </tr>
@@ -78,6 +82,7 @@ const BorrowsList = () => {
                         <tr key={b.id}>
                             <td>{b.documentTitle}</td>
                             <td>{b.borrowDate}</td>
+                            <td>{b.returnDate}</td>
                             <td>{b.dueDate}</td>
                             <td>{renderStatus(b.status)}</td>
                             <td>

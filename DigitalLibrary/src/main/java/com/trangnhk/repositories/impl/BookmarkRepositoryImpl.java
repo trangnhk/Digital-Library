@@ -95,6 +95,12 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(builder.equal(root.get("user").get("username"), username));
+        Predicate documentNotDeleted = builder.or(
+                builder.equal(root.get("document").get("deleted"), false),
+                builder.isNull(root.get("document").get("deleted"))
+        );
+
+        predicates.add(documentNotDeleted);
         query.where(predicates.toArray(Predicate[]::new));
         query.orderBy(builder.desc(root.get("createdDate")));
 
@@ -158,12 +164,12 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
 
         List<Bookmark> results = session.createQuery(query).getResultList();
 
-        return results.isEmpty()? null: results.get(0);
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @Override
     public void deleteBookmark(Bookmark bookmark) {
-        Session session = this.factory.getObject().getCurrentSession();      
+        Session session = this.factory.getObject().getCurrentSession();
         session.remove(bookmark);
     }
 

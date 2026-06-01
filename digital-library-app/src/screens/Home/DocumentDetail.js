@@ -275,7 +275,7 @@ const DocumentDetail = () => {
             const res = await Apis.get(endpoints.myBorrows);
 
             const isBorrowed = res.data.some(
-                b => Number(b.documentId) === Number(documentId)
+                b => Number(b.documentId) === Number(documentId) && b.status === "BORROWING"
             );
 
             setBorrowed(isBorrowed);
@@ -423,11 +423,7 @@ const DocumentDetail = () => {
                                             : "btn btn-outline-dark rounded-pill px-4 py-2"
                                     }
                                 >
-                                    {bookmark
-                                        ? "Saving..."
-                                        : bookmarked
-                                            ? "✓ Bookmarked"
-                                            : "Bookmark"}
+                                    {bookmark ? "Saving..." : bookmarked ? "✓ Bookmarked" : "Bookmark"}
                                 </button>
 
 

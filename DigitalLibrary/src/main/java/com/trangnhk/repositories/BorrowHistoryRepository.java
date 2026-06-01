@@ -15,7 +15,9 @@ import java.util.Map;
  */
 public interface BorrowHistoryRepository {
     BorrowHistory add(BorrowHistory borrow);
+    BorrowHistory update(BorrowHistory borrow);
     boolean existOpenBorrow(Long userId, Long documentId);
+    BorrowHistory getOpenBorrow(Long userId, Long documentId);
     
     // LIBRARIAN
     List<DocumentBorrowerDTO> getBorrowerByDocumentId(Long documentId, Map<String, String> params);

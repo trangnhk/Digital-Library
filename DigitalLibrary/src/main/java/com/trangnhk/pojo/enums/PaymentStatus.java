@@ -11,5 +11,6 @@ package com.trangnhk.pojo.enums;
 public enum PaymentStatus {
     PENDING,
     SUCCESS,
-    FAILED
+    FAILED,
+    CANCELLED
 }
