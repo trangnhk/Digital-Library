@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Badge, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
+import DocumentFileContent from "./DocumentFileContent";
 
 const DocumentDetail = () => {
     const { documentId } = useParams();
@@ -11,6 +12,8 @@ const DocumentDetail = () => {
     const [bookmark, setBookmark] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
     const [user,] = useContext(MyUserContext);
+    const [borrowLoading, setBorrowLoading] = useState(false);
+    const [canViewContent, setCanViewContent] = useState(false);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState("");
     const [editingReview, setEditingReview] = useState(null);
@@ -197,6 +200,61 @@ const DocumentDetail = () => {
         return reviewsPage?.totalPages || 1;
     };
 
+    const borrowDocument = async () => {
+        if (!user) {
+            return nav(`/login?next=/documents/${documentId}`);
+        }
+
+        try {
+            setBorrowLoading(true);
+            setError("");
+            setSuccess("");
+
+            await Apis.post(endpoints.borrowDocument(documentId));
+
+            setCanViewContent(true);
+            setSuccess("Mượn tài liệu thành công, bạn có thể xem file");
+
+        } catch (err) {
+            console.error("Borrow Error: ", err);
+            if (err.response) {
+
+                switch (err.response.status) {
+                    case 409: {
+                        setCanViewContent(true);
+                        setSuccess("Bạn đang mượn tài liệu này rồi. Bạn có thể xem file");
+                        return;
+                    }
+                    case 401: {
+                        setError("Vui lòng đăng nhập để có thể mượn tài liệu");
+                        return;
+                    }
+                    
+                    case 403: {
+                        setError(err.response.data?.message || "Bạn không có quyền mượn tài liệu này");
+                        return;
+                    }
+                    
+                    case 404: {
+                        setError("Không tìm thấy tài liệu cần mượn");
+                        return;
+                    }
+
+                    default: {
+                        setError("Không thể mượn tài liệu. Vui lòng thử lại");
+                    }
+                    
+
+                }
+
+            }
+
+        } finally{
+            setBorrowLoading(false);
+        }
+
+    };
+
 
     useEffect(() => {
         if (!documentId) return;
@@ -335,8 +393,10 @@ const DocumentDetail = () => {
                                             : "Bookmark"}
                                 </button>
 
-                                <button className="btn btn-outline-primary rounded-pill px-4 py-2">
-                                    Borrow
+                                <button className="btn btn-outline-primary rounded-pill px-4 py-2"
+                                    onClick={borrowDocument}
+                                    disabled={borrowLoading || canViewContent}>
+                                    {borrowLoading ? "Đang thực hiện..." : canViewContent ? "Đã mượn" : "Borrow"}
                                 </button>
 
                             </div>
@@ -361,6 +421,8 @@ const DocumentDetail = () => {
 
                 </div>
             </div>
+            <DocumentFileContent documentId={documentId} canViewContent={canViewContent}/>
+
             <div className="container p-3 mb-2">
                 <h4 className="fw-bold mb-4">
                     Review

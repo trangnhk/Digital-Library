@@ -20,8 +20,11 @@ export const endpoints = {
     documentFiles: (documentId) => `/documents/${documentId}/files`,
     documentReviews: (documentId) => `/documents/${documentId}/reviews`,
     documentAccess: (documentId) => `/secure/documents/${documentId}/access`,
+    documentContent: (documentId) => `/secure/documents/${documentId}/content`,
+
     bookmark: (documentId) => `/secure/bookmarks/${documentId}`,
     
+    borrowDocument: (documentId) => `/secure/documents/${documentId}/borrow`,
     
 
     librarianDocuments: "/secure/librarian/documents",

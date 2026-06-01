@@ -157,6 +157,12 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment required for premium document");
         }
         
+        boolean isBorrowing = this.borrowRepo.existOpenBorrow(u.getId(), documentId);
+        
+        if (!isBorrowing){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must borrow this document befor viewing content");
+        }
+        
         if (fileId == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fileId is required");
         }

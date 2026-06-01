@@ -186,22 +186,22 @@ const LibrarianDashboard = () => {
     const getStatusBadge = (approved) => {
         if (approved) {
             return (
-                <Badge bg="success" className="px-3 py-2 rounded-pill">Approved</Badge>
+                <Badge bg="success" classname="px-3 py-2 rounded-pill">Approved</Badge>
             );
         }
         return (
-            <Badge bg="warning" text="dark" className="px-3 py-2 rounded-pill">Pending</Badge>
+            <Badge bg="warning" text="dark" classname="px-3 py-2 rounded-pill">Pending</Badge>
         );
     };
 
     const getPremiumBadge = (premium) => {
         if (premium) {
             return (
-                <Badge bg="success" className="px-3 py-2 rounded-pill">Premium</Badge>
+                <Badge bg="success" classname="px-3 py-2 rounded-pill">Premium</Badge>
             );
         }
         return (
-            <Badge bg="secondary" className="px-3 py-2 rounded-pill">Free</Badge>
+            <Badge bg="secondary" classname="px-3 py-2 rounded-pill">Free</Badge>
         );
     };
 
@@ -267,23 +267,23 @@ const LibrarianDashboard = () => {
 
 
     return (
-        <div className="py-4">
+        <div classname="py-4">
 
-            <Card className="shadow-sm border-0 rounded-4 mb-4">
-                <Card.Body className="p-4">
-                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <Card classname="shadow-sm border-0 rounded-4 mb-4">
+                <Card.Body classname="p-4">
+                    <div classname="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div>
-                            <h3 className="fw-bold mb-1">
+                            <h3 classname="fw-bold mb-1">
                                 Tài liệu của tôi
                             </h3>
 
-                            <p className="text-muted mb-0">
+                            <p classname="text-muted mb-0">
                                 Quản lý danh sách tài liệu do bạn upload và theo dõi trạng thái duyệt.
                             </p>
                         </div>
 
-                        <div className="d-flex gap-2 align-items-center">
-                            <Badge bg="danger" className="px-4 py-2 rounded-pill">
+                        <div classname="d-flex gap-2 align-items-center">
+                            <Badge bg="danger" classname="px-4 py-2 rounded-pill">
                                 Total: {getTotalItems()}
                             </Badge>
 
@@ -295,12 +295,12 @@ const LibrarianDashboard = () => {
                 </Card.Body>
             </Card>
 
-            <Card className="shadow-sm border-0 rounded-4 mb-4">
-                <Card.Body className="p-4">
+            <Card classname="shadow-sm border-0 rounded-4 mb-4">
+                <Card.Body classname="p-4">
                     <Form onSubmit={applyFilter}>
-                        <Row className="g-3 align-items-end">
+                        <Row classname="g-3 align-items-end">
                             <Col xs={12} md={6}>
-                                <Form.Label className="fw-semibold">
+                                <Form.Label classname="fw-semibold">
                                     Keyword
                                 </Form.Label>
 
@@ -310,7 +310,7 @@ const LibrarianDashboard = () => {
                             </Col>
 
                             <Col xs={12} md={3}>
-                                <Form.Label className="fw-semibold">
+                                <Form.Label classname="fw-semibold">
                                     Status
                                 </Form.Label>
 
@@ -331,12 +331,12 @@ const LibrarianDashboard = () => {
                                 </Form.Select>
                             </Col>
 
-                            <Col xs={12} md={3} className="d-flex gap-2">
-                                <Button type="submit" variant="primary" className="flex-fill" >
+                            <Col xs={12} md={3} classname="d-flex gap-2">
+                                <Button type="submit" variant="primary" classname="flex-fill" >
                                     Lọc
                                 </Button>
 
-                                <Button type="button" variant="outline-secondary" lassName="flex-fill"
+                                <Button type="button" variant="outline-secondary" lassname="flex-fill"
                                     onClick={clearFilter} >
                                     Xóa lọc
                                 </Button>
@@ -354,35 +354,35 @@ const LibrarianDashboard = () => {
                 <Alert variant="success">{success}</Alert>
             )}
 
-            <Card className="shadow-sm border-0 rounded-4">
-                <Card.Header className="bg-white d-flex justify-content-between align-items-center">
-                    <h5 className="fw-bold mb-0">
+            <Card classname="shadow-sm border-0 rounded-4">
+                <Card.Header classname="bg-white d-flex justify-content-between align-items-center">
+                    <h5 classname="fw-bold mb-0">
                         Danh sách tài liệu
                     </h5>
 
-                    <span className="text-muted small">
+                    <span classname="text-muted small">
                         Page {getCurrentPage()} / {getTotalPages()}
                     </span>
                 </Card.Header>
 
-                <Card.Body className="p-0">
+                <Card.Body classname="p-0">
                     {loading ? (
-                        <div className="text-center py-5">
+                        <div classname="text-center py-5">
                             <MySpinner />
 
-                            <div className="text-muted mt-2">
+                            <div classname="text-muted mt-2">
                                 Đang tải tài liệu...
                             </div>
                         </div>
                     ) : (
                         <>
                             {documents.length === 0 ? (
-                                <Alert variant="warning" className="m-3">
+                                <Alert variant="warning" classname="m-3">
                                     Không có tài liệu phù hợp.
                                 </Alert>
                             ) : (
-                                <Table bordered hover responsive className="mb-0 align-middle">
-                                    <thead className="table-light">
+                                <Table bordered hover responsive classname="mb-0 align-middle">
+                                    <thead classname="table-light">
                                         <tr>
                                             <th style={{ minWidth: "260px" }}>
                                                 Document
@@ -418,7 +418,7 @@ const LibrarianDashboard = () => {
                                         {documents.map((doc) => (
                                             <tr key={`librarian-document-${doc.id}`}>
                                                 <td>
-                                                    <div className="d-flex align-items-center gap-3">
+                                                    <div classname="d-flex align-items-center gap-3">
                                                         {getThumbnailUrl(doc) && (
                                                             <Image src={getThumbnailUrl(doc)} alt={doc.title} rounded
                                                                 width={120} height={150} style={{
@@ -427,11 +427,11 @@ const LibrarianDashboard = () => {
                                                                 }} />
                                                         )}
                                                         <div>
-                                                            <div className="fw-bold">
+                                                            <div classname="fw-bold">
                                                                 {doc.title}
                                                             </div>
 
-                                                            <div className="text-muted small">
+                                                            <div classname="text-muted small">
                                                                 {doc.author || "Unknown author"} - Published in {doc.publishYear || "N/A"}
                                                             </div>
                                                         </div>
@@ -464,7 +464,7 @@ const LibrarianDashboard = () => {
                                                 </td>
 
                                                 <td>
-                                                    <div className="d-flex gap-2 flex-wrap">
+                                                    <div classname="d-flex gap-2 flex-wrap">
                                                         <Button onClick={() => navToDocumentDetail(doc.id)}
                                                             variant="outline-primary"
                                                             size="sm" >
@@ -497,7 +497,7 @@ const LibrarianDashboard = () => {
                     )}
                 </Card.Body>
 
-                <Card.Footer className="bg-white d-flex justify-content-between align-items-center">
+                <Card.Footer classname="bg-white d-flex justify-content-between align-items-center">
                     <Button
                         variant="outline-secondary"
                         disabled={loading || getCurrentPage() <= 1}
@@ -506,7 +506,7 @@ const LibrarianDashboard = () => {
                         Trang trước
                     </Button>
 
-                    <span className="text-muted">
+                    <span classname="text-muted">
                         Page {getCurrentPage()} / {getTotalPages()}
                     </span>
 
