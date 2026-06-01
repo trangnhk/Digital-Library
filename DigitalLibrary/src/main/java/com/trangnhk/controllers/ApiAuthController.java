@@ -108,7 +108,7 @@ public class ApiAuthController {
         
     }
     
-    // LOgout
+    // Logout
     @PostMapping("/auth/logout")
     public ResponseEntity<?> logout(){
         ResponseCookie deleteJWTCookie = ResponseCookie.from("jwt_token", "")

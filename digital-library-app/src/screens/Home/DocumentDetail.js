@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Badge, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
+import { Badge, Button, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
 import DocumentFileContent from "./DocumentFileContent";
@@ -12,6 +12,7 @@ const DocumentDetail = () => {
     const [bookmark, setBookmark] = useState(false);
     const [bookmarked, setBookmarked] = useState(false);
     const [user,] = useContext(MyUserContext);
+    const [borrowed, setBorrowed] = useState(false);
     const [borrowLoading, setBorrowLoading] = useState(false);
     const [canViewContent, setCanViewContent] = useState(false);
     const [rating, setRating] = useState(0);
@@ -43,11 +44,8 @@ const DocumentDetail = () => {
             );
 
             const data = res.data;
-
-            // nếu backend trả array
             setReviews(Array.isArray(data) ? data : data.content);
 
-            // FIX TOTAL PAGES thủ công (nếu backend không trả)
             const totalPages = data.totalPages
                 || Math.ceil((data.totalItems || data.length || 1) / size);
 
@@ -212,49 +210,83 @@ const DocumentDetail = () => {
 
             await Apis.post(endpoints.borrowDocument(documentId));
 
+            setBorrowed(true);
             setCanViewContent(true);
-            setSuccess("Mượn tài liệu thành công, bạn có thể xem file");
+            setSuccess("Mượn tài liệu thành công. Bạn có thể xem file.");
 
         } catch (err) {
             console.error("Borrow Error: ", err);
-            if (err.response) {
 
-                switch (err.response.status) {
-                    case 409: {
-                        setCanViewContent(true);
-                        setSuccess("Bạn đang mượn tài liệu này rồi. Bạn có thể xem file");
-                        return;
-                    }
-                    case 401: {
-                        setError("Vui lòng đăng nhập để có thể mượn tài liệu");
-                        return;
-                    }
-                    
-                    case 403: {
-                        setError(err.response.data?.message || "Bạn không có quyền mượn tài liệu này");
-                        return;
-                    }
-                    
-                    case 404: {
-                        setError("Không tìm thấy tài liệu cần mượn");
-                        return;
-                    }
-
-                    default: {
-                        setError("Không thể mượn tài liệu. Vui lòng thử lại");
-                    }
-                    
-
-                }
-
+            if (!err.response) {
+                setError("Không thể kết nối đến server. Vui lòng thử lại sau.");
+                return;
             }
 
-        } finally{
+            switch (err.response.status) {
+                case 401:
+                    setError("Vui lòng đăng nhập để mượn tài liệu.");
+                    return;
+
+                case 403:
+                    setError(
+                        err.response.data?.message ||
+                        "Bạn không có quyền mượn tài liệu này."
+                    );
+                    return;
+
+                case 404:
+                    setError("Không tìm thấy tài liệu cần mượn.");
+                    return;
+
+                case 409:
+                    setBorrowed(true);
+                    setCanViewContent(true);
+                    setSuccess("Bạn đang mượn tài liệu này rồi. Bạn có thể xem file.");
+                    return;
+
+                case 422:
+                    setError(
+                        err.response.data?.message ||
+                        "Tài liệu này hiện không thể mượn."
+                    );
+                    return;
+
+                default:
+                    setError(
+                        err.response.data?.message ||
+                        "Không thể mượn tài liệu. Vui lòng thử lại."
+                    );
+                    return;
+            }
+
+        } finally {
             setBorrowLoading(false);
         }
-
     };
 
+    const checkBorrowStatus = async () => {
+        if (!user) {
+            setBorrowed(false);
+            setCanViewContent(false);
+            return;
+        }
+
+        try {
+            const res = await Apis.get(endpoints.myBorrows);
+
+            const isBorrowed = res.data.some(
+                b => Number(b.documentId) === Number(documentId)
+            );
+
+            setBorrowed(isBorrowed);
+            setCanViewContent(isBorrowed);
+
+        } catch (err) {
+            console.error("Check borrow status error:", err);
+            setBorrowed(false);
+            setCanViewContent(false);
+        }
+    };
 
     useEffect(() => {
         if (!documentId) return;
@@ -272,6 +304,8 @@ const DocumentDetail = () => {
         if (!user || !documentId) return;
 
         checkBookmark();
+        checkBorrowStatus();
+
     }, [user, documentId]);
 
     return (
@@ -375,6 +409,9 @@ const DocumentDetail = () => {
                                 </div>
 
                             </div>
+                            {error && (<div className="alert alert-danger mt-3">{error}</div>)}
+
+                            {success && (<div className="alert alert-success mt-3">{success}</div>)}
 
                             <div className="d-flex flex-wrap gap-3">
                                 <button
@@ -393,10 +430,23 @@ const DocumentDetail = () => {
                                             : "Bookmark"}
                                 </button>
 
-                                <button className="btn btn-outline-primary rounded-pill px-4 py-2"
+
+                                <button
+                                    className="rounded-pill px-4 py-2 fw-semibold"
+                                    style={{
+                                        backgroundColor: borrowed ? "#0d6efd" : "#fff",
+                                        color: borrowed ? "#fff" : "#0d6efd",
+                                        border: "1px solid #0d6efd",
+                                        opacity: borrowLoading ? 0.7 : 1
+                                    }}
+                                    disabled={borrowed || borrowLoading}
                                     onClick={borrowDocument}
-                                    disabled={borrowLoading || canViewContent}>
-                                    {borrowLoading ? "Đang thực hiện..." : canViewContent ? "Đã mượn" : "Borrow"}
+                                >
+                                    {borrowLoading
+                                        ? "Borrowing..."
+                                        : borrowed
+                                            ? "✓ Borrowed"
+                                            : "Borrow"}
                                 </button>
 
                             </div>
@@ -421,7 +471,7 @@ const DocumentDetail = () => {
 
                 </div>
             </div>
-            <DocumentFileContent documentId={documentId} canViewContent={canViewContent}/>
+            <DocumentFileContent documentId={documentId} canViewContent={canViewContent} />
 
             <div className="container p-3 mb-2">
                 <h4 className="fw-bold mb-4">
