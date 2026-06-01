@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Badge, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
+import { Badge, Button, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
 
@@ -40,11 +40,8 @@ const DocumentDetail = () => {
             );
 
             const data = res.data;
-
-            // nếu backend trả array
             setReviews(Array.isArray(data) ? data : data.content);
 
-            // FIX TOTAL PAGES thủ công (nếu backend không trả)
             const totalPages = data.totalPages
                 || Math.ceil((data.totalItems || data.length || 1) / size);
 
@@ -196,7 +193,42 @@ const DocumentDetail = () => {
     const getTotalPages = () => {
         return reviewsPage?.totalPages || 1;
     };
+    const [borrowed, setBorrowed] = useState(false);
+    const borrowDocument = async () => {
+        try {
+            const res = await Apis.post(
+                endpoints.borrowDocument(documentId)
+            );
 
+            alert("Mượn thành công!");
+            setBorrowed(true);
+            console.log(res.data);
+
+        } catch (ex) {
+            alert(
+                ex.response?.data?.message ||
+                ex.message
+            );
+        }
+    };
+    const checkBorrowStatus = async () => {
+        if (!user) return;
+
+        try {
+            const res = await Apis.get(endpoints.myBorrows);
+
+            const isBorrowed = res.data.some(
+                b => Number(b.documentId) === Number(documentId)
+            );
+
+            console.log("isBorrowed =", isBorrowed);
+
+            setBorrowed(isBorrowed);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     useEffect(() => {
         if (!documentId) return;
@@ -214,6 +246,8 @@ const DocumentDetail = () => {
         if (!user || !documentId) return;
 
         checkBookmark();
+        checkBorrowStatus();
+
     }, [user, documentId]);
 
     return (
@@ -335,8 +369,18 @@ const DocumentDetail = () => {
                                             : "Bookmark"}
                                 </button>
 
-                                <button className="btn btn-outline-primary rounded-pill px-4 py-2">
-                                    Borrow
+                                <button
+                                    className="rounded-pill px-4 py-2 fw-semibold"
+                                    style={{
+                                        backgroundColor: borrowed ? "#0d6efd" : "#fff",
+                                        color: borrowed ? "#fff" : "#0d6efd",
+                                        border: "1px solid #0d6efd",
+                                        opacity: 1
+                                    }}
+                                    disabled={borrowed}
+                                    onClick={borrowDocument}
+                                >
+                                    {borrowed ? "✓ Borrowed" : "Borrow"}
                                 </button>
 
                             </div>

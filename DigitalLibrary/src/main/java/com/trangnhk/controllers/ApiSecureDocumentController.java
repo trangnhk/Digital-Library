@@ -66,8 +66,7 @@ public class ApiSecureDocumentController {
         } catch (ResponseStatusException ex){
             return this.buildErrorResponse(ex);
         }
-        
-        
+          
     }
     
     

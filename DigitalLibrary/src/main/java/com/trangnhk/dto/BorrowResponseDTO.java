@@ -37,7 +37,7 @@ public class BorrowResponseDTO {
         }
         
         if (borrow.getUser()!= null){
-            dto.setDocumentId(borrow.getUser().getId());
+            dto.setUserId(borrow.getUser().getId());
         }
         
         return dto;
