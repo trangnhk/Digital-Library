@@ -27,6 +27,7 @@ import com.trangnhk.repositories.CategoryRepository;
 import com.trangnhk.repositories.DocumentFileRepository;
 import com.trangnhk.repositories.DocumentRepository;
 import com.trangnhk.repositories.NotificationRepository;
+import com.trangnhk.repositories.PaymentRepository;
 import com.trangnhk.repositories.UserRepository;
 import com.trangnhk.services.SecureDocumentService;
 import com.trangnhk.services.UserService;
@@ -80,6 +81,9 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
 
     @Autowired
     private NotificationRepository notiRepo;
+
+    @Autowired
+    private PaymentRepository paymentRepo;
 
     @Override
     public AccessResponseDTO recordAccess(String username, Long documentId, String ipAddress) {
@@ -139,7 +143,7 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         if (Boolean.FALSE.equals(doc.getApproved())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document is not approved");
         }
-        
+
         if (Boolean.TRUE.equals(doc.getDeleted())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
@@ -157,23 +161,32 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         if (Boolean.TRUE.equals(doc.getPremium()) && !this.hasPaidDocument(u, doc)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment required for premium document");
         }
-        
+
         boolean isBorrowing = this.borrowRepo.existOpenBorrow(u.getId(), documentId);
         BorrowHistory borrow = this.borrowRepo.getOpenBorrow(u.getId(), documentId);
-        
-        if (!isBorrowing){
+
+        if (!isBorrowing) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You must borrow this document befor viewing content");
         }
-        
+
         Date now = new Date();
-        if (borrow.getDueDate() != null && now.after(borrow.getDueDate())){
+        if (borrow.getDueDate() != null && now.after(borrow.getDueDate()) && borrow.getStatus() != BorrowStatus.EXPIRED) {
             borrow.setStatus(BorrowStatus.EXPIRED);
             this.borrowRepo.update(borrow);
-            
+
+            Notification noti = new Notification();
+            noti.setUser(borrow.getUser());
+            noti.setTitle("THE BORROWING PERIOD HAS EXPRIED");
+            noti.setContent("Your document borrowing period overdue at: " + borrow.getDueDate());
+            noti.setIsRead(Boolean.FALSE);
+            noti.setCreatedDate(now);
+
+            Notification savedNoti = this.notiRepo.save(noti);
+
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Borrowing period has expired");
         }
-        
-        if (fileId == null){
+
+        if (fileId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fileId is required");
         }
 
@@ -188,7 +201,7 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
     }
 
     private boolean hasPaidDocument(User u, Document doc) {
-        return false;
+        return this.paymentRepo.existSuccessPayment(u.getId(), doc.getId());
     }
 
     @Override
@@ -210,12 +223,12 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         borrow.setUser(u);
         borrow.setDocument(doc);
         borrow.setStatus(BorrowStatus.BORROWING);
-        
+
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
         calendar.add(Calendar.DAY_OF_MONTH, 4); // RULE: return after 4 days
-        
+
         borrow.setDueDate(calendar.getTime());
 
         BorrowHistory savedBorrow = this.borrowRepo.add(borrow);
@@ -494,7 +507,7 @@ public class SecureDocumentServiceImpl implements SecureDocumentService {
         if (!this.isAdmin(currentU) && !owner.getId().equals(currentU.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only view borrowers of your own document.");
         }
-        
+
         return this.borrowRepo.getBorrowerByDocumentId(documentId, params);
 
     }

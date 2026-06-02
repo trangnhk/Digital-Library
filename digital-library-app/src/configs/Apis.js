@@ -8,6 +8,8 @@ export const endpoints = {
     profile: "/secure/profile",
     changePassword: "/secure/change-password",
     logout: "/auth/logout",
+    notifications: "/secure/notifications",
+    readNotification: (notificationId) => `/secure/notifications/${notificationId}/read`,
     
     categories: "/categories",
 
@@ -16,6 +18,7 @@ export const endpoints = {
     myBorrows: "/secure/borrows/me",
 
     addReview: "/secure/reviews",
+    editReview: (reviewId) => `/secure/reviews/${reviewId}`,
 
     documents: "/documents",
     documentDetails: (documentId) => `/documents/${documentId}`,
@@ -25,8 +28,12 @@ export const endpoints = {
     documentContent: (documentId) => `/secure/documents/${documentId}/content`,
 
     borrowDocument: (documentId) => `/secure/documents/${documentId}/borrow`,
+    returnDocument: (borrowId) => `/secure/borrows/${borrowId}/return`,
 
     bookmark: (documentId) => `/secure/bookmarks/${documentId}`,
+
+    payments: "/secure/payments",
+    paymentByDocument: (documentId) => `/secure/payments/${documentId}`,
     
 
     librarianDocuments: "/secure/librarian/documents",

@@ -18,6 +18,7 @@ public interface BorrowHistoryRepository {
     BorrowHistory update(BorrowHistory borrow);
     boolean existOpenBorrow(Long userId, Long documentId);
     BorrowHistory getOpenBorrow(Long userId, Long documentId);
+    BorrowHistory getBorrowById(Long userId, Long borrowId);
     
     // LIBRARIAN
     List<DocumentBorrowerDTO> getBorrowerByDocumentId(Long documentId, Map<String, String> params);

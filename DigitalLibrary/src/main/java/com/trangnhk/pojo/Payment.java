@@ -56,7 +56,7 @@ public class Payment implements  Serializable{
     @Column(name = "checkout_url", length = 1000)
     private String checkoutUrl;
 
-    @Column(length = 10)
+    @Column(name = "currency", length = 10)
     private String currency = "usd";
 
     @Column(length = 255)
@@ -286,6 +286,20 @@ public class Payment implements  Serializable{
      */
     public void setUpdatedDate(Date updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    /**
+     * @return the createdDate
+     */
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    /**
+     * @param createdDate the createdDate to set
+     */
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
     
     

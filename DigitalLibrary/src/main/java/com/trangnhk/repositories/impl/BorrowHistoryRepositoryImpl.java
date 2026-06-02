@@ -261,4 +261,20 @@ public class BorrowHistoryRepositoryImpl implements BorrowHistoryRepository {
         }
     }
 
+    @Override
+    public BorrowHistory getBorrowById(Long userId, Long borrowId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        Query query = s.createNamedQuery("BorrowHistory.findById", BorrowHistory.class);
+        
+        query.setParameter("id", borrowId);
+        
+        try{
+            return (BorrowHistory) query.getSingleResult();
+        } catch (Exception ex){
+            return null;
+        }
+        
+    }
+
 }

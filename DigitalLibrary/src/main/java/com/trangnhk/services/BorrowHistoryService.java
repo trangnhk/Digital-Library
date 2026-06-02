@@ -5,6 +5,7 @@
 package com.trangnhk.services;
 
 import com.trangnhk.dto.BorrowResponseDTO;
+import com.trangnhk.pojo.BorrowHistory;
 import java.util.List;
 import java.util.Map;
 
@@ -14,4 +15,5 @@ import java.util.Map;
  */
 public interface BorrowHistoryService {
     public List<BorrowResponseDTO> getMyBorrows(String username, Map<String, String> params);
+    BorrowResponseDTO returnBorrow(String username, Long borrowId);
 }

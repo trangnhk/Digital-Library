@@ -4,6 +4,7 @@ import { MyUserContext } from "../configs/Context";
 import { Link, useNavigate } from "react-router-dom";
 import Apis, { endpoints } from "../configs/Apis";
 import { Button, Container, Image, Nav, Navbar } from "react-bootstrap";
+import NotificationBell from "./NotificationBell";
 
 const LibrarianHeader = () => {
     const [user, dispatch] = useContext(MyUserContext);
@@ -70,6 +71,7 @@ const LibrarianHeader = () => {
                     </Nav>
 
                     <Nav className="ms-auto align-items-lg-center">
+                        <NotificationBell />
                         <Link to="/me" className="nav-link">
                             {avatarUrl && (
                                 <Image src={avatarUrl} roundedCircle width={36} height={36} style={{ objectFit: "cover", border: "1px solid #dee2e6" }} />

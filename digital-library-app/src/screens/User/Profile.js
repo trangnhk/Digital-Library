@@ -399,8 +399,11 @@ const Profile = () => {
                             </Row>
                         </Card.Body>
                     </Card>
+                    {profile && (profile.role === "STUDENT" || profile.role === "LECTURER")
+                        && (<BorrowsList />)
+                    }
 
-                    <BorrowsList />
+                    
 
                 </Col>
             </Row>

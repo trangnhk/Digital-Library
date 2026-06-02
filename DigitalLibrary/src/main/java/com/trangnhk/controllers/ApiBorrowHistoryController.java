@@ -12,6 +12,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +40,20 @@ public class ApiBorrowHistoryController {
         } catch(ResponseStatusException ex){
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         }
+    }
+    
+    @PatchMapping("/{borrowId}/return")
+    public ResponseEntity<?> returnBorrow(Principal principal, @PathVariable("borrowId") Long borrowId){
+        
+        try{
+            BorrowResponseDTO borrows = this.borrowHistoryService.returnBorrow(principal.getName(), borrowId);
+            
+            return ResponseEntity.ok(borrows);
+            
+        } catch(ResponseStatusException ex){
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        }
+        
+        
     }
 }

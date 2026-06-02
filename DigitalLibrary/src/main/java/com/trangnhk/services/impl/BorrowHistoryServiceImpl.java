@@ -53,5 +53,47 @@ public class BorrowHistoryServiceImpl implements BorrowHistoryService{
         
         return list.stream().map(BorrowResponseDTO::fromBorrowHistory).toList();
     }
+
+    @Override
+    public BorrowResponseDTO returnBorrow(String username, Long borrowId) {
+        User currentU = this.userRepo.getUserByUsername(username);
+        
+        if (currentU == null){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        
+        BorrowHistory borrow = this.borrowHistoryRepo.getBorrowById(currentU.getId(), borrowId);
+            
+        if (borrow == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found borrow history");
+        }
+        
+        if (borrow.getUser().getId() != currentU.getId()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to return this document borrowing");
+        }
+        
+        if (BorrowStatus.RETURNED.equals(borrow.getStatus())){
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "You have already RETURNED this on time");
+        }
+        
+        if (BorrowStatus.EXPIRED.equals(borrow.getStatus())){
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "This document borrowing period has expired");
+        }
+        
+        
+        Date now = new Date();
+        
+        if (now.after(borrow.getDueDate())){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This document borrowing has been expired, You can't return");
+        }
+        
+        borrow.setStatus(BorrowStatus.RETURNED);
+        borrow.setReturnDate(now);
+        
+        this.borrowHistoryRepo.update(borrow);
+        
+        return BorrowResponseDTO.fromBorrowHistory(borrow);
+        
+    }
     
 }

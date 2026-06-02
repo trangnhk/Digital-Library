@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Badge, Button, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
@@ -24,6 +24,11 @@ const DocumentDetail = () => {
 
     const [reviews, setReviews] = useState([])
     const [reviewsPage, setReviewsPage] = useState(null);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const [q] = useSearchParams();
+    const [paymentLoading, setPaymentLoading] = useState(false);
 
     const loadDocument = async () => {
         let res = await Apis.get(endpoints['documentDetails'](documentId));
@@ -106,8 +111,6 @@ const DocumentDetail = () => {
             setBookmark(false);
         }
     };
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
 
     const getMyReview = () => {
         if (!user) return null;
@@ -122,7 +125,7 @@ const DocumentDetail = () => {
         }
         const myReview = getMyReview();
         if (reviews && !editingReview) {
-            alert("Đã review tài liệu");
+            alert("Đã review tài liệu rồi, bạn có thể sửa hoặc xoá review cũ để thêm review mới.");
         }
 
         try {
@@ -130,18 +133,14 @@ const DocumentDetail = () => {
             setSuccess("");
 
             if (editingReview) {
-                await Apis.patch(
-                    `/secure/reviews/${editingReview}`,
-                    {
-                        rating,
-                        comment
-                    }
-                );
+                await Apis.patch(endpoints.editReview(editingReview), {
+                    rating,
+                    comment
+                });
 
                 setSuccess("Đã cập nhật review!");
             } else {
-                await Apis.post(
-                    endpoints.addReview,
+                await Apis.post(endpoints.addReview,
                     {
                         documentId,
                         rating,
@@ -172,7 +171,7 @@ const DocumentDetail = () => {
         if (!window.confirm("Xóa review này?")) return;
 
         try {
-            await Apis.delete(`/secure/reviews/${id}`);
+            await Apis.delete(endpoints.editReview(id));
 
             setSuccess("Đã xoá review!");
 
@@ -198,6 +197,72 @@ const DocumentDetail = () => {
         return reviewsPage?.totalPages || 1;
     };
 
+    const borrowAfterPaymentPassed = async () => {
+        await Apis.post(endpoints.borrowDocument(documentId));
+
+        setBorrowed(true);
+        setCanViewContent(true);
+        setSuccess("Mượn tài liệu thành công. Bạn có thể xem file.");
+    };
+
+    const createPaymentForPremiumDocument = async () => {
+        setPaymentLoading(true);
+
+        try {
+            const res = await Apis.post(endpoints.payments, {
+                documentId: Number(documentId),
+                paymentMethod: "STRIPE"
+            });
+
+            const payment = res.data;
+
+            if (payment.paymentStatus === "SUCCESS") {
+                await borrowAfterPaymentPassed();
+                return;
+            }
+
+            if (payment.checkoutUrl) {
+                sessionStorage.setItem("payment_document_id", String(documentId));
+                sessionStorage.setItem("payment_stripe_session_id", payment.stripeSessionId || "");
+                sessionStorage.setItem("payment_return_path", `/documents/${documentId}`);
+
+                window.location.href = payment.checkoutUrl;
+                return;
+            }
+
+            setError("Không tạo được link thanh toán. Vui lòng thử lại.");
+
+        } catch (err) {
+            console.error("CREATE PAYMENT ERROR:", err);
+
+            if (!err.response) {
+                setError("Không thể kết nối đến server thanh toán.");
+                return;
+            }
+
+            switch (err.response.status) {
+                case 401:
+                    setError("Vui lòng đăng nhập để thanh toán.");
+                    return;
+
+                case 403:
+                    setError(err.response.data?.message || "Bạn không có quyền thanh toán tài liệu này.");
+                    return;
+
+                case 404:
+                    setError("Không tìm thấy tài liệu cần thanh toán.");
+                    return;
+
+                default:
+                    setError(err.response.data?.message || "Tạo thanh toán thất bại.");
+                    return;
+            }
+
+        } finally {
+            setPaymentLoading(false);
+        }
+    };
+
     const borrowDocument = async () => {
         if (!user) {
             return nav(`/login?next=/documents/${documentId}`);
@@ -208,11 +273,14 @@ const DocumentDetail = () => {
             setError("");
             setSuccess("");
 
-            await Apis.post(endpoints.borrowDocument(documentId));
+            const hasPaid = await Apis.get(endpoints.paymentByDocument(documentId));
 
-            setBorrowed(true);
-            setCanViewContent(true);
-            setSuccess("Mượn tài liệu thành công. Bạn có thể xem file.");
+            if (document?.premium === true && !hasPaid.data) {
+                await createPaymentForPremiumDocument();
+                return;
+            }
+
+            await borrowAfterPaymentPassed();
 
         } catch (err) {
             console.error("Borrow Error: ", err);
@@ -245,17 +313,11 @@ const DocumentDetail = () => {
                     return;
 
                 case 422:
-                    setError(
-                        err.response.data?.message ||
-                        "Tài liệu này hiện không thể mượn."
-                    );
+                    setError(err.response.data?.message || "Tài liệu này hiện không thể mượn.");
                     return;
 
                 default:
-                    setError(
-                        err.response.data?.message ||
-                        "Không thể mượn tài liệu. Vui lòng thử lại."
-                    );
+                    setError(err.response.data?.message || "Không thể mượn tài liệu. Vui lòng thử lại.");
                     return;
             }
 
@@ -288,6 +350,8 @@ const DocumentDetail = () => {
         }
     };
 
+
+
     useEffect(() => {
         if (!documentId) return;
 
@@ -307,6 +371,49 @@ const DocumentDetail = () => {
         checkBorrowStatus();
 
     }, [user, documentId]);
+
+    useEffect(() => {
+        const autoBorrowAfterPayment = async () => {
+            if (!user || !documentId || !document || borrowed) {
+                return;
+            }
+
+            const paymentResult = q.get("payment");
+
+            if (paymentResult !== "success") {
+                return;
+            }
+
+            try {
+                setBorrowLoading(true);
+                setError("");
+                setSuccess("Thanh toán thành công. Đang hoàn tất mượn tài liệu...");
+
+                await borrowAfterPaymentPassed();
+
+            } catch (err) {
+                console.error("AUTO BORROW AFTER PAYMENT ERROR:", err);
+
+                if (err.response?.status === 403) {
+                    setError(
+                        err.response.data?.message ||
+                        "Thanh toán đang được xác nhận. Vui lòng thử bấm Borrow lại sau vài giây."
+                    );
+                    return;
+                }
+
+                setError(
+                    err.response?.data?.message ||
+                    "Thanh toán thành công nhưng chưa thể mượn tài liệu. Vui lòng thử lại."
+                );
+
+            } finally {
+                setBorrowLoading(false);
+            }
+        };
+
+        autoBorrowAfterPayment();
+    }, [user, documentId, document]);
 
     return (
         <>
@@ -433,16 +540,20 @@ const DocumentDetail = () => {
                                         backgroundColor: borrowed ? "#0d6efd" : "#fff",
                                         color: borrowed ? "#fff" : "#0d6efd",
                                         border: "1px solid #0d6efd",
-                                        opacity: borrowLoading ? 0.7 : 1
+                                        opacity: borrowLoading || paymentLoading ? 0.7 : 1
                                     }}
-                                    disabled={borrowed || borrowLoading}
+                                    disabled={borrowed || borrowLoading || paymentLoading}
                                     onClick={borrowDocument}
                                 >
-                                    {borrowLoading
-                                        ? "Borrowing..."
-                                        : borrowed
-                                            ? "✓ Borrowed"
-                                            : "Borrow"}
+                                    {paymentLoading
+                                        ? "Redirecting payment..."
+                                        : borrowLoading
+                                            ? "Borrowing..."
+                                            : borrowed
+                                                ? "✓ Borrowed"
+                                                : document?.premium
+                                                    ? "Pay & Borrow"
+                                                    : "Borrow"}
                                 </button>
 
                             </div>

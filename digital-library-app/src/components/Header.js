@@ -6,6 +6,7 @@ import cookies from "react-cookies";
 import { MyUserContext } from "../configs/Context";
 import Apis, { endpoints } from "../configs/Apis";
 import LibrarianHeader from "./LibrarianHeader";
+import NotificationBell from "./NotificationBell";
 
 const Header = () => {
     const [user, dispatch] = useContext(MyUserContext);
@@ -98,6 +99,7 @@ const Header = () => {
                             <Link to="/login" className="nav-link">Đăng nhập</Link>
                         ) : (
                             <>
+                                <NotificationBell />
                                 <Link to="/me" className="nav-link">
                                     {avatarUrl && (
                                         <Image src={avatarUrl} roundedCircle width={36} height={36} style={{ objectFit: "cover", border: "1px solid #dee2e6" }} />

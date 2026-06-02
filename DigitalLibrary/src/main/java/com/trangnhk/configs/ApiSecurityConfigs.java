@@ -41,7 +41,8 @@ public class ApiSecurityConfigs {
                         "/api/auth/logout",
                         "/api/categories/**",
                         "/api/documents/**",
-                        "/process-login"
+                        "/process-login",
+                        "/api/payments/stripe/webhook"
                 ).permitAll()
                 //ADMIN
                 .requestMatchers(
