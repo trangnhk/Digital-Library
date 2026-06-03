@@ -20,7 +20,6 @@ import Bookmark from "./screens/User/Bookmark";
 import PaymentCancel from "./screens/Home/PaymentCancel";
 import PaymentSuccess from "./screens/Home/PaymentSuccess";
 import Borrowers from "./screens/Librarian/Borrowers";
-import CompareDocument from "./screens/User/CompareDocument";
 
 const App = () => {
     const [user, dispatch] = useReducer(

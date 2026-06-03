@@ -542,7 +542,14 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
         predicates.add(cb.notEqual(root.get("id"), excludeDocumentId));
 
-        predicates.add(cb.isFalse( root.get("deleted")));
+        predicates.add(
+            cb.or(
+                cb.isFalse(root.get("deleted")),
+                cb.isNull(root.get("deleted"))
+            )
+        );
+        
+        predicates.add(cb.isTrue(root.get("approved")));
 
         cq.select(root).where(predicates.toArray(new Predicate[0])).orderBy( cb.desc(root.get("averageRating")));
 

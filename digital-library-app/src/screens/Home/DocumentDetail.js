@@ -5,6 +5,7 @@ import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
 import DocumentFileContent from "./DocumentFileContent";
 import Review from "./Review";
+import DocumentCompare from "./DocumentCompare";
 
 const DocumentDetail = () => {
     const { documentId } = useParams();
@@ -25,6 +26,8 @@ const DocumentDetail = () => {
     const [paymentLoading, setPaymentLoading] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("STRIPE");
+
+    const [showCompareModal, setShowCompareModal] = useState(false);
 
     const loadDocument = async () => {
         let res = await Apis.get(endpoints['documentDetails'](documentId));
@@ -336,84 +339,41 @@ const DocumentDetail = () => {
                             />
                         </Col>
                         <Col md={8} lg={9}>
-                            <h1
-                                className="fw-bold mb-3"
-                                style={{
-                                    fontSize: "3rem",
-                                    lineHeight: "1.2"
-                                }}
-                            >
-                                {document?.title}
-                            </h1>
+                            <h1 className="fw-bold mb-3" style={{ fontSize: "3rem", lineHeight: "1.2" }} >{document?.title} </h1>
 
                             <div className="d-flex flex-column gap-3 mb-4">
 
                                 <div className="d-flex gap-2">
-                                    <span className="fw-bolder fs-5">
-                                        Author:
-                                    </span>
-
-                                    <span className="fs-5">
-                                        {document?.author}
-                                    </span>
+                                    <span className="fw-bolder fs-5">Author: </span>
+                                    <span className="fs-5">{document?.author}</span>
                                 </div>
 
                                 <div className="d-flex gap-2">
-                                    <span className="fw-bold fs-5">
-                                        Category:
-                                    </span>
-
-                                    <span className="fs-5">
-                                        {document?.categoryName}
-                                    </span>
+                                    <span className="fw-bold fs-5">Category: </span>
+                                    <span className="fs-5">{document?.categoryName}</span>
                                 </div>
 
                                 <div className="d-flex gap-2">
-                                    <span className="fw-bold fs-5">
-                                        Publish year:
-                                    </span>
-
+                                    <span className="fw-bold fs-5">Publish year: </span>
+                                    <span className="fs-5">{document?.publishYear}</span>
+                                </div>
+                                <div className="d-flex gap-2">
+                                    <span className="fw-bold fs-5">Format: </span>
+                                    <span className="fs-5">{document?.documentType}</span>
+                                </div>
+                                <div className="d-flex gap-2">
+                                    <span className="fw-bold fs-5">Price: </span>
                                     <span className="fs-5">
-                                        {document?.publishYear}
+                                        {document?.price === 0 ? "Miễn phí" : `${document?.price} VNĐ`}
                                     </span>
                                 </div>
                                 <div className="d-flex gap-2">
-                                    <span className="fw-bold fs-5">
-                                        Format:
-                                    </span>
-
-                                    <span className="fs-5">
-                                        {document?.documentType}
-                                    </span>
+                                    <span className="fw-bold fs-5">Views: </span>
+                                    <span className="fs-5">{document?.totalViews}</span>
                                 </div>
                                 <div className="d-flex gap-2">
-                                    <span className="fw-bold fs-5">
-                                        Price:
-                                    </span>
-
-                                    <span className="fs-5">
-                                        {document?.price === 0
-                                            ? "Miễn phí"
-                                            : `${document?.price} VNĐ`}
-                                    </span>
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <span className="fw-bold fs-5">
-                                        Views:
-                                    </span>
-
-                                    <span className="fs-5">
-                                        {document?.totalViews}
-                                    </span>
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <span className="fw-bold fs-5">
-                                        Rating:
-                                    </span>
-
-                                    <span className="fs-5">
-                                        {document?.averageRating}
-                                    </span>
+                                    <span className="fw-bold fs-5">Rating: </span>
+                                    <span className="fs-5">{document?.averageRating}</span>
                                 </div>
 
                             </div>
@@ -435,8 +395,7 @@ const DocumentDetail = () => {
                                 </button>
 
 
-                                <button
-                                    className="rounded-pill px-4 py-2 fw-semibold"
+                                <button className="rounded-pill px-4 py-2 fw-semibold"
                                     style={{
                                         backgroundColor: borrowed ? "#0d6efd" : "#fff",
                                         color: borrowed ? "#fff" : "#0d6efd",
@@ -447,8 +406,7 @@ const DocumentDetail = () => {
                                     onClick={borrowDocument}
                                 >
                                     {paymentLoading
-                                        ? "Redirecting payment..."
-                                        : borrowLoading
+                                        ? "Redirecting payment..." : borrowLoading
                                             ? "Borrowing..."
                                             : borrowed
                                                 ? "✓ Borrowed"
@@ -456,7 +414,11 @@ const DocumentDetail = () => {
                                                     ? "Pay & Borrow"
                                                     : "Borrow"}
                                 </button>
-                                
+
+                                <button type="button" className="btn btn-outline-info rounded-pill px-4 py-2" onClick={() => setShowCompareModal(true)} >
+                                    So sánh
+                                </button>
+
 
                             </div>
 
@@ -469,11 +431,8 @@ const DocumentDetail = () => {
             <div className="container p-3 mb-2">
                 <div className="bg-white rounded-4 shadow-sm p-4">
                     <div className="mb-3">
-                        <h4 className="fw-bold mb-4">
-                            Description
-                        </h4>
+                        <h4 className="fw-bold mb-4">Description </h4>
                     </div>
-
                     <div className="fs-5">
                         {document?.description || "Chưa có mô tả cho tài liệu này."}
                     </div>
@@ -499,7 +458,6 @@ const DocumentDetail = () => {
                 <Modal.Body>
                     <div className="mb-3">
                         <div className="fw-semibold mb-2"> Tài liệu premium </div>
-
                         <div className="text-muted"> Bạn cần thanh toán trước khi mượn tài liệu này. </div>
                     </div>
 
@@ -550,6 +508,7 @@ const DocumentDetail = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <DocumentCompare show={showCompareModal} document={document} onHide={() => setShowCompareModal(false)} />
 
         </>
 
