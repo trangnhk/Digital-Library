@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public interface ReviewRepository {
     List<Review> getDocumentReviews(Long documentId, Map<String, String> params);
+    long countReviews(Long documentId);
     void createReview(Review review);
     boolean existsByUserAndDocument(Long userId, Long documentId);
     Review getReviewById(Long reviewId);

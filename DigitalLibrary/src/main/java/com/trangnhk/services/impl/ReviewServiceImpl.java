@@ -5,6 +5,7 @@
 package com.trangnhk.services.impl;
 
 import com.trangnhk.dto.CreateReviewRequestDTO;
+import com.trangnhk.dto.PageResponseDTO;
 import com.trangnhk.dto.ReviewResponseDTO;
 import com.trangnhk.dto.UpdateReviewRequestDTO;
 import com.trangnhk.pojo.Document;
@@ -17,6 +18,7 @@ import com.trangnhk.services.ReviewService;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,8 +42,50 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private UserRepository userRepo;
 
+    private int getPage(Map<String, String> params) {
+        if (params == null) {
+            return 1;
+        }
+
+        try {
+            int page = Integer.parseInt(params.getOrDefault("page", "1"));
+
+            if (page < 1) {
+                return 1;
+            }
+
+            return page;
+
+        } catch (NumberFormatException ex) {
+            return 1;
+        }
+    }
+
+    private int getSize(Map<String, String> params) {
+        if (params == null) {
+            return 10;
+        }
+
+        try {
+            int size = Integer.parseInt(params.getOrDefault("size", "10"));
+
+            if (size < 1) {
+                return 10;
+            }
+
+            if (size > 20) {
+                return 20;
+            }
+
+            return size;
+
+        } catch (NumberFormatException ex) {
+            return 10;
+        }
+    }
+
     @Override
-    public List<ReviewResponseDTO> getDocumentReviews(Long documentId, Map<String, String> params) {
+    public PageResponseDTO<ReviewResponseDTO> getDocumentReviews(Long documentId, Map<String, String> params) {
         Document document = this.documentRepo.getDocumentById(documentId);
 
         if (document == null) {
@@ -49,7 +93,17 @@ public class ReviewServiceImpl implements ReviewService {
                     HttpStatus.NOT_FOUND, "Document not found");
         }
 
-        return this.reviewRepo.getDocumentReviews(documentId, params).stream().map(ReviewResponseDTO::fromReview).toList();
+        List<Review> reviews = this.reviewRepo.getDocumentReviews(documentId, params);
+
+        int page = this.getPage(params);
+        int size = this.getSize(params);
+        long totalItems = this.reviewRepo.countReviews(documentId);
+
+        List<ReviewResponseDTO> items = reviews.stream().map(ReviewResponseDTO::fromReview)
+                                                        .collect(Collectors.toList());
+        
+        return new PageResponseDTO<>(items, page, size, totalItems);
+
     }
 
     @Override

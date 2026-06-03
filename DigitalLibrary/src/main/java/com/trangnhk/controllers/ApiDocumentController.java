@@ -6,6 +6,7 @@ package com.trangnhk.controllers;
 
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
+import com.trangnhk.dto.PageResponseDTO;
 import com.trangnhk.dto.ReviewResponseDTO;
 import com.trangnhk.services.DocumentService;
 import jakarta.servlet.http.Cookie;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  *
@@ -168,7 +170,7 @@ public class ApiDocumentController {
 
     @GetMapping("/{documentId}/reviews")
     public ResponseEntity<?> getDocumentReviews(@PathVariable("documentId") Long documentId, @RequestParam Map<String, String> params) {
-        List<ReviewResponseDTO> reviews =this.reviewService.getDocumentReviews(documentId,params);
+        PageResponseDTO<ReviewResponseDTO> reviews =this.reviewService.getDocumentReviews(documentId,params);
         if (reviews == null) {
             return ResponseEntity.status(404).body(Map.of(
                     "timestamp", LocalDateTime.now().toString(),
@@ -178,6 +180,6 @@ public class ApiDocumentController {
             ));
         }
         return ResponseEntity.ok(this.reviewService.getDocumentReviews(documentId, params));
-
+        
     }
 }

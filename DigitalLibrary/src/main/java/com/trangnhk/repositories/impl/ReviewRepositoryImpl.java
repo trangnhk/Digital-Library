@@ -125,6 +125,30 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
+    public long countReviews(Long documentId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        
+        CriteriaBuilder builder = s.getCriteriaBuilder();
+        
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        
+        Root<Review> root = query.from(Review.class);
+        query.select(builder.count(root));
+        
+        List<Predicate> predicates = new ArrayList<>();
+        
+        predicates.add(builder.equal(root.get("document").get("id"), documentId));
+        
+        query.where(predicates.toArray(Predicate[]::new));
+        
+        long count = s.createQuery(query).getSingleResult();
+        
+        return count;
+        
+    }
+
+    
+    @Override
     public void createReview(Review review) {
         Session session = this.factory.getObject().getCurrentSession();
         session.persist(review);
