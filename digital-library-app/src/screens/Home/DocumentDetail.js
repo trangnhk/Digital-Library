@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Badge, Button, Card, Col, Image, ListGroup, Row } from "react-bootstrap";
+import { Badge, Button, Card, Col, Form, Image, ListGroup, Modal, Row } from "react-bootstrap";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../configs/Context";
 import DocumentFileContent from "./DocumentFileContent";
@@ -23,12 +23,14 @@ const DocumentDetail = () => {
 
     const [q] = useSearchParams();
     const [paymentLoading, setPaymentLoading] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("STRIPE");
 
     const loadDocument = async () => {
         let res = await Apis.get(endpoints['documentDetails'](documentId));
         setDocument(res.data);
     }
-    
+
     const checkBookmark = async () => {
         if (!user)
             return;
@@ -86,23 +88,38 @@ const DocumentDetail = () => {
         setSuccess("Mượn tài liệu thành công. Bạn có thể xem file.");
     };
 
-    const createPaymentForPremiumDocument = async () => {
+    const createPaymentForPremiumDocument = async (paymentMethod) => {
         setPaymentLoading(true);
 
         try {
+
+            const method = paymentMethod.toUpperCase();
+
             const res = await Apis.post(endpoints.payments, {
                 documentId: Number(documentId),
-                paymentMethod: "STRIPE"
+                paymentMethod: method
             });
 
             const payment = res.data;
 
             if (payment.paymentStatus === "SUCCESS") {
+                setShowPaymentModal(false);
                 await borrowAfterPaymentPassed();
                 return;
             }
 
-            if (payment.checkoutUrl) {
+            if (method === "CASH") {
+                setShowPaymentModal(false);
+
+                setSuccess(
+                    "Yêu cầu thanh toán tiền mặt đã được ghi nhận. " +
+                    "Vui lòng đến thư viện để thanh toán. Sau khi thủ thư xác nhận thanh toán, bạn mới có thể mượn và xem nội dung tài liệu."
+                );
+
+                return;
+            }
+
+            if (method === "STRIPE" && payment.checkoutUrl) {
                 sessionStorage.setItem("payment_document_id", String(documentId));
                 sessionStorage.setItem("payment_stripe_session_id", payment.stripeSessionId || "");
                 sessionStorage.setItem("payment_return_path", `/documents/${documentId}`);
@@ -134,6 +151,10 @@ const DocumentDetail = () => {
                     setError("Không tìm thấy tài liệu cần thanh toán.");
                     return;
 
+                case 422:
+                    setError(err.response.data?.message || "Phương thức thanh toán không hợp lệ.");
+                    return;
+
                 default:
                     setError(err.response.data?.message || "Tạo thanh toán thất bại.");
                     return;
@@ -157,7 +178,8 @@ const DocumentDetail = () => {
             const hasPaid = await Apis.get(endpoints.paymentByDocument(documentId));
 
             if (document?.premium === true && !hasPaid.data) {
-                await createPaymentForPremiumDocument();
+                setSelectedPaymentMethod("STRIPE");
+                setShowPaymentModal(true);
                 return;
             }
 
@@ -229,6 +251,10 @@ const DocumentDetail = () => {
             setBorrowed(false);
             setCanViewContent(false);
         }
+    };
+
+    const confirmPaymentMethod = async () => {
+        await createPaymentForPremiumDocument(selectedPaymentMethod);
     };
 
 
@@ -456,6 +482,73 @@ const DocumentDetail = () => {
             <DocumentFileContent documentId={documentId} canViewContent={canViewContent} />
 
             <Review documentId={documentId} />
+
+            <Modal show={showPaymentModal}
+                onHide={() => {
+                    if (!paymentLoading) {
+                        setShowPaymentModal(false);
+                    }
+                }} centered backdrop="static" >
+                <Modal.Header closeButton={!paymentLoading}>
+                    <Modal.Title>
+                        Chọn phương thức thanh toán
+                    </Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="mb-3">
+                        <div className="fw-semibold mb-2"> Tài liệu premium </div>
+
+                        <div className="text-muted"> Bạn cần thanh toán trước khi mượn tài liệu này. </div>
+                    </div>
+
+                    <Form>
+                        <div className="border rounded-3 p-3 mb-3">
+                            <Form.Check type="radio" id="payment-stripe"
+                                name="paymentMethod"
+                                label="Thanh toán online bằng Stripe"
+                                value="STRIPE"
+                                checked={selectedPaymentMethod === "STRIPE"}
+                                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                                disabled={paymentLoading}
+                            />
+
+                            <div className="text-muted small ms-4">
+                                Hệ thống sẽ chuyển bạn sang trang Stripe Checkout để thanh toán.
+                            </div>
+                        </div>
+
+                        <div className="border rounded-3 p-3">
+                            <Form.Check
+                                type="radio"
+                                id="payment-cash"
+                                name="paymentMethod"
+                                label="Thanh toán tiền mặt tại thư viện"
+                                value="CASH"
+                                checked={selectedPaymentMethod === "CASH"}
+                                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                                disabled={paymentLoading}
+                            />
+
+                            <div className="text-muted small ms-4">
+                                Hệ thống sẽ tạo yêu cầu thanh toán ở trạng thái PENDING.
+                                Bạn cần đến thư viện để thanh toán và chờ thủ thư xác nhận.
+                            </div>
+                        </div>
+                    </Form>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="outline-secondary" onClick={() => setShowPaymentModal(false)} disabled={paymentLoading} >
+                        Hủy
+                    </Button>
+
+                    <Button variant="primary" onClick={confirmPaymentMethod} disabled={paymentLoading} >
+                        {paymentLoading
+                            ? "Đang xử lý..." : selectedPaymentMethod === "STRIPE" ? "Tiếp tục thanh toán Stripe" : "Tạo yêu cầu thanh toán tiền mặt"}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
         </>
 

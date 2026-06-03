@@ -4,6 +4,8 @@ import { Badge, Dropdown } from "react-bootstrap";
 import Apis, { endpoints } from "../configs/Apis";
 import MySpinner from "./MySpinner";
 import { Bell, BellFill } from "react-bootstrap-icons";
+import moment from "moment";
+import "moment/locale/vi";
 
 const NotificationBell = () => {
     const [user] = useContext(MyUserContext);
@@ -16,7 +18,32 @@ const NotificationBell = () => {
     const [loadingMore, setLoadingMore] = useState(false);
     const [err, setErr] = useState("");
 
+
     const size = 10;
+
+    moment.locale("vi");
+
+
+    const formatTimeAgo = (time) => {
+        if (!time) {
+            return "Không xác định";
+        }
+
+        const parsedTime = moment(
+            time,
+            [
+                "DD-MM-YYYY HH:mm:ss",
+                "YYYY-MM-DD HH:mm:ss",
+                "YYYY-MM-DD HH:mm:ss.SSSSSS"
+            ], true
+        );
+
+        if (!parsedTime.isValid()) {
+            return time;
+        }
+
+        return parsedTime.add(7, "hours").fromNow();
+    };
 
     const loadNotifications = async (pageToLoad = 1, reset = false) => {
         try {
@@ -131,7 +158,7 @@ const NotificationBell = () => {
                     lineHeight: "1"
                 }}
             >
-                <BellFill color="darkblue"/>
+                <BellFill color="darkblue" />
 
                 {unreadCount > 0 && (
                     <Badge
@@ -218,7 +245,7 @@ const NotificationBell = () => {
                                     </div>
 
                                     <div className="text-secondary small mt-2">
-                                        {n.createdDate}
+                                        {formatTimeAgo(n.createdDate)}
                                     </div>
                                 </Dropdown.Item>
                             ))

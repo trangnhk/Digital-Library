@@ -27,6 +27,7 @@ const Review = ({ documentId }) => {
     const scrollRef = useRef(null);
 
     const nav = useNavigate();
+    moment.locale("vi");
 
     useEffect(() => {
         if (!documentId)
@@ -41,7 +42,20 @@ const Review = ({ documentId }) => {
             return "Không xác định";
         }
 
-        return moment(time, "DD-MM-YYYY HH:mm:ss").fromNow();
+        const parsedTime = moment(
+            time,
+            [
+                "DD-MM-YYYY HH:mm:ss",
+                "YYYY-MM-DD HH:mm:ss",
+                "YYYY-MM-DD HH:mm:ss.SSSSSS"
+            ], true
+        );
+
+        if (!parsedTime.isValid()) {
+            return time;
+        }
+
+        return parsedTime.add(7, "hours").fromNow();
     };
 
     const resetAndLoadReviews = () => {
@@ -76,7 +90,7 @@ const Review = ({ documentId }) => {
             else {
                 setReviews(prev => {
                     const map = new Map();
-                    [...prev, ...newReviews].forEach(item => {map.set(item.id, item);});
+                    [...prev, ...newReviews].forEach(item => { map.set(item.id, item); });
                     return Array.from(map.values());
                 });
             }
@@ -322,7 +336,7 @@ const Review = ({ documentId }) => {
                                                     <div className="flex-grow-1">
                                                         <div className="d-flex justify-content-between">
                                                             <h6 className="fw-bold mb-1"> {r.username} </h6>
-                                                            <small className="text-muted"><em>{formatTimeAgo(r.createdAt)}</em> </small>
+                                                            <small className="text-muted" title={r.createdAt}>{formatTimeAgo(r.createdAt)}</small>
                                                         </div>
 
                                                         <div className="text-warning mb-2">
