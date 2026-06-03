@@ -41,7 +41,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
         basePackages = {
             "com.trangnhk.controllers",
             "com.trangnhk.repositories",
-            "com.trangnhk.services",}
+            "com.trangnhk.services",
+            "com.trangnhk.payments"}
 )
 @Order(2)
 public class SpringSecurityConfigs {

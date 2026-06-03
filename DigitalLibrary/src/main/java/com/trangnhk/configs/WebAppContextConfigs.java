@@ -27,7 +27,8 @@ import org.springframework.validation.Validator;
 @ComponentScan(basePackages = {
     "com.trangnhk.controllers",
     "com.trangnhk.repositories",
-    "com.trangnhk.services"
+    "com.trangnhk.services",
+    "com.trangnhk.payments"
 })
 @EnableWebMvc
 @EnableTransactionManagement

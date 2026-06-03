@@ -10,6 +10,9 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.trangnhk.dto.CreatePaymentRequestDTO;
 import com.trangnhk.dto.PaymentResponseDTO;
+import com.trangnhk.payments.PaymentGatewayResult;
+import com.trangnhk.payments.PaymentProcessor;
+import com.trangnhk.payments.PaymentProcessorFactory;
 import com.trangnhk.pojo.Document;
 import com.trangnhk.pojo.Notification;
 import com.trangnhk.pojo.Payment;
@@ -48,7 +51,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private NotificationRepository notiRepo;
     
-    
+    @Autowired
+    private PaymentProcessorFactory paymentProcessorFactory;
 
     @Value("${stripe.secret_key}")
     private String stripeSecretKey;
@@ -74,8 +78,12 @@ public class PaymentServiceImpl implements PaymentService {
         if (doc == null || Boolean.TRUE.equals(doc.getDeleted()) || Boolean.FALSE.equals(doc.getApproved())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
+        
+        if (!Boolean.TRUE.equals(doc.getApproved())){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Document not approved");
+        }
 
-        if (Boolean.FALSE.equals(doc.getPremium())) {
+        if (!Boolean.TRUE.equals(doc.getPremium())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Free document does not require payment");
         }
 
@@ -95,93 +103,33 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setDescription("Payment for document: " + doc.getId());
 
-        if (method == PaymentMethod.CASH) {
-            Payment savedPayment = this.paymentRepo.add(payment);
-            return PaymentResponseDTO.fromPayment(savedPayment);
-        }
-
-        if (method == PaymentMethod.STRIPE) {
-            payment.setCurrency(this.stripeCurrency.trim().toLowerCase());
-
-            System.out.println("stripeCurrency = [" + this.stripeCurrency + "]");
-            System.out.println("stripeCurrency length = " + this.stripeCurrency.length());
-            System.out.println("payment.currency = [" + payment.getCurrency() + "]");
-            System.out.println("payment.currency length = " + payment.getCurrency().length());
-
-            Payment savedPayment = this.paymentRepo.add(payment);
-
-            Session stripeSession = this.createStripeCheckoutSession(savedPayment, doc);
-
-            savedPayment.setStripeSessionId(stripeSession.getId());
-            savedPayment.setCheckoutUrl(stripeSession.getUrl());
-
+        Payment savedPayment = this.paymentRepo.add(payment);
+        
+        PaymentProcessor processor = this.paymentProcessorFactory.getProcessor(method);
+        
+        try{
+            PaymentGatewayResult result = processor.createPayment(savedPayment, doc);
+            
+            savedPayment.setCheckoutUrl(result.getCheckoutUrl());
+            
+            if(result.getStripeSessionId() != null){
+                savedPayment.setStripeSessionId(result.getStripeSessionId());
+            }
+            
             Payment updatedPayment = this.paymentRepo.update(savedPayment);
-
+            
             return PaymentResponseDTO.fromPayment(updatedPayment);
+            
+        } catch (ResponseStatusException ex){
+            savedPayment.setPaymentStatus(PaymentStatus.FAILED);
+            savedPayment.setFailureReason(ex.getReason());
+            
+            this.paymentRepo.update(savedPayment);
+            
+            throw ex;
         }
-
-        throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Unsupported payment method");
-
-    }
-
-    private Session createStripeCheckoutSession(Payment payment, Document document) {
-        try {
-            Stripe.apiKey = this.stripeSecretKey;
-
-            Long amount = this.resolveStripeAmount(payment.getAmount());
-
-            SessionCreateParams params = SessionCreateParams.builder()
-                    .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl(this.stripeSuccessUrl)
-                    .setCancelUrl(this.stripeCancelUrl)
-                    .putMetadata("paymentId", String.valueOf(payment.getId()))
-                    .putMetadata("documentId", String.valueOf(document.getId()))
-                    .putMetadata("userId", String.valueOf(payment.getUser().getId()))
-                    .addLineItem(
-                            SessionCreateParams.LineItem.builder()
-                                    .setQuantity(1L)
-                                    .setPriceData(
-                                            SessionCreateParams.LineItem.PriceData.builder()
-                                                    .setCurrency(this.stripeCurrency)
-                                                    .setUnitAmount(amount)
-                                                    .setProductData(
-                                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                    .setName(document.getTitle())
-                                                                    .setDescription("Digital document access")
-                                                                    .build()
-                                                    )
-                                                    .build()
-                                    )
-                                    .build()
-                    )
-                    .build();
-
-            return Session.create(params);
-
-        } catch (StripeException ex) {
-            ex.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Stripe ERRROR: " + ex.getMessage());
-        }
-        catch (Exception ex){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Create Stripe checkout session failed");
-
-        }
-    }
-
-    private Long resolveStripeAmount(Double price) {
-        if (price == null || price <= 0) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Amount must be more than 0");
-        }
-
-        if ("usd".equalsIgnoreCase(this.stripeCurrency)) {
-            return Math.round(price * 100);
-        }
-
-        if ("vnd".equalsIgnoreCase(this.stripeCurrency)) {
-            return price.longValue();
-        }
-
-        return Math.round(price * 100);
+        
+        
     }
 
     private PaymentMethod parsePaymentMethod(String value) {
