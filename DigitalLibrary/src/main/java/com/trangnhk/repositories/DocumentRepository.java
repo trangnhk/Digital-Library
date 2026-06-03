@@ -32,4 +32,9 @@ public interface DocumentRepository {
     //ADMIN
     List<Document> getAdminDocuments(Map<String, String> params);
     long countAdminDocuments(Map<String, String> params);
+    
+    public List<Document> getApprovedDocumentsByIds(List<Long> ids);
+    public List<Document> getApprovedDocumentsByCategory(Long categoryId, Long excludeId, int limit);
+    public List<Document> getTopRatedDocumentsInCategory(Long categoryId, Long excludeDocumentId, int limit);
+
 }

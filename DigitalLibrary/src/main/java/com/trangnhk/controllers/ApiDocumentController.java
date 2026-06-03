@@ -4,6 +4,7 @@
  */
 package com.trangnhk.controllers;
 
+import com.trangnhk.dto.DocumentCompareResponseDTO;
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
 import com.trangnhk.dto.PageResponseDTO;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.trangnhk.services.ReviewService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +38,9 @@ public class ApiDocumentController {
 
     @Autowired
     private DocumentService documentService;
-    
+
     @Autowired
     private ReviewService reviewService;
-
 
     @GetMapping
     public ResponseEntity<?> getDocuments(@RequestParam Map<String, String> params,
@@ -102,9 +103,9 @@ public class ApiDocumentController {
                     "message", "Document File not found"
             ));
         }
-        
+
         saveLastViewedDocumentCookies(documentId, response);
-        
+
         return ResponseEntity.ok(files);
     }
 
@@ -160,17 +161,18 @@ public class ApiDocumentController {
         String viewedAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
         Cookie documentIdCookie = new Cookie("last_viewed_document_id", documentId.toString());
-        
+
         documentIdCookie.setMaxAge(24 * 60 * 60); // 1day
         documentIdCookie.setPath("/");
         documentIdCookie.setHttpOnly(false);
-        
+
         response.addCookie(documentIdCookie);
     }
 
     @GetMapping("/{documentId}/reviews")
     public ResponseEntity<?> getDocumentReviews(@PathVariable("documentId") Long documentId, @RequestParam Map<String, String> params) {
         PageResponseDTO<ReviewResponseDTO> reviews =this.reviewService.getDocumentReviews(documentId,params);
+
         if (reviews == null) {
             return ResponseEntity.status(404).body(Map.of(
                     "timestamp", LocalDateTime.now().toString(),
@@ -182,4 +184,20 @@ public class ApiDocumentController {
         return ResponseEntity.ok(this.reviewService.getDocumentReviews(documentId, params));
         
     }
+
+    @GetMapping("/{documentId}/compare")
+    public ResponseEntity<DocumentCompareResponseDTO> compareDocuments(
+            @PathVariable("documentId") Long documentId,
+            @RequestParam(value = "with", required = false) String with,
+            @RequestParam(value = "categoryId", required = false) Long categoryId) {
+
+        List<Long> compareIds = null;
+
+        if (with != null && !with.isBlank()) {
+            compareIds = Arrays.stream(with.split(",")).map(Long::parseLong).toList();
+        }
+
+        return ResponseEntity.ok(documentService.compareDocuments(documentId, compareIds, categoryId));
+    }
+
 }

@@ -456,6 +456,7 @@ const DocumentDetail = () => {
                                                     ? "Pay & Borrow"
                                                     : "Borrow"}
                                 </button>
+                                
 
                             </div>
 

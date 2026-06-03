@@ -6,7 +6,9 @@ package com.trangnhk.services.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.trangnhk.dto.CompareDocumentDTO;
 import com.trangnhk.dto.CreateLibrarianDocumentRequestDTO;
+import com.trangnhk.dto.DocumentCompareResponseDTO;
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
 import com.trangnhk.dto.LibrarianDocumentResponseDTO;
@@ -483,7 +485,7 @@ public class DocumentServiceImpl implements DocumentService {
             documentFile.setFileSize(file.getSize());
             documentFile.setFileExtension(this.getFileExtension(file.getOriginalFilename()));
             documentFile.setDocument(document);
-            
+
             documentFile.refreshActiveByDocumentType();
 
             return documentFile;
@@ -502,23 +504,22 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     //refresh active all files in document
-    private void refreshActiveForDocumentFiles(Document document){
+    private void refreshActiveForDocumentFiles(Document document) {
         List<DocumentFile> files = this.documentFileRepo.getAllFilesByDocumentId(document.getId());
-        
-        if (files == null || files.isEmpty()){
+
+        if (files == null || files.isEmpty()) {
             return;
         }
-        
-        for (DocumentFile file: files){
+
+        for (DocumentFile file : files) {
             file.setDocument(document);
             file.refreshActiveByDocumentType();
-            
+
             this.documentFileRepo.update(file);
         }
-        
+
     }
-    
-    
+
     @Override
     public DocumentResponseDTO getDocumentDetail(Long documentId, String username) {
 
@@ -571,12 +572,12 @@ public class DocumentServiceImpl implements DocumentService {
 
         if (dto.getDocumentType() != null && !dto.getDocumentType().trim().isEmpty()) {
             finalDocType = this.parseDocumentType(dto.getDocumentType());
-            
-            if (!finalDocType.equals(doc.getDocumentType())){
+
+            if (!finalDocType.equals(doc.getDocumentType())) {
                 doc.setDocumentType(finalDocType);
                 this.refreshActiveForDocumentFiles(doc);
             }
-            
+
         }
 
         if (dto.getCategoryId() != null) {
@@ -638,12 +639,10 @@ public class DocumentServiceImpl implements DocumentService {
                     throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Price must be a positive number");
                 }
                 doc.setPrice(dto.getPrice());
-            }
-            else{
+            } else {
                 doc.setPrice(0.0);
             }
 
-            
         }
 
         if (Boolean.TRUE.equals(doc.getPremium()) && dto.getPrice() != null && doc.getPrice() < 0) {
@@ -709,64 +708,94 @@ public class DocumentServiceImpl implements DocumentService {
 
         this.checkCanModifyDocument(currentU, doc);
 
-        
         // soft delete
         doc.setDeleted(Boolean.TRUE);
         doc.setApproved(Boolean.FALSE);
-        
+
         List<DocumentFile> files = this.documentFileRepo.getAllFilesByDocumentId(documentId);
-        
-        for (DocumentFile file: files){
+
+        for (DocumentFile file : files) {
             file.setActive(Boolean.FALSE);
             this.documentFileRepo.update(file);
         }
-        
+
         this.documentRepo.update(doc);
 //        this.documentRepo.delete(doc);
     }
-    
+
     @Override
     public List<DocumentFileResponseDTO> getManagedDocumentFiles(String username, Long documentId) {
         User currentU = this.userService.getUserByUsername(username);
-        
+
         Document doc = this.documentRepo.getDocumentById(documentId);
-        
-        if (doc == null || Boolean.TRUE.equals(doc.getDeleted())){
+
+        if (doc == null || Boolean.TRUE.equals(doc.getDeleted())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
-        
+
         this.checkCanModifyDocument(currentU, doc);
-        
+
         List<DocumentFile> files = this.documentFileRepo.getAllFilesByDocumentId(documentId);
-        
+
         return files.stream().map(DocumentFileResponseDTO::fromDocumentFile)
-                             .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deleteLibrarianDocumentFile(String username, Long documentId, Long fileId) {
         User currentU = this.userService.getUserByUsername(username);
-        
+
         Document doc = this.documentRepo.getDocumentById(documentId);
-        
-        if (doc == null || Boolean.TRUE.equals(doc.getDeleted())){
+
+        if (doc == null || Boolean.TRUE.equals(doc.getDeleted())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
-        
+
         this.checkCanModifyDocument(currentU, doc);
-        
+
         DocumentFile file = this.documentFileRepo.getFileByIdAndDocumnetId(fileId, documentId);
-        
-        if (file == null){
+
+        if (file == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document file not found");
         }
-        
-        
+
         file.setActive(Boolean.FALSE);
         this.documentFileRepo.update(file);
-        
-        
-        
+
+    }
+
+    @Override
+    public DocumentCompareResponseDTO compareDocuments(Long documentId,List<Long> compareIds,Long categoryId) {
+        Document baseDoc = documentRepo.getDocumentById(documentId);
+
+        if (baseDoc == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Document not found");
+        }
+
+        List<Document> compareDocs;
+
+        if (compareIds != null && !compareIds.isEmpty()) {
+            if (compareIds.contains(documentId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot compare with itself");
+            }
+            compareDocs = documentRepo.getApprovedDocumentsByIds(compareIds);
+
+        } else {
+
+            Long category = categoryId;
+            
+            if (category == null && baseDoc.getCategory() != null) {
+                category = baseDoc.getCategory().getId();
+            }
+            if (category == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Category not found");
+            }
+            compareDocs = documentRepo.getTopRatedDocumentsInCategory(baseDoc.getCategory().getId(),documentId,3);
+        }
+        DocumentCompareResponseDTO response = new DocumentCompareResponseDTO();
+        response.setBaseDocument(CompareDocumentDTO.fromDocument(baseDoc));
+        response.setComparedDocuments(compareDocs.stream().map(CompareDocumentDTO::fromDocument).collect(Collectors.toList()));
+        return response;
     }
 
 }

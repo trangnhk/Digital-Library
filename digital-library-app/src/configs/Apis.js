@@ -30,6 +30,7 @@ export const endpoints = {
     borrowDocument: (documentId) => `/secure/documents/${documentId}/borrow`,
     returnDocument: (borrowId) => `/secure/borrows/${borrowId}/return`,
 
+    compareDocument: (documentId) => `/documents/${documentId}/compare`,
     bookmark: (documentId) => `/secure/bookmarks/${documentId}`,
 
     payments: "/secure/payments",

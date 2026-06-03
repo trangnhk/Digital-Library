@@ -374,7 +374,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     public Document update(Document document) {
         Session s = this.factory.getObject().getCurrentSession();
 
-        if (document.getId() == null){
+        if (document.getId() == null) {
             s.persist(document);
             return document;
         }
@@ -392,105 +392,160 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     @Override
     public List<Document> getAdminDocuments(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         StringBuilder hql = new StringBuilder();
 
         hql.append("SELECT d FROM Document d WHERE 1 = 1 ");
 
         this.appendAdminDocumentFilters(hql, params);
-        
+
         hql.append(SortUtils.buildOrderBy(params, AdminDocumentSorts.ADMIN_DOCUMENT_SORT, AdminDocumentSorts.DEFAULT_SORT));
-        
+
         Query query = s.createQuery(hql.toString(), Document.class);
-        
+
         this.setAdminDocumentFilterParams(query, params);
-        
+
         int page = this.getPage(params);
         int size = this.getSize(params);
         int start = (page - 1) * size;
-        
+
         query.setFirstResult(start);
         query.setMaxResults(size);
-        
+
         return query.getResultList();
-        
-        
+
     }
-    
-    private void appendAdminDocumentFilters(StringBuilder hql, Map<String, String> params){
-        if (params == null){
+
+    private void appendAdminDocumentFilters(StringBuilder hql, Map<String, String> params) {
+        if (params == null) {
             return;
         }
-        
+
         String kw = params.get("keyword");
-        if (kw != null && !kw.trim().isEmpty()){
+        if (kw != null && !kw.trim().isEmpty()) {
             hql.append(" AND (LOWER(d.title) LIKE :keyword ");
             hql.append(" OR LOWER(d.author) LIKE :keyword ");
             hql.append(" AND (LOWER(d.publisher) LIKE :keyword) ");
             hql.append(") ");
-            
+
         }
-        
+
         String approved = params.get("approved");
-        if (approved != null && !approved.trim().isEmpty()){
+        if (approved != null && !approved.trim().isEmpty()) {
             hql.append(" AND d.approved = :approved ");
         }
-        
+
         String cateId = params.get("categoryId");
-        if (cateId != null && !cateId.trim().isEmpty()){
+        if (cateId != null && !cateId.trim().isEmpty()) {
             hql.append(" AND d.category.id = :categoryId ");
         }
-        
+
         String uploadBy = params.get("uploadBy");
-        if (uploadBy != null && !uploadBy.trim().isEmpty()){
+        if (uploadBy != null && !uploadBy.trim().isEmpty()) {
             hql.append(" AND d.uploadedBy.id = :uploadBy ");
         }
-        
-        
+
     }
 
-    private void setAdminDocumentFilterParams(Query query, Map<String, String> params){
-        if (params == null){
+    private void setAdminDocumentFilterParams(Query query, Map<String, String> params) {
+        if (params == null) {
             return;
         }
-        
+
         String kw = params.get("keyword");
-        if (kw != null && !kw.trim().isEmpty()){
+        if (kw != null && !kw.trim().isEmpty()) {
             query.setParameter("keyword", "%" + kw.trim().toLowerCase() + "%");
         }
-        
+
         String approved = params.get("approved");
-        if (approved != null && !approved.trim().isEmpty()){
+        if (approved != null && !approved.trim().isEmpty()) {
             query.setParameter("approved", Boolean.valueOf(approved));
         }
-        
+
         String cateId = params.get("categoryId");
-        if (cateId != null && !cateId.trim().isEmpty()){
+        if (cateId != null && !cateId.trim().isEmpty()) {
             query.setParameter("categoryId", Long.valueOf(cateId));
         }
-        
+
         String uploadBy = params.get("uploadBy");
-        if (uploadBy != null && !uploadBy.trim().isEmpty()){
+        if (uploadBy != null && !uploadBy.trim().isEmpty()) {
             query.setParameter("uploadBy", Long.valueOf(uploadBy));
         }
     }
-    
+
     @Override
     public long countAdminDocuments(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         StringBuilder hql = new StringBuilder();
-        
+
         hql.append("SELECT COUNT(d.id) FROM Document d WHERE 1 = 1");
-        
+
         this.appendAdminDocumentFilters(hql, params);
-        
+
         Query query = s.createQuery(hql.toString(), Long.class);
-        
+
         this.setAdminDocumentFilterParams(query, params);
-        
+
         return (long) query.getSingleResult();
     }
 
+    @Override
+    public List<Document> getApprovedDocumentsByIds(List<Long> ids) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Document> cq = cb.createQuery(Document.class);
 
+        Root<Document> root = cq.from(Document.class);
+
+        cq.where(
+                cb.and(
+                        root.get("id").in(ids),
+                        cb.equal(root.get("approved"), true)
+                )
+        );
+
+        return session.createQuery(cq).getResultList();
+    }
+
+    @Override
+    public List<Document> getApprovedDocumentsByCategory(Long categoryId, Long excludeId, int limit) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Document> cq = cb.createQuery(Document.class);
+
+        Root<Document> root = cq.from(Document.class);
+
+        cq.where(cb.and(
+                        cb.equal(root.get("category").get("id"), categoryId),
+                        cb.notEqual(root.get("id"), excludeId),
+                        cb.equal(root.get("approved"), true)
+                )
+        );
+
+        return session.createQuery(cq).setMaxResults(limit).getResultList();
+    }
+
+    @Override
+    public List<Document> getTopRatedDocumentsInCategory(Long categoryId, Long excludeDocumentId, int limit) {
+
+        Session session = this.factory.getObject().getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Document> cq = cb.createQuery(Document.class);
+
+        Root<Document> root = cq.from(Document.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(cb.equal(root.get("category").get("id"),categoryId));
+
+        predicates.add(cb.notEqual(root.get("id"), excludeDocumentId));
+
+        predicates.add(cb.isFalse( root.get("deleted")));
+
+        cq.select(root).where(predicates.toArray(new Predicate[0])).orderBy( cb.desc(root.get("averageRating")));
+
+        return session.createQuery(cq).setMaxResults(limit).getResultList();
+    }
 }

@@ -5,6 +5,7 @@
 package com.trangnhk.services;
 
 import com.trangnhk.dto.CreateLibrarianDocumentRequestDTO;
+import com.trangnhk.dto.DocumentCompareResponseDTO;
 import com.trangnhk.dto.DocumentFileResponseDTO;
 import com.trangnhk.dto.DocumentResponseDTO;
 import com.trangnhk.dto.LibrarianDocumentResponseDTO;
@@ -31,4 +32,6 @@ public interface DocumentService {
     void deleteLibrarianDocumentFile(String username, Long documentId, Long fileId);
     
     DocumentResponseDTO getDocumentDetail(Long documentId, String username);
+    public DocumentCompareResponseDTO compareDocuments(Long documentId, List<Long> compareIds, Long categoryId);
+
 }
