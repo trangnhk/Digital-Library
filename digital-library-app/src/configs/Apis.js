@@ -23,6 +23,7 @@ export const endpoints = {
     documentReviews: (documentId) => `/documents/${documentId}/reviews`,
     documentAccess: (documentId) => `/secure/documents/${documentId}/access`,
     borrowDocument: (documentId) => `/secure/documents/${documentId}/borrow`,
+    compareDocument: (documentId) => `/documents/${documentId}/compare`,
     bookmark: (documentId) => `/secure/bookmarks/${documentId}`,
     
     

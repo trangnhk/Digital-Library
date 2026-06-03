@@ -17,6 +17,7 @@ import LibrarianDocumentDetail from "./screens/Librarian/DocumentDetail";
 import NewDocument from "./screens/Librarian/DocumentForm";
 import DocumentDetail from "./screens/Home/DocumentDetail";
 import Bookmark from "./screens/User/Bookmark";
+import CompareDocument from "./screens/User/CompareDocument";
 
 
 const App = () => {
@@ -43,8 +44,9 @@ const App = () => {
                         <Route path="/librarian/documents/:documentId" element={<LibrarianDocumentDetail />} />
                         <Route path="/librarian/documents/create" element={<NewDocument />} />
                         <Route path="/documents/:documentId" element={<DocumentDetail />} />
-                        <Route path="secure/bookmarks/me" element={<Bookmark />}/>
-                    </Routes>
+                        <Route path="secure/bookmarks/me" element={<Bookmark />} />
+
+                    </Routes> 
                 </Container>
 
                 <Footer />

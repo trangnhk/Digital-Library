@@ -382,6 +382,7 @@ const DocumentDetail = () => {
                                 >
                                     {borrowed ? "✓ Borrowed" : "Borrow"}
                                 </button>
+                                
 
                             </div>
 
