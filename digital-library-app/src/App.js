@@ -19,6 +19,7 @@ import DocumentDetail from "./screens/Home/DocumentDetail";
 import Bookmark from "./screens/User/Bookmark";
 import PaymentCancel from "./screens/Home/PaymentCancel";
 import PaymentSuccess from "./screens/Home/PaymentSuccess";
+import Borrowers from "./screens/Librarian/Borrowers";
 
 
 const App = () => {
@@ -44,10 +45,12 @@ const App = () => {
                         <Route path="/librarian/documents" element={<LibrarianDashboard />} />
                         <Route path="/librarian/documents/:documentId" element={<LibrarianDocumentDetail />} />
                         <Route path="/librarian/documents/create" element={<NewDocument />} />
+                        <Route path="/librarian/documents/:documentId/borrowers" element={<Borrowers />} />
                         <Route path="/documents/:documentId" element={<DocumentDetail />} />
                         <Route path="secure/bookmarks/me" element={<Bookmark />} />
                         <Route path="/payment/success" element={<PaymentSuccess />} />
                         <Route path="/payment/cancel" element={<PaymentCancel />} />
+
                     </Routes>
                 </Container>
 

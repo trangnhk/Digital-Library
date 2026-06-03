@@ -243,6 +243,11 @@ const LibrarianDashboard = () => {
         nav(`/librarian/documents/${documentId}`);
     };
 
+    // XEM NGƯỜI MƯỢN
+    const navToBorrowers = (documentId) => {
+        nav(`/librarian/documents/${documentId}/borrowers`);
+    };
+
     // EDIT DOCUMENT
     const openEditModal = (document) => {
         setEditingDocument(document);
@@ -469,6 +474,14 @@ const LibrarianDashboard = () => {
                                                             variant="outline-primary"
                                                             size="sm" >
                                                             Xem
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline-info"
+                                                            size="sm"
+                                                            onClick={() => navToBorrowers(doc.id)}
+                                                        >
+                                                            Người mượn
                                                         </Button>
 
                                                         <Button onClick={() => openEditModal(doc)}
