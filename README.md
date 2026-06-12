@@ -1,34 +1,34 @@
 # Digital Library
 
-Digital Library là hệ thống thư viện số hỗ trợ người dùng tìm kiếm, xem thông tin, mượn/truy cập tài liệu, đánh giá tài liệu, lưu bookmark và quản lý tài liệu theo vai trò. Project gồm 2 phần chính:
+Digital Library is a digital library system that supports users in searching for documents, viewing document details, borrowing/accessing documents, reviewing documents, bookmarking favorite documents, and managing documents based on user roles. The project consists of two main parts:
 
-- **Backend**: Java Spring MVC/Spring Security/Hibernate, triển khai REST API và trang quản trị bằng Thymeleaf.
-- **Frontend**: ReactJS, dùng để xây dựng giao diện cho người dùng như student, lecturer và librarian.
+- **Backend**: Java Spring MVC/Spring Security/Hibernate, used to implement REST APIs and the admin management pages with Thymeleaf.
+- **Frontend**: ReactJS, used to build the user interface for roles such as student, lecturer, and librarian.
 
-> Ghi chú: phần **admin** trong project này được xử lý bằng **Thymeleaf trong backend**, không triển khai bằng ReactJS.
-
----
-
-## 1. Mục tiêu project
-
-Project được xây dựng với mục tiêu mô phỏng một hệ thống thư viện số có các chức năng chính:
-
-- Đăng ký, đăng nhập, xác thực người dùng bằng JWT.
-- Quản lý thông tin cá nhân và đổi mật khẩu.
-- Xem danh sách tài liệu, tìm kiếm, lọc, sắp xếp và phân trang.
-- Xem chi tiết tài liệu, file tài liệu, lượt xem, lượt tải và đánh giá.
-- Bookmark tài liệu yêu thích.
-- Review/rating tài liệu.
-- Mượn hoặc truy cập nội dung tài liệu.
-- Librarian tạo, cập nhật, xóa mềm và upload tài liệu.
-- Admin duyệt librarian, duyệt tài liệu, quản lý user/category/document.
-- Thống kê tổng quan hệ thống.
+> Note: the **admin** module in this project is handled by **Thymeleaf in the backend**, not by ReactJS.
 
 ---
 
-## 2. Kiến trúc tổng quan
+## 1. Project Objectives
 
-Project được chia theo mô hình nhiều tầng:
+This project is built to simulate a digital library system with the following main features:
+
+- User registration, login, and authentication using JWT.
+- Profile management and password change.
+- Viewing document lists with search, filter, sort, and pagination.
+- Viewing document details, document files, views, downloads, and ratings.
+- Bookmarking favorite documents.
+- Reviewing/rating documents.
+- Borrowing or accessing document content.
+- Librarians can create, update, soft-delete, and upload documents.
+- Admins can approve librarians, approve documents, and manage users/categories/documents.
+- System overview statistics.
+
+---
+
+## 2. Overall Architecture
+
+The project follows a multi-layer architecture:
 
 ```text
 Client ReactJS
@@ -50,112 +50,112 @@ Hibernate ORM
 MySQL Database
 ```
 
-### Vai trò từng tầng
+### Layer Responsibilities
 
-| Tầng | Công dụng |
+| Layer | Responsibility |
 |---|---|
-| Controller | Nhận request từ client, lấy `@RequestParam`, `@PathVariable`, `@RequestBody`, gọi service và trả response. |
-| Service | Xử lý nghiệp vụ chính, kiểm tra bảo mật, kiểm tra quyền, validate dữ liệu. |
-| Repository | Truy vấn database bằng Hibernate/HQL/Criteria. |
-| DTO | Đóng gói dữ liệu trả về frontend, tránh trả trực tiếp entity và tránh lộ dữ liệu nhạy cảm. |
-| Entity/POJO | Đại diện cho các bảng trong database. |
-| Config | Cấu hình Spring MVC, Hibernate, Security, CORS, Thymeleaf, upload file. |
+| Controller | Receives requests from clients, gets `@RequestParam`, `@PathVariable`, `@RequestBody`, calls the service layer, and returns responses. |
+| Service | Handles the main business logic, security checks, permission checks, and data validation. |
+| Repository | Queries the database using Hibernate/HQL/Criteria. |
+| DTO | Wraps data returned to the frontend, avoids exposing entities directly, and prevents leaking sensitive data. |
+| Entity/POJO | Represents database tables. |
+| Config | Configures Spring MVC, Hibernate, Security, CORS, Thymeleaf, and file upload. |
 
 ---
 
-## 3. Công nghệ sử dụng
+## 3. Technologies Used
 
 ### 3.1. Backend
 
-| Công nghệ | Công dụng trong project |
+| Technology | Usage in the project |
 |---|---|
-| Java | Ngôn ngữ lập trình backend. |
-| Spring Framework / Spring MVC | Xây dựng ứng dụng web theo mô hình MVC, xử lý request/response. |
-| Spring Security | Xác thực, phân quyền, bảo vệ API theo role. |
-| JWT | Xác thực API `/api/secure/**`. |
-| Hibernate ORM | Mapping entity Java với bảng trong MySQL, truy vấn dữ liệu. |
-| MySQL | Hệ quản trị cơ sở dữ liệu. |
-| Maven | Quản lý dependency và build project. |
-| Apache Tomcat | Server chạy ứng dụng Java Web dạng WAR. |
-| Thymeleaf | Xây dựng giao diện admin phía backend. |
-| Jackson | Chuyển đổi Java object sang JSON và ngược lại. |
-| Cloudinary | Lưu trữ ảnh như avatar/thumbnail. |
-| Cloudflare R2 hoặc dịch vụ object storage khác | Có thể dùng để lưu file tài liệu nếu project đã tích hợp hoặc muốn thay thế Cloudinary cho file. |
-| Postman | Test API backend. |
+| Java | Backend programming language. |
+| Spring Framework / Spring MVC | Builds the web application using the MVC model and handles request/response flows. |
+| Spring Security | Handles authentication, authorization, and API protection by role. |
+| JWT | Authenticates secured APIs under `/api/secure/**`. |
+| Hibernate ORM | Maps Java entities to MySQL tables and queries data. |
+| MySQL | Relational database management system. |
+| Maven | Manages dependencies and builds the project. |
+| Apache Tomcat | Runs the Java Web application as a WAR deployment. |
+| Thymeleaf | Builds the backend admin interface. |
+| Jackson | Converts Java objects to JSON and JSON to Java objects. |
+| Cloudinary | Stores images such as avatars and thumbnails. |
+| Cloudflare R2 or another object storage service | Can be used to store document files if integrated, or as an alternative to Cloudinary for file storage. |
+| Postman | Tests backend APIs. |
 
 ### 3.2. Frontend
 
-| Công nghệ | Công dụng trong project |
+| Technology | Usage in the project |
 |---|---|
-| ReactJS | Xây dựng giao diện người dùng. |
-| Yarn | Quản lý thư viện frontend. |
-| React Router DOM | Điều hướng giữa các trang. |
-| Axios | Gọi REST API từ backend. |
-| Bootstrap / React Bootstrap | Xây dựng UI nhanh, responsive. |
-| React Bootstrap Icons | Hiển thị icon như mũi tên tăng/giảm, bookmark, user, document. |
-| Context API / Local Storage / Cookie | Lưu trạng thái đăng nhập, token hoặc thông tin user nếu project có dùng. |
+| ReactJS | Builds the user interface. |
+| Yarn | Manages frontend libraries. |
+| React Router DOM | Handles navigation between frontend pages. |
+| Axios | Calls REST APIs from the backend. |
+| Bootstrap / React Bootstrap | Builds responsive UI quickly. |
+| React Bootstrap Icons | Displays icons such as up/down arrows, bookmark icons, user icons, and document icons. |
+| Context API / Local Storage / Cookie | Stores login state, token, or user information if used by the project. |
 
 ---
 
-## 4. Chức năng theo vai trò
+## 4. Features by Role
 
 ### 4.1. Guest
 
-Người dùng chưa đăng nhập có thể:
+Unauthenticated users can:
 
-- Xem danh sách tài liệu public.
-- Tìm kiếm tài liệu.
-- Lọc tài liệu theo category.
-- Xem chi tiết tài liệu đã được duyệt.
-- Xem review public của tài liệu.
-- Đăng ký tài khoản.
-- Đăng nhập.
+- View public document lists.
+- Search for documents.
+- Filter documents by category.
+- View details of approved documents.
+- View public reviews of documents.
+- Register an account.
+- Log in.
 
 ### 4.2. Student / Lecturer
 
-Sau khi đăng nhập, người dùng có thể:
+After logging in, users can:
 
-- Xem profile cá nhân.
-- Cập nhật thông tin cá nhân.
-- Đổi mật khẩu.
-- Bookmark tài liệu.
-- Xem danh sách bookmark của mình.
-- Review/rating tài liệu.
-- Mượn hoặc truy cập tài liệu.
-- Xem lịch sử mượn tài liệu.
-- Truy cập nội dung tài liệu nếu thỏa điều kiện quyền truy cập.
+- View their personal profile.
+- Update personal information.
+- Change password.
+- Bookmark documents.
+- View their bookmark list.
+- Review/rate documents.
+- Borrow or access documents.
+- View their borrowing history.
+- Access document content if they satisfy the access conditions.
 
 ### 4.3. Librarian
 
-Librarian có thể:
+Librarians can:
 
-- Quản lý tài liệu do mình upload.
-- Tạo tài liệu mới.
-- Upload thumbnail và file tài liệu.
-- Cập nhật metadata tài liệu.
-- Xóa mềm tài liệu.
-- Xem danh sách người đã mượn/truy cập tài liệu.
+- Manage documents uploaded by themselves.
+- Create new documents.
+- Upload thumbnails and document files.
+- Update document metadata.
+- Soft-delete documents.
+- View users who borrowed/accessed their documents.
 
-> Lưu ý: librarian cần được admin duyệt trước khi được tạo/sửa/xóa tài liệu.
+> Note: librarians must be approved by an admin before they can create, update, or delete documents.
 
 ### 4.4. Admin
 
-Admin quản lý hệ thống thông qua giao diện Thymeleaf trong backend:
+Admins manage the system through the Thymeleaf interface in the backend:
 
-- Đăng nhập trang admin.
-- Xem dashboard.
-- Quản lý user.
-- Khóa/mở tài khoản user.
-- Duyệt hoặc từ chối librarian.
-- Quản lý category.
-- Duyệt hoặc từ chối tài liệu.
-- Xem thống kê tổng quan, thống kê lượt truy cập và lượt mượn.
+- Log in to the admin page.
+- View the dashboard.
+- Manage users.
+- Lock/unlock user accounts.
+- Approve or reject librarians.
+- Manage categories.
+- Approve or reject documents.
+- View overview statistics, access statistics, and borrowing statistics.
 
 ---
 
-## 5. Cấu trúc thư mục đề xuất
+## 5. Suggested Folder Structure
 
-Cấu trúc thực tế có thể khác một chút tùy branch, nhưng project nên được tổ chức tương tự:
+The actual structure may differ slightly depending on the branch, but the project should be organized similarly:
 
 ```text
 DigitalLibrary/
@@ -164,24 +164,24 @@ DigitalLibrary/
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── com/trangnhk/
-│   │   │       ├── configs/          # Cấu hình Spring MVC, Security, Hibernate, CORS
-│   │   │       ├── controllers/      # Controller REST API và Controller Thymeleaf
-│   │   │       ├── dto/              # DTO request/response
-│   │   │       ├── filters/          # JWT filter nếu có
-│   │   │       ├── pojo/             # Entity mapping database
-│   │   │       ├── repositories/     # Tầng truy vấn database
-│   │   │       ├── services/         # Tầng xử lý nghiệp vụ
-│   │   │       └── utils/            # JWTUtils, helper upload file...
+│   │   │       ├── configs/          # Spring MVC, Security, Hibernate, CORS configuration
+│   │   │       ├── controllers/      # REST API controllers and Thymeleaf controllers
+│   │   │       ├── dto/              # Request/response DTOs
+│   │   │       ├── filters/          # JWT filter if available
+│   │   │       ├── pojo/             # Database entity mappings
+│   │   │       ├── repositories/     # Database query layer
+│   │   │       ├── services/         # Business logic layer
+│   │   │       └── utils/            # JWTUtils, file upload helpers, etc.
 │   │   ├── resources/
-│   │   │   ├── database.properties   # Cấu hình database
-│   │   │   ├── templates/            # File Thymeleaf admin
-│   │   │   └── static/               # CSS, JS, image cho admin nếu có
+│   │   │   ├── database.properties   # Database configuration
+│   │   │   ├── templates/            # Thymeleaf admin files
+│   │   │   └── static/               # CSS, JS, images for admin if available
 │   │   └── webapp/
 │   └── test/
 └── target/
 ```
 
-Frontend ReactJS có thể đặt riêng:
+The ReactJS frontend can be placed separately:
 
 ```text
 frontend/
@@ -189,36 +189,36 @@ frontend/
 ├── yarn.lock
 ├── public/
 └── src/
-    ├── components/       # Component dùng lại
-    ├── pages/            # Các màn hình chính
-    ├── configs/          # Cấu hình Axios/API endpoint
-    ├── contexts/         # Auth context nếu có
-    ├── reducers/         # Reducer nếu có
+    ├── components/       # Reusable components
+    ├── pages/            # Main screens/pages
+    ├── configs/          # Axios/API endpoint configuration
+    ├── contexts/         # Auth context if available
+    ├── reducers/         # Reducers if available
     ├── App.js
     └── index.js
 ```
 
 ---
 
-## 6. Yêu cầu môi trường
+## 6. Environment Requirements
 
-Trước khi chạy project, cần cài đặt:
+Before running the project, install the following tools.
 
 ### Backend
 
-- JDK 17 trở lên.
+- JDK 17 or later.
 - Apache Maven.
-- Apache Tomcat 10 trở lên.
+- Apache Tomcat 10 or later.
 - MySQL 8.x.
-- NetBeans hoặc IntelliJ IDEA hoặc Eclipse.
-- Postman để test API.
+- NetBeans, IntelliJ IDEA, or Eclipse.
+- Postman for API testing.
 
 ### Frontend
 
 - Node.js LTS.
 - Yarn.
 
-Kiểm tra phiên bản:
+Check versions:
 
 ```bash
 java -version
@@ -229,38 +229,38 @@ yarn -v
 
 ---
 
-## 7. Cài đặt backend
+## 7. Backend Setup
 
-### 7.1. Clone project
+### 7.1. Clone the project
 
 ```bash
 git clone <repository-url>
 cd DigitalLibrary
 ```
 
-### 7.2. Tạo database MySQL
+### 7.2. Create the MySQL database
 
-Đăng nhập MySQL và tạo database:
+Log in to MySQL and create the database:
 
 ```sql
 CREATE DATABASE digital_library CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Nếu project có file SQL mẫu, import database:
+If the project provides a sample SQL file, import it:
 
 ```bash
 mysql -u root -p digital_library < database.sql
 ```
 
-### 7.3. Cấu hình database
+### 7.3. Configure the database
 
-Mở file:
+Open the file:
 
 ```text
 src/main/resources/database.properties
 ```
 
-Cấu hình mẫu:
+Sample configuration:
 
 ```properties
 hibernate.dialect=org.hibernate.dialect.MySQLDialect
@@ -271,13 +271,13 @@ hibernate.connection.username=root
 hibernate.connection.password=your_password
 ```
 
-Thay `your_password` bằng mật khẩu MySQL trên máy của bạn.
+Replace `your_password` with your local MySQL password.
 
-### 7.4. Cấu hình Cloudinary nếu project có upload ảnh
+### 7.4. Configure Cloudinary if the project uploads images
 
-Nếu project dùng Cloudinary để upload avatar/thumbnail, tạo file hoặc biến môi trường theo cách project đang cấu hình.
+If the project uses Cloudinary to upload avatars/thumbnails, create a properties file or environment variables based on the way the project is configured.
 
-Ví dụ cấu hình dạng properties:
+Example properties configuration:
 
 ```properties
 cloudinary.cloud_name=your_cloud_name
@@ -285,42 +285,42 @@ cloudinary.api_key=your_api_key
 cloudinary.api_secret=your_api_secret
 ```
 
-Không commit thông tin thật của Cloudinary lên GitHub.
+Do not commit real Cloudinary credentials to GitHub.
 
-### 7.5. Cấu hình JWT secret nếu có
+### 7.5. Configure JWT secret if available
 
-Ví dụ:
+Example:
 
 ```properties
 jwt.secret=your_jwt_secret_key
 jwt.expiration=86400000
 ```
 
-`jwt.secret` nên đủ dài và không đưa lên repository public.
+`jwt.secret` should be long enough and should not be pushed to a public repository.
 
-### 7.6. Cài thư viện backend
+### 7.6. Install backend libraries
 
-Với Maven, không cần cài từng thư viện bằng tay. Chỉ cần chạy:
+With Maven, you do not need to install each library manually. Run:
 
 ```bash
 mvn clean install
 ```
 
-Hoặc nếu chỉ muốn build file WAR:
+Or build only the WAR file:
 
 ```bash
 mvn clean package
 ```
 
-File WAR sau khi build thường nằm trong:
+After building, the WAR file is usually located at:
 
 ```text
 target/DigitalLibrary-1.0-SNAPSHOT.war
 ```
 
-### 7.7. Các dependency backend quan trọng trong `pom.xml`
+### 7.7. Important backend dependencies in `pom.xml`
 
-Nếu bị thiếu thư viện, kiểm tra `pom.xml` có các nhóm dependency chính sau:
+If any library is missing, check whether `pom.xml` contains the following main dependencies:
 
 ```xml
 <!-- Spring MVC / Web -->
@@ -386,41 +386,41 @@ Nếu bị thiếu thư viện, kiểm tra `pom.xml` có các nhóm dependency c
 </dependency>
 ```
 
-Nếu project dùng JWT hoặc Cloudinary, kiểm tra thêm dependency tương ứng theo thư viện đang dùng trong source code.
+If the project uses JWT or Cloudinary, check the corresponding dependencies according to the libraries used in the source code.
 
-### 7.8. Chạy backend bằng Tomcat
+### 7.8. Run the backend with Tomcat
 
-Có 2 cách phổ biến.
+There are two common ways.
 
-#### Cách 1: Chạy bằng IDE
+#### Option 1: Run with an IDE
 
-1. Mở project bằng NetBeans/IntelliJ/Eclipse.
-2. Add server Apache Tomcat.
-3. Kiểm tra JDK và Maven.
-4. Clean and Build project.
-5. Run project trên Tomcat.
+1. Open the project using NetBeans/IntelliJ/Eclipse.
+2. Add Apache Tomcat as the server.
+3. Check the JDK and Maven configuration.
+4. Clean and Build the project.
+5. Run the project on Tomcat.
 
-#### Cách 2: Deploy file WAR thủ công
+#### Option 2: Deploy the WAR file manually
 
-Copy file WAR vào thư mục Tomcat:
+Copy the WAR file to the Tomcat folder:
 
 ```bash
 cp target/DigitalLibrary-1.0-SNAPSHOT.war <TOMCAT_HOME>/webapps/
 ```
 
-Khởi động Tomcat:
+Start Tomcat:
 
 ```bash
 <TOMCAT_HOME>/bin/startup.sh
 ```
 
-Trên Windows:
+On Windows:
 
 ```bash
 <TOMCAT_HOME>\bin\startup.bat
 ```
 
-Backend thường chạy tại:
+The backend usually runs at:
 
 ```text
 http://localhost:8080/DigitalLibrary
@@ -432,7 +432,7 @@ API base URL:
 http://localhost:8080/DigitalLibrary/api
 ```
 
-Trang admin Thymeleaf:
+Thymeleaf admin page:
 
 ```text
 http://localhost:8080/DigitalLibrary/admin/login
@@ -440,55 +440,55 @@ http://localhost:8080/DigitalLibrary/admin/login
 
 ---
 
-## 8. Cài đặt frontend
+## 8. Frontend Setup
 
-### 8.1. Di chuyển vào thư mục frontend
+### 8.1. Move to the frontend directory
 
 ```bash
 cd frontend
 ```
 
-### 8.2. Cài thư viện có sẵn trong `package.json`
+### 8.2. Install libraries from `package.json`
 
 ```bash
 yarn install
 ```
 
-### 8.3. Cài các thư viện frontend thường dùng
+### 8.3. Install commonly used frontend libraries
 
-Nếu project chưa có các thư viện này, cài thêm:
+If the project does not already include these libraries, install them:
 
 ```bash
 yarn add axios react-router-dom bootstrap react-bootstrap react-bootstrap-icons
 ```
 
-Ý nghĩa:
+Meaning:
 
-| Thư viện | Công dụng |
+| Library | Usage |
 |---|---|
-| axios | Gọi API backend. |
-| react-router-dom | Điều hướng route frontend. |
+| axios | Calls backend APIs. |
+| react-router-dom | Handles frontend routing. |
 | bootstrap | CSS framework. |
-| react-bootstrap | Component Bootstrap cho React. |
-| react-bootstrap-icons | Icon dùng trong UI. |
+| react-bootstrap | Bootstrap components for React. |
+| react-bootstrap-icons | Icons used in the UI. |
 
-### 8.4. Cấu hình API base URL
+### 8.4. Configure the API base URL
 
-Tạo file `.env` trong thư mục frontend:
+Create a `.env` file in the frontend directory:
 
 ```env
 REACT_APP_API_BASE_URL=http://localhost:8080/DigitalLibrary/api
 ```
 
-Nếu project dùng Vite thay vì Create React App, dùng:
+If the project uses Vite instead of Create React App, use:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080/DigitalLibrary/api
 ```
 
-### 8.5. Cấu hình Axios mẫu
+### 8.5. Sample Axios configuration
 
-Ví dụ file:
+Example file:
 
 ```text
 src/configs/Apis.js
@@ -515,7 +515,7 @@ export default axios.create({
 });
 ```
 
-Nếu backend yêu cầu `Authorization: Bearer <token>`, có thể tạo axios private:
+If the backend requires `Authorization: Bearer <token>`, create a private Axios instance:
 
 ```javascript
 export const authApis = (token) => {
@@ -529,27 +529,27 @@ export const authApis = (token) => {
 };
 ```
 
-### 8.6. Chạy frontend
+### 8.6. Run the frontend
 
-Nếu project dùng Create React App:
+If the project uses Create React App:
 
 ```bash
 yarn start
 ```
 
-Frontend chạy tại:
+The frontend runs at:
 
 ```text
 http://localhost:3000
 ```
 
-Nếu project dùng Vite:
+If the project uses Vite:
 
 ```bash
 yarn dev
 ```
 
-Frontend thường chạy tại:
+The frontend usually runs at:
 
 ```text
 http://localhost:5173
@@ -557,11 +557,11 @@ http://localhost:5173
 
 ---
 
-## 9. CORS và xác thực giữa frontend/backend
+## 9. CORS and Authentication Between Frontend/Backend
 
-Vì frontend và backend chạy khác port, backend cần bật CORS.
+Because the frontend and backend run on different ports, the backend needs CORS enabled.
 
-Ví dụ:
+Example:
 
 ```java
 @Override
@@ -574,20 +574,20 @@ public void addCorsMappings(CorsRegistry registry) {
 }
 ```
 
-Nếu frontend dùng cookie để lưu JWT, cần lưu ý:
+If the frontend uses cookies to store JWT, remember:
 
-- Axios phải có `withCredentials: true`.
-- Backend CORS phải có `allowCredentials(true)`.
-- Không nên để `allowedOrigins("*")` khi dùng credentials.
-- JWT cookie nên có cấu hình `HttpOnly`, `Secure` và `SameSite` phù hợp môi trường.
+- Axios must use `withCredentials: true`.
+- Backend CORS must use `allowCredentials(true)`.
+- Do not use `allowedOrigins("*")` together with credentials.
+- The JWT cookie should be configured with suitable `HttpOnly`, `Secure`, and `SameSite` options depending on the environment.
 
-Nếu test bằng Postman, có thể dùng một trong hai cách:
+When testing with Postman, use one of these two methods:
 
 ```text
 Authorization: Bearer <jwt_token>
 ```
 
-Hoặc dùng cookie nếu API login đã set cookie:
+Or use cookies if the login API already sets a cookie:
 
 ```text
 jwt_token=<jwt_token>
@@ -595,162 +595,162 @@ jwt_token=<jwt_token>
 
 ---
 
-## 10. Các nhóm API chính
+## 10. Main API Groups
 
 ### 10.1. Auth API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/auth/register` | Đăng ký tài khoản. |
-| POST | `/api/auth/login` | Đăng nhập, trả JWT hoặc set cookie JWT. |
-| GET | `/api/secure/profile` | Lấy thông tin user đang đăng nhập. |
-| PATCH | `/api/secure/profile` | Cập nhật profile. |
-| PATCH | `/api/secure/change-password` | Đổi mật khẩu. |
+| POST | `/api/auth/register` | Register a new account. |
+| POST | `/api/auth/login` | Log in and return JWT or set JWT cookie. |
+| GET | `/api/secure/profile` | Get the current logged-in user profile. |
+| PATCH | `/api/secure/profile` | Update profile. |
+| PATCH | `/api/secure/change-password` | Change password. |
 
 ### 10.2. Category API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/categories` | Lấy danh sách category public. |
-| GET | `/api/categories/{categoryId}` | Lấy chi tiết category. |
-| GET | `/api/secure/admin/categories` | Admin xem danh sách category. |
-| POST | `/api/secure/admin/categories` | Admin tạo category. |
-| PATCH | `/api/secure/admin/categories/{categoryId}` | Admin cập nhật category. |
-| DELETE | `/api/secure/admin/categories/{categoryId}` | Admin xóa category nếu được phép. |
+| GET | `/api/categories` | Get the public category list. |
+| GET | `/api/categories/{categoryId}` | Get category details. |
+| GET | `/api/secure/admin/categories` | Admin views the category list. |
+| POST | `/api/secure/admin/categories` | Admin creates a category. |
+| PATCH | `/api/secure/admin/categories/{categoryId}` | Admin updates a category. |
+| DELETE | `/api/secure/admin/categories/{categoryId}` | Admin deletes a category if allowed. |
 
 ### 10.3. Document API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/documents` | Xem danh sách tài liệu, hỗ trợ search/filter/sort/page. |
-| GET | `/api/documents/{documentId}` | Xem chi tiết tài liệu. |
-| GET | `/api/documents/{documentId}/files` | Xem metadata file của tài liệu. |
-| GET | `/api/documents/{documentId}/reviews` | Xem review public của tài liệu. |
-| GET | `/api/documents/{documentId}/compare` | So sánh tài liệu nếu đã triển khai. |
+| GET | `/api/documents` | View the document list, supporting search/filter/sort/page. |
+| GET | `/api/documents/{documentId}` | View document details. |
+| GET | `/api/documents/{documentId}/files` | View document file metadata. |
+| GET | `/api/documents/{documentId}/reviews` | View public reviews of a document. |
+| GET | `/api/documents/{documentId}/compare` | Compare documents if implemented. |
 
 ### 10.4. Secure Document API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/secure/documents/{documentId}/access` | Ghi nhận lượt truy cập tài liệu. |
-| GET | `/api/secure/documents/{documentId}/content` | Truy cập nội dung/file tài liệu. |
-| POST | `/api/secure/documents/{documentId}/borrow` | Mượn tài liệu. |
-| GET | `/api/secure/borrows/me` | Xem lịch sử mượn của user hiện tại. |
+| POST | `/api/secure/documents/{documentId}/access` | Records a document access event. |
+| GET | `/api/secure/documents/{documentId}/content` | Access document content/file. |
+| POST | `/api/secure/documents/{documentId}/borrow` | Borrow a document. |
+| GET | `/api/secure/borrows/me` | View the current user's borrowing history. |
 
 ### 10.5. Review API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/secure/reviews` | Tạo review cho tài liệu. |
-| PATCH | `/api/secure/reviews/{reviewId}` | Cập nhật review. |
-| DELETE | `/api/secure/reviews/{reviewId}` | Xóa review. |
+| POST | `/api/secure/reviews` | Create a review for a document. |
+| PATCH | `/api/secure/reviews/{reviewId}` | Update a review. |
+| DELETE | `/api/secure/reviews/{reviewId}` | Delete a review. |
 
 ### 10.6. Bookmark API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/secure/bookmarks/{documentId}` | Bookmark tài liệu. |
-| DELETE | `/api/secure/bookmarks/{documentId}` | Xóa bookmark. |
-| GET | `/api/secure/bookmarks/me` | Xem danh sách bookmark của user hiện tại. |
+| POST | `/api/secure/bookmarks/{documentId}` | Bookmark a document. |
+| DELETE | `/api/secure/bookmarks/{documentId}` | Remove a bookmark. |
+| GET | `/api/secure/bookmarks/me` | View the current user's bookmark list. |
 
 ### 10.7. Librarian API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/secure/librarian/documents` | Librarian xem tài liệu của mình. |
-| POST | `/api/secure/librarian/documents` | Librarian tạo tài liệu mới. |
-| GET | `/api/secure/librarian/documents/{documentId}` | Xem chi tiết tài liệu của librarian. |
-| PATCH | `/api/secure/librarian/documents/{documentId}` | Cập nhật tài liệu. |
-| DELETE | `/api/secure/librarian/documents/{documentId}` | Xóa mềm tài liệu. |
-| POST | `/api/secure/librarian/documents/{documentId}/files` | Upload file bổ sung cho tài liệu. |
-| DELETE | `/api/secure/librarian/documents/{documentId}/files/{fileId}` | Xóa file tài liệu. |
-| GET | `/api/secure/librarian/documents/{documentId}/borrowers` | Xem người mượn/truy cập tài liệu. |
+| GET | `/api/secure/librarian/documents` | Librarian views their own documents. |
+| POST | `/api/secure/librarian/documents` | Librarian creates a new document. |
+| GET | `/api/secure/librarian/documents/{documentId}` | View details of a librarian-owned document. |
+| PATCH | `/api/secure/librarian/documents/{documentId}` | Update a document. |
+| DELETE | `/api/secure/librarian/documents/{documentId}` | Soft-delete a document. |
+| POST | `/api/secure/librarian/documents/{documentId}/files` | Upload additional files for a document. |
+| DELETE | `/api/secure/librarian/documents/{documentId}/files/{fileId}` | Delete a document file. |
+| GET | `/api/secure/librarian/documents/{documentId}/borrowers` | View users who borrowed/accessed a document. |
 
 ### 10.8. Admin API
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/secure/admin/users` | Admin xem danh sách user. |
-| GET | `/api/secure/admin/users/{userId}` | Admin xem chi tiết user. |
-| PATCH | `/api/secure/admin/users/{userId}/active` | Khóa/mở tài khoản user. |
-| PATCH | `/api/secure/admin/librarians/{userId}/approve` | Duyệt librarian. |
-| PATCH | `/api/secure/admin/librarians/{userId}/reject` | Từ chối librarian. |
-| GET | `/api/secure/admin/documents` | Admin xem danh sách tài liệu. |
-| GET | `/api/secure/admin/documents/pending` | Admin xem tài liệu chờ duyệt. |
-| PATCH | `/api/secure/admin/documents/{documentId}/approve` | Duyệt tài liệu. |
-| PATCH | `/api/secure/admin/documents/{documentId}/reject` | Từ chối tài liệu. |
-| GET | `/api/secure/admin/statistics/overview` | Thống kê tổng quan. |
-| GET | `/api/secure/admin/statistics/access` | Thống kê lượt truy cập. |
-| GET | `/api/secure/admin/statistics/borrows` | Thống kê lượt mượn. |
+| GET | `/api/secure/admin/users` | Admin views the user list. |
+| GET | `/api/secure/admin/users/{userId}` | Admin views user details. |
+| PATCH | `/api/secure/admin/users/{userId}/active` | Lock/unlock a user account. |
+| PATCH | `/api/secure/admin/librarians/{userId}/approve` | Approve a librarian. |
+| PATCH | `/api/secure/admin/librarians/{userId}/reject` | Reject a librarian. |
+| GET | `/api/secure/admin/documents` | Admin views the document list. |
+| GET | `/api/secure/admin/documents/pending` | Admin views pending documents. |
+| PATCH | `/api/secure/admin/documents/{documentId}/approve` | Approve a document. |
+| PATCH | `/api/secure/admin/documents/{documentId}/reject` | Reject a document. |
+| GET | `/api/secure/admin/statistics/overview` | Overview statistics. |
+| GET | `/api/secure/admin/statistics/access` | Access statistics. |
+| GET | `/api/secure/admin/statistics/borrows` | Borrowing statistics. |
 
-### 10.9. Admin Thymeleaf pages
+### 10.9. Admin Thymeleaf Pages
 
-| Method | Endpoint | Mô tả |
+| Method | Endpoint | Description |
 |---|---|---|
-| GET | `/admin/login` | Trang đăng nhập admin. |
-| POST | `/process-login` | Xử lý đăng nhập admin. |
-| GET | `/admin` | Dashboard admin. |
-| GET | `/admin/users` | Quản lý user. |
-| GET | `/admin/librarians/pending` | Duyệt librarian. |
-| GET | `/admin/categories` | Quản lý category. |
-| GET | `/admin/documents` | Quản lý tài liệu. |
-| GET | `/admin/documents/pending` | Duyệt tài liệu. |
-| GET | `/admin/statistics` | Xem thống kê. |
+| GET | `/admin/login` | Admin login page. |
+| POST | `/process-login` | Handles admin login. |
+| GET | `/admin` | Admin dashboard. |
+| GET | `/admin/users` | User management. |
+| GET | `/admin/librarians/pending` | Librarian approval page. |
+| GET | `/admin/categories` | Category management. |
+| GET | `/admin/documents` | Document management. |
+| GET | `/admin/documents/pending` | Document approval page. |
+| GET | `/admin/statistics` | Statistics page. |
 
 ---
 
-## 11. Quy tắc bảo mật quan trọng
+## 11. Important Security Rules
 
-Project cần đảm bảo các nguyên tắc sau:
+The project should ensure the following principles:
 
-- API `/api/secure/**` bắt buộc phải đăng nhập.
-- API admin chỉ cho phép `ROLE_ADMIN`.
-- API librarian chỉ cho phép `ROLE_LIBRARIAN` đã được duyệt.
-- Không trả password trong response.
-- Không cho client tự set role admin khi đăng ký/cập nhật profile.
-- User chỉ được sửa/xóa dữ liệu của chính mình, trừ admin.
-- Librarian chỉ được sửa/xóa tài liệu do chính mình upload, trừ admin.
-- Upload file cần kiểm tra định dạng và dung lượng.
-- Nên trả lỗi rõ ràng: `400`, `401`, `403`, `404`, `409`, `415`, `422`, `500`.
+- APIs under `/api/secure/**` require login.
+- Admin APIs are only accessible to `ROLE_ADMIN`.
+- Librarian APIs are only accessible to approved `ROLE_LIBRARIAN` users.
+- Do not return passwords in responses.
+- Do not allow clients to set themselves as admin during registration/profile update.
+- Users can only update/delete their own data, except admins.
+- Librarians can only update/delete documents they uploaded, except admins.
+- File uploads must validate file type and file size.
+- Error responses should be clear: `400`, `401`, `403`, `404`, `409`, `415`, `422`, `500`.
 
-Bảng test nhanh:
+Quick test table:
 
-| Trường hợp | Kết quả mong muốn |
+| Case | Expected Result |
 |---|---|
-| Không token gọi `/api/secure/profile` | `401 Unauthorized` |
-| Student gọi API admin | `403 Forbidden` |
-| Librarian chưa duyệt tạo document | `403 Forbidden` |
-| User gửi `ROLE_ADMIN` khi register | Bị bỏ qua hoặc trả `400 Bad Request` |
-| Response user chứa password | Không được phép xảy ra |
-| Upload sai loại file | `415 Unsupported Media Type` |
-| Username/email/phone trùng | `409 Conflict` |
-| Bookmark trùng | `409 Conflict` |
-| Review trùng cùng document | `409 Conflict` |
-| Borrow trùng đang mở | `409 Conflict` hoặc `422 Unprocessable Entity` |
+| Calling `/api/secure/profile` without token | `401 Unauthorized` |
+| Student calls an admin API | `403 Forbidden` |
+| Unapproved librarian creates a document | `403 Forbidden` |
+| User sends `ROLE_ADMIN` during registration | Ignored or returns `400 Bad Request` |
+| User response contains password | Must never happen |
+| Uploading an invalid file type | `415 Unsupported Media Type` |
+| Duplicate username/email/phone | `409 Conflict` |
+| Duplicate bookmark | `409 Conflict` |
+| Duplicate review for the same document | `409 Conflict` |
+| Duplicate active borrow | `409 Conflict` or `422 Unprocessable Entity` |
 
 ---
 
-## 12. Luồng chạy project đề xuất
+## 12. Suggested Project Running Flow
 
-### Bước 1: Chạy MySQL
+### Step 1: Start MySQL
 
-Đảm bảo MySQL đang chạy và database `digital_library` đã được tạo.
+Make sure MySQL is running and the `digital_library` database has been created.
 
-### Bước 2: Chạy backend
+### Step 2: Run the backend
 
 ```bash
 mvn clean package
 ```
 
-Deploy WAR lên Tomcat hoặc chạy trực tiếp bằng IDE.
+Deploy the WAR file to Tomcat or run directly from the IDE.
 
-Kiểm tra backend:
+Check the backend:
 
 ```text
 http://localhost:8080/DigitalLibrary/api/categories
 ```
 
-### Bước 3: Chạy frontend
+### Step 3: Run the frontend
 
 ```bash
 cd frontend
@@ -758,22 +758,22 @@ yarn install
 yarn start
 ```
 
-Kiểm tra frontend:
+Check the frontend:
 
 ```text
 http://localhost:3000
 ```
 
-### Bước 4: Test đăng nhập
+### Step 4: Test login
 
-Dùng Postman gọi:
+Use Postman to call:
 
 ```http
 POST http://localhost:8080/DigitalLibrary/api/auth/login
 Content-Type: application/json
 ```
 
-Body mẫu:
+Sample body:
 
 ```json
 {
@@ -782,61 +782,61 @@ Body mẫu:
 }
 ```
 
-Sau khi đăng nhập, dùng token để gọi API secure.
+After logging in, use the token to call secured APIs.
 
 ---
 
-## 13. Một số lỗi thường gặp
+## 13. Common Errors
 
-### 13.1. Lỗi 401 Unauthorized
+### 13.1. 401 Unauthorized
 
-Nguyên nhân thường gặp:
+Common causes:
 
-- Chưa đăng nhập.
-- Thiếu token.
-- Token sai định dạng.
-- Token hết hạn.
-- Postman chưa gửi `Authorization: Bearer <token>` hoặc chưa gửi cookie `jwt_token`.
+- Not logged in.
+- Missing token.
+- Invalid token format.
+- Expired token.
+- Postman does not send `Authorization: Bearer <token>` or does not send the `jwt_token` cookie.
 
-### 13.2. Lỗi 403 Forbidden
+### 13.2. 403 Forbidden
 
-Nguyên nhân thường gặp:
+Common causes:
 
-- Đã đăng nhập nhưng role không đủ quyền.
-- Student gọi API admin.
-- Librarian chưa được duyệt nhưng gọi API tạo tài liệu.
+- Logged in but the role does not have permission.
+- Student calls an admin API.
+- Librarian has not been approved but calls the document creation API.
 
-### 13.3. Lỗi CORS
+### 13.3. CORS Error
 
-Nguyên nhân thường gặp:
+Common causes:
 
-- Frontend chạy `localhost:3000`, backend chạy `localhost:8080`, nhưng backend chưa cấu hình CORS.
-- Dùng cookie nhưng backend chưa bật `allowCredentials(true)`.
-- Dùng `allowedOrigins("*")` cùng credentials.
+- Frontend runs at `localhost:3000`, backend runs at `localhost:8080`, but CORS is not configured in the backend.
+- Cookies are used but backend has not enabled `allowCredentials(true)`.
+- `allowedOrigins("*")` is used together with credentials.
 
-### 13.4. Lỗi database connection
+### 13.4. Database Connection Error
 
-Nguyên nhân thường gặp:
+Common causes:
 
-- Sai username/password MySQL.
-- Database chưa được tạo.
-- Sai port MySQL.
-- Thiếu MySQL driver.
+- Wrong MySQL username/password.
+- Database has not been created.
+- Wrong MySQL port.
+- Missing MySQL driver.
 
-### 13.5. Lỗi upload file
+### 13.5. File Upload Error
 
-Nguyên nhân thường gặp:
+Common causes:
 
-- Thiếu cấu hình Cloudinary hoặc object storage.
-- File vượt quá dung lượng cho phép.
-- Sai định dạng file.
-- FormData frontend gửi sai key so với backend yêu cầu.
+- Missing Cloudinary or object storage configuration.
+- File exceeds the allowed size.
+- Invalid file type.
+- Frontend `FormData` key does not match what the backend expects.
 
 ---
 
-## 14. Gợi ý script trong frontend `package.json`
+## 14. Suggested Scripts in Frontend `package.json`
 
-Nếu dùng Create React App:
+If using Create React App:
 
 ```json
 {
@@ -849,7 +849,7 @@ Nếu dùng Create React App:
 }
 ```
 
-Nếu dùng Vite:
+If using Vite:
 
 ```json
 {
@@ -863,9 +863,9 @@ Nếu dùng Vite:
 
 ---
 
-## 15. Gợi ý tài khoản demo
+## 15. Suggested Demo Accounts
 
-> Thay thông tin bên dưới theo dữ liệu seed thực tế của project.
+> Replace the information below based on the actual seeded data of the project.
 
 | Role | Username | Password |
 |---|---|---|
@@ -876,25 +876,25 @@ Nếu dùng Vite:
 
 ---
 
-## 16. Ghi chú khi làm việc nhóm
+## 16. Notes for Team Collaboration
 
-- Không commit file chứa secret thật như mật khẩu database, JWT secret, Cloudinary API secret.
-- Trước khi merge code, cần test lại các API quan trọng bằng Postman.
-- Ưu tiên giữ logic kiểm tra quyền trong service để tránh controller bị quá nhiều code.
-- Frontend nên gọi API thông qua một file cấu hình chung để dễ đổi base URL.
-- DTO response không nên chứa password hoặc dữ liệu nhạy cảm.
-- Với API upload file, frontend cần dùng `FormData`, không gửi JSON thường.
+- Do not commit files containing real secrets such as database passwords, JWT secrets, or Cloudinary API secrets.
+- Before merging code, test all important APIs with Postman.
+- Keep permission-checking logic in the service layer to avoid making controllers too complex.
+- The frontend should call APIs through one shared configuration file so the base URL can be changed easily.
+- DTO responses should not contain passwords or sensitive data.
+- For file upload APIs, the frontend must use `FormData`, not normal JSON.
 
 ---
 
-## 17. Tóm tắt cách chạy nhanh
+## 17. Quick Start Summary
 
 Backend:
 
 ```bash
 cd DigitalLibrary
 mvn clean package
-# deploy file WAR trong target/ lên Tomcat
+# deploy the WAR file in target/ to Tomcat
 ```
 
 Frontend:
@@ -905,7 +905,7 @@ yarn install
 yarn start
 ```
 
-Truy cập:
+Access URLs:
 
 ```text
 Backend:  http://localhost:8080/DigitalLibrary
