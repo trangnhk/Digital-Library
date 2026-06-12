@@ -127,27 +127,26 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     @Override
     public long countReviews(Long documentId) {
         Session s = this.factory.getObject().getCurrentSession();
-        
+
         CriteriaBuilder builder = s.getCriteriaBuilder();
-        
+
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
-        
+
         Root<Review> root = query.from(Review.class);
         query.select(builder.count(root));
-        
+
         List<Predicate> predicates = new ArrayList<>();
-        
+
         predicates.add(builder.equal(root.get("document").get("id"), documentId));
-        
+
         query.where(predicates.toArray(Predicate[]::new));
-        
+
         long count = s.createQuery(query).getSingleResult();
-        
+
         return count;
-        
+
     }
 
-    
     @Override
     public void createReview(Review review) {
         Session session = this.factory.getObject().getCurrentSession();
@@ -158,13 +157,13 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     public boolean existsByUserAndDocument(Long userId, Long documentId) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<Long> query= builder.createQuery(Long.class);
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Review> root = query.from(Review.class);
         query.select(builder.count(root));
-        List<Predicate> predicates= new ArrayList<>();
+        List<Predicate> predicates = new ArrayList<>();
 
         predicates.add(builder.equal(root.get("user").get("id"), userId));
-        predicates.add(builder.equal(root.get("document").get("id"),documentId));
+        predicates.add(builder.equal(root.get("document").get("id"), documentId));
 
         query.where(predicates.toArray(Predicate[]::new));
 
@@ -175,14 +174,14 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 
     @Override
     public Review getReviewById(Long reviewId) {
-        Session session = this.factory.getObject().getCurrentSession();   
+        Session session = this.factory.getObject().getCurrentSession();
         return session.get(Review.class, reviewId);
     }
 
     @Override
     public void updateReview(Review review) {
         Session session = this.factory.getObject().getCurrentSession();
-        if(review != null){
+        if (review != null) {
             session.merge(review);
         }
     }
@@ -192,6 +191,21 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         Session session = this.factory.getObject().getCurrentSession();
         session.remove(review);
     }
+
+    @Override
+    public Double getAverageRatingByDocumentId(Long documentId) {
+        Session session = this.factory.getObject().getCurrentSession();
+
+        Query query = session.createQuery("SELECT AVG(r.rating) FROM Review r WHERE r.document.id = :documentId", Double.class);
+
+        query.setParameter("documentId", documentId);
+
+        Double avg = (Double) query.getSingleResult();
+
+        if (avg == null) {
+            return 0.0;
+        }
+
+        return avg;
+    }
 }
-
-

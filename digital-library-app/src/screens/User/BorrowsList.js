@@ -126,7 +126,7 @@ const BorrowsList = () => {
 
     return (
         <div className="mt-4">
-            <h5 className="text-primary">📚 Sách đã mượn</h5>
+            <h5 className="text-primary">Sách đã mượn</h5>
             {err && <Alert variant="danger">{err}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
 

@@ -100,8 +100,8 @@ public class ReviewServiceImpl implements ReviewService {
         long totalItems = this.reviewRepo.countReviews(documentId);
 
         List<ReviewResponseDTO> items = reviews.stream().map(ReviewResponseDTO::fromReview)
-                                                        .collect(Collectors.toList());
-        
+                .collect(Collectors.toList());
+
         return new PageResponseDTO<>(items, page, size, totalItems);
 
     }
@@ -146,8 +146,22 @@ public class ReviewServiceImpl implements ReviewService {
         review.setComment(dto.getComment());
         review.setCreatedDate(new Date());
         this.reviewRepo.createReview(review);
+        
+        this.updateDocumentAverageRating(document);
 
         return ReviewResponseDTO.fromReview(review);
+    }
+
+    private void updateDocumentAverageRating(Document document) {
+        Double avgRating = this.reviewRepo.getAverageRatingByDocumentId(document.getId());
+
+        if (avgRating == null) {
+            avgRating = 0.0;
+        }
+        avgRating = Math.round(avgRating * 10.0) / 10.0;
+        document.setAverageRating(avgRating);
+
+        this.documentRepo.update(document);
     }
 
     @Override
@@ -188,6 +202,8 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         this.reviewRepo.updateReview(review);
+        
+        this.updateDocumentAverageRating(review.getDocument());
 
         return ReviewResponseDTO.fromReview(review);
     }

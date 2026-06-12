@@ -21,4 +21,5 @@ public interface ReviewRepository {
     Review getReviewById(Long reviewId);
     void updateReview(Review review);
     void deleteReview(Review review);
+    Double getAverageRatingByDocumentId(Long documentId);
 }
