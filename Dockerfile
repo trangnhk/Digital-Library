@@ -1,8 +1,17 @@
-FROM tomcat:10.1-jdk17
+FROM maven:3.9-eclipse-temurin-17 AS build
+
+WORKDIR /app
+
+COPY DigitalLibrary/pom.xml .
+COPY DigitalLibrary/src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM tomcat:11.0-jdk17
 
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-COPY target/DigitalLibrary-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
 EXPOSE 8080
 
