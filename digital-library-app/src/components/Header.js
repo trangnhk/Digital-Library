@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Button, Container, Image, Nav, Navbar } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import cookies from "react-cookies";
 
 import { MyUserContext } from "../configs/Context";
 import Apis, { endpoints } from "../configs/Apis";

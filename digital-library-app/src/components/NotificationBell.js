@@ -3,7 +3,7 @@ import { MyUserContext } from "../configs/Context";
 import { Badge, Dropdown } from "react-bootstrap";
 import Apis, { endpoints } from "../configs/Apis";
 import MySpinner from "./MySpinner";
-import { Bell, BellFill } from "react-bootstrap-icons";
+import { BellFill } from "react-bootstrap-icons";
 import moment from "moment";
 import "moment/locale/vi";
 

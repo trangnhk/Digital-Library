@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import cookies from "react-cookies";
 import { MyUserContext } from "../configs/Context";
 import { Link, useNavigate } from "react-router-dom";
 import Apis, { endpoints } from "../configs/Apis";

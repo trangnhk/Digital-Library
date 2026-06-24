@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Apis, { endpoints } from "../../configs/Apis";
-import { Alert, Badge, Button, Image, Modal, Table } from "react-bootstrap";
+import { Alert, Badge, Image, Modal, Table } from "react-bootstrap";
 import MySpinner from "../../components/MySpinner";
 import { ArrowDownShort, ArrowUpShort, Dash } from "react-bootstrap-icons";
 
