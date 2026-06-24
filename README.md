@@ -908,8 +908,8 @@ yarn start
 Access URLs:
 
 ```text
-Backend:  http://localhost:8080/DigitalLibrary
-API:      http://localhost:8080/DigitalLibrary/api
-Admin:    http://localhost:8080/DigitalLibrary/admin/login
-Frontend: http://localhost:3000
+Backend:  http://localhost:8080/DigitalLibrary | Deploy: https://digital-library-u127.onrender.com
+API:      http://localhost:8080/DigitalLibrary/api | https://digital-library-u127.onrender.com/api
+Admin:    http://localhost:8080/DigitalLibrary/admin/login | https://digital-library-u127.onrender.com/admin/login
+Frontend: http://localhost:3000 | https://digital-library-d83.pages.dev/home
 ```
