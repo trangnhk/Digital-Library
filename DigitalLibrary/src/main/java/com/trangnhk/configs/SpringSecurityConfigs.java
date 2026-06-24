@@ -105,10 +105,10 @@ public class SpringSecurityConfigs {
 
                     ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
                             .httpOnly(true)
-                            .secure(false)
+                            .secure(true)
                             .path("/")
                             .maxAge(Duration.ofDays(1))
-                            .sameSite("Lax")
+                            .sameSite("None")
                             .build();
 
                     response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
