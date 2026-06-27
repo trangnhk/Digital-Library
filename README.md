@@ -870,9 +870,9 @@ If using Vite:
 | Role | Username | Password |
 |---|---|---|
 | Admin | `admin` | `123456` |
-| Librarian | `librarian` | `123456` |
-| Student | `student` | `123456` |
-| Lecturer | `lecturer` | `123456` |
+| Librarian | `librarian01` | `123456` |
+| Student | `student01` | `123456` |
+| Lecturer | `lecturer01` | `123456` |
 
 ---
 
