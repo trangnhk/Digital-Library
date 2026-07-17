@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://digital-library-u127.onrender.com/api";
+const BASE_URL = "https://digital-library-production-1afe.up.railway.app/api";
 
 export const endpoints = {
     login: "/auth/login",
