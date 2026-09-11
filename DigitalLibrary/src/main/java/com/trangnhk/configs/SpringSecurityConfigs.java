@@ -42,7 +42,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
             "com.trangnhk.controllers",
             "com.trangnhk.repositories",
             "com.trangnhk.services",
-            "com.trangnhk.payments"}
+            "com.trangnhk.payments",
+            "com.trangnhk.client"}
 )
 @Order(2)
 public class SpringSecurityConfigs {

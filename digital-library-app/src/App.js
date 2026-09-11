@@ -20,6 +20,7 @@ import Bookmark from "./screens/User/Bookmark";
 import PaymentCancel from "./screens/Home/PaymentCancel";
 import PaymentSuccess from "./screens/Home/PaymentSuccess";
 import Borrowers from "./screens/Librarian/Borrowers";
+import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 
 const App = () => {
     const [user, dispatch] = useReducer(
@@ -49,10 +50,10 @@ const App = () => {
                         <Route path="secure/bookmarks/me" element={<Bookmark />} />
                         <Route path="/payment/success" element={<PaymentSuccess />} />
                         <Route path="/payment/cancel" element={<PaymentCancel />} />
-
                     </Routes>
 
                 </Container>
+                <ChatbotWidget />
 
                 <Footer />
             </BrowserRouter>

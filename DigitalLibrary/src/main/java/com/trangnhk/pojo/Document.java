@@ -49,7 +49,7 @@ public class Document implements Serializable{
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "author")
+    @Column(name = "author", columnDefinition = "TEXT")
     @Basic(optional = false)
     private String author;
     
@@ -58,7 +58,6 @@ public class Document implements Serializable{
     private String publisher;
 
     @Column(name = "publish_year")
-    @Basic(optional = false)
     private Integer publishYear;
 
     @Column(name = "thumbnail", length = 500)

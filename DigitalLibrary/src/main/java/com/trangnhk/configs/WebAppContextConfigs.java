@@ -4,6 +4,7 @@
  */
 package com.trangnhk.configs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.Validator;
@@ -28,10 +30,12 @@ import org.springframework.validation.Validator;
     "com.trangnhk.controllers",
     "com.trangnhk.repositories",
     "com.trangnhk.services",
-    "com.trangnhk.payments"
+    "com.trangnhk.payments",
+    "com.trangnhk.client"
 })
 @EnableWebMvc
 @EnableTransactionManagement
+@PropertySource("classpath:application.properties")
 class WebAppContextConfigs implements WebMvcConfigurer{
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {

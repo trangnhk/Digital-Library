@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://digital-library-production-1afe.up.railway.app/api";
+const BASE_URL = "http://localhost:8080/DigitalLibrary/api";
 
 export const endpoints = {
     login: "/auth/login",
@@ -43,6 +43,7 @@ export const endpoints = {
     librarianDeleteDocumentFiles: (documentId, fileId) => `/secure/librarian/documents/${documentId}/files/${fileId}`,
     librarianDocumentBorrowers: (documentId) => `/secure/librarian/documents/${documentId}/borrowers`,
 
+    chatbotAi : "/ai/chat"
 };
 
 const Api = axios.create({

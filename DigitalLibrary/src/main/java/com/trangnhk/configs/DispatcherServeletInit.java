@@ -5,6 +5,7 @@
 package com.trangnhk.configs;
 
 import com.trangnhk.filters.JwtFilter;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.Filter;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
@@ -15,6 +16,14 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
  * @author Admin
  */
 public class DispatcherServeletInit extends AbstractAnnotationConfigDispatcherServletInitializer{
+    static {
+        Dotenv dotenv = Dotenv.configure()
+            .directory("D:/Digital-Library/DigitalLibrary")
+            .load();
+        System.setProperty("DB_URL", dotenv.get("DB_URL"));
+        System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
+        System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
+    }
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
