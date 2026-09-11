@@ -23,6 +23,7 @@ This project is built to simulate a digital library system with the following ma
 - Librarians can create, update, soft-delete, and upload documents.
 - Admins can approve librarians, approve documents, and manage users/categories/documents.
 - System overview statistics.
+- AI Chatbot for conversational document discovery using Semantic Search and Retrieval-Augmented Generation (RAG).**
 
 ---
 
@@ -30,25 +31,49 @@ This project is built to simulate a digital library system with the following ma
 
 The project follows a multi-layer architecture:
 
-```text
-Client ReactJS
-    |
-    | HTTP/JSON
-    v
-Spring MVC Controller / REST Controller
-    |
-    v
-Service Layer
-    |
-    v
-Repository Layer
-    |
-    v
-Hibernate ORM
-    |
-    v
-MySQL Database
+```mermaid
+flowchart TD
+    A["Client ReactJS"]
+    B["Spring MVC Controller / REST Controller"]
+    C["Service Layer"]
+    D["Repository Layer"]
+    E["Hibernate ORM"]
+    F[("MySQL Database")]
+
+    AI["FastAPI AI Service"]
+
+    A -->|"HTTP / JSON"| B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+
+    C -->|"Chat Request"| AI
+    AI -->|"Chat Response"| C
 ```
+
+The project also includes a separate AI Service for the AI Chatbot:
+
+```mermaid
+flowchart LR
+    C["FastAPI AI Service"]
+
+    C1["Conversation Processing"]
+    C2["Query Rewriting"]
+    C3["Sentence-BERT Embedding"]
+    C4["FAISS Semantic Search"]
+    C5["Context Building"]
+    C6["Gemini RAG Generation"]
+
+    C --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C5 --> C6
+```
+
+The Spring Backend acts as the integration layer between the ReactJS frontend and the AI Service.
 
 ### Layer Responsibilities
 
@@ -60,6 +85,7 @@ MySQL Database
 | DTO | Wraps data returned to the frontend, avoids exposing entities directly, and prevents leaking sensitive data. |
 | Entity/POJO | Represents database tables. |
 | Config | Configures Spring MVC, Hibernate, Security, CORS, Thymeleaf, and file upload. |
+| AI Service | Processes chatbot requests, performs Semantic Search, builds retrieved context, and generates RAG responses. |
 
 ---
 
@@ -80,7 +106,6 @@ MySQL Database
 | Thymeleaf | Builds the backend admin interface. |
 | Jackson | Converts Java objects to JSON and JSON to Java objects. |
 | Cloudinary | Stores images such as avatars and thumbnails. |
-| Cloudflare R2 or another object storage service | Can be used to store document files if integrated, or as an alternative to Cloudinary for file storage. |
 | Postman | Tests backend APIs. |
 
 ### 3.2. Frontend
@@ -94,6 +119,19 @@ MySQL Database
 | Bootstrap / React Bootstrap | Builds responsive UI quickly. |
 | React Bootstrap Icons | Displays icons such as up/down arrows, bookmark icons, user icons, and document icons. |
 | Context API / Local Storage / Cookie | Stores login state, token, or user information if used by the project. |
+
+### 3.3. AI Service
+
+The AI Chatbot is implemented as a separate Python service and communicates with the Spring Backend.
+
+| Technology | Usage in the project |
+|---|---|
+| Python | Programming language for the AI Service. |
+| FastAPI | Provides the HTTP API for chatbot requests. |
+| Sentence-BERT | Generates vector embeddings for semantic document retrieval. |
+| FAISS | Performs vector similarity search over the document embedding index. |
+| Gemini | Generates conversational responses using retrieved library context. |
+| RAG | Grounds generated answers in retrieved library documents. |
 
 ---
 
@@ -110,6 +148,7 @@ Unauthenticated users can:
 - View public reviews of documents.
 - Register an account.
 - Log in.
+- **Use the AI Chatbot to discover documents through natural-language queries.**
 
 ### 4.2. Student / Lecturer
 
@@ -124,6 +163,7 @@ After logging in, users can:
 - Borrow or access documents.
 - View their borrowing history.
 - Access document content if they satisfy the access conditions.
+- **Use the AI Chatbot for conversational document discovery and follow-up questions.**
 
 ### 4.3. Librarian
 
@@ -171,7 +211,8 @@ DigitalLibrary/
 │   │   │       ├── pojo/             # Database entity mappings
 │   │   │       ├── repositories/     # Database query layer
 │   │   │       ├── services/         # Business logic layer
-│   │   │       └── utils/            # JWTUtils, file upload helpers, etc.
+│   │   │       ├── client/            # External service clients, including AI Service client
+│   │   │       └── utils/             # JWTUtils, file upload helpers, etc.
 │   │   ├── resources/
 │   │   │   ├── database.properties   # Database configuration
 │   │   │   ├── templates/            # Thymeleaf admin files
@@ -179,6 +220,23 @@ DigitalLibrary/
 │   │   └── webapp/
 │   └── test/
 └── target/
+
+AI-Service/
+├── app/
+│   ├── apis/                          # FastAPI routers and schemas
+│   ├── config/                        # AI Service configuration
+│   ├── model/                         # Conversation/domain models
+│   ├── prompt/                        # RAG prompt definitions
+│   ├── services/                      # Chatbot, retrieval, embedding, FAISS, etc.
+│   └── main.py                        # FastAPI entry point
+├── data/
+│   ├── index/                         # FAISS vector index
+│   ├── metadata/                      # Retrieval metadata
+│   └── clean_books.parquet            # Processed document data
+├── scripts/                           # Preprocessing/indexing scripts
+├── tests/                             # AI Service tests
+├── .env.example
+└── .gitignore
 ```
 
 The ReactJS frontend can be placed separately:
@@ -218,6 +276,13 @@ Before running the project, install the following tools.
 - Node.js LTS.
 - Yarn.
 
+### AI Service
+
+- Python 3.x.
+- Python virtual environment.
+- AI Service dependencies.
+- Gemini API configuration.
+
 Check versions:
 
 ```bash
@@ -225,6 +290,7 @@ java -version
 mvn -version
 node -v
 yarn -v
+python --version
 ```
 
 ---
@@ -291,12 +357,14 @@ Do not commit real Cloudinary credentials to GitHub.
 
 Example:
 
-```properties
+```
 jwt.secret=your_jwt_secret_key
 jwt.expiration=86400000
 ```
 
 `jwt.secret` should be long enough and should not be pushed to a public repository.
+
+Use the deployed AI Service address in a production environment.
 
 ### 7.6. Install backend libraries
 
@@ -318,77 +386,7 @@ After building, the WAR file is usually located at:
 target/DigitalLibrary-1.0-SNAPSHOT.war
 ```
 
-### 7.7. Important backend dependencies in `pom.xml`
-
-If any library is missing, check whether `pom.xml` contains the following main dependencies:
-
-```xml
-<!-- Spring MVC / Web -->
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-webmvc</artifactId>
-    <version>6.1.14</version>
-</dependency>
-
-<!-- Spring ORM -->
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-orm</artifactId>
-    <version>6.1.14</version>
-</dependency>
-
-<!-- Hibernate -->
-<dependency>
-    <groupId>org.hibernate.orm</groupId>
-    <artifactId>hibernate-core</artifactId>
-    <version>6.6.1.Final</version>
-</dependency>
-
-<!-- MySQL Driver -->
-<dependency>
-    <groupId>com.mysql</groupId>
-    <artifactId>mysql-connector-j</artifactId>
-    <version>8.4.0</version>
-</dependency>
-
-<!-- Jackson JSON -->
-<dependency>
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-databind</artifactId>
-    <version>2.18.1</version>
-</dependency>
-
-<!-- Thymeleaf -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    <version>3.3.5</version>
-</dependency>
-
-<!-- Spring Security -->
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-web</artifactId>
-    <version>6.3.4</version>
-</dependency>
-
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-config</artifactId>
-    <version>6.3.4</version>
-</dependency>
-
-<!-- Thymeleaf Spring Security Extras -->
-<dependency>
-    <groupId>org.thymeleaf.extras</groupId>
-    <artifactId>thymeleaf-extras-springsecurity6</artifactId>
-    <version>3.1.2.RELEASE</version>
-</dependency>
-```
-
-If the project uses JWT or Cloudinary, check the corresponding dependencies according to the libraries used in the source code.
-
-### 7.8. Run the backend with Tomcat
+### 7.7. Run the backend with Tomcat
 
 There are two common ways.
 
@@ -440,6 +438,53 @@ http://localhost:8080/DigitalLibrary/admin/login
 
 ---
 
+## 8. AI Service Setup
+
+The AI Service is a separate Python FastAPI application used by the Spring Backend.
+
+### Create a virtual environment
+
+```bash
+cd AI-Service
+python -m venv venv
+```
+
+Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source venv/bin/activate
+```
+
+### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Configure environment variables
+
+Copy `.env.example` to `.env` and configure the required settings, including the Gemini API key used by the current implementation.
+
+Do not commit `.env` or real API keys.
+
+### Run FastAPI
+
+```bash
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Chat endpoint:
+
+```text
+POST http://127.0.0.1:8000/api/chat
+```
+
 ## 8. Frontend Setup
 
 ### 8.1. Move to the frontend directory
@@ -486,50 +531,7 @@ If the project uses Vite instead of Create React App, use:
 VITE_API_BASE_URL=http://localhost:8080/DigitalLibrary/api
 ```
 
-### 8.5. Sample Axios configuration
-
-Example file:
-
-```text
-src/configs/Apis.js
-```
-
-```javascript
-import axios from "axios";
-
-const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080/DigitalLibrary/api";
-
-export const endpoints = {
-    login: "/auth/login",
-    register: "/auth/register",
-    profile: "/secure/profile",
-    categories: "/categories",
-    documents: "/documents",
-    bookmarks: "/secure/bookmarks/me",
-    borrows: "/secure/borrows/me"
-};
-
-export default axios.create({
-    baseURL: BASE_URL,
-    withCredentials: true
-});
-```
-
-If the backend requires `Authorization: Bearer <token>`, create a private Axios instance:
-
-```javascript
-export const authApis = (token) => {
-    return axios.create({
-        baseURL: BASE_URL,
-        headers: {
-            Authorization: `Bearer ${token}`
-        },
-        withCredentials: true
-    });
-};
-```
-
-### 8.6. Run the frontend
+### 8.5. Run the frontend
 
 If the project uses Create React App:
 
@@ -557,47 +559,9 @@ http://localhost:5173
 
 ---
 
-## 9. CORS and Authentication Between Frontend/Backend
+## 9. Main API Groups
 
-Because the frontend and backend run on different ports, the backend needs CORS enabled.
-
-Example:
-
-```java
-@Override
-public void addCorsMappings(CorsRegistry registry) {
-    registry.addMapping("/**")
-            .allowedOrigins("http://localhost:3000")
-            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-            .allowedHeaders("*")
-            .allowCredentials(true);
-}
-```
-
-If the frontend uses cookies to store JWT, remember:
-
-- Axios must use `withCredentials: true`.
-- Backend CORS must use `allowCredentials(true)`.
-- Do not use `allowedOrigins("*")` together with credentials.
-- The JWT cookie should be configured with suitable `HttpOnly`, `Secure`, and `SameSite` options depending on the environment.
-
-When testing with Postman, use one of these two methods:
-
-```text
-Authorization: Bearer <jwt_token>
-```
-
-Or use cookies if the login API already sets a cookie:
-
-```text
-jwt_token=<jwt_token>
-```
-
----
-
-## 10. Main API Groups
-
-### 10.1. Auth API
+### 9.1. Auth API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -607,7 +571,7 @@ jwt_token=<jwt_token>
 | PATCH | `/api/secure/profile` | Update profile. |
 | PATCH | `/api/secure/change-password` | Change password. |
 
-### 10.2. Category API
+### 9.2. Category API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -618,7 +582,7 @@ jwt_token=<jwt_token>
 | PATCH | `/api/secure/admin/categories/{categoryId}` | Admin updates a category. |
 | DELETE | `/api/secure/admin/categories/{categoryId}` | Admin deletes a category if allowed. |
 
-### 10.3. Document API
+### 9.3. Document API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -628,7 +592,7 @@ jwt_token=<jwt_token>
 | GET | `/api/documents/{documentId}/reviews` | View public reviews of a document. |
 | GET | `/api/documents/{documentId}/compare` | Compare documents if implemented. |
 
-### 10.4. Secure Document API
+### 9.4. Secure Document API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -637,7 +601,7 @@ jwt_token=<jwt_token>
 | POST | `/api/secure/documents/{documentId}/borrow` | Borrow a document. |
 | GET | `/api/secure/borrows/me` | View the current user's borrowing history. |
 
-### 10.5. Review API
+### 9.5. Review API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -645,7 +609,7 @@ jwt_token=<jwt_token>
 | PATCH | `/api/secure/reviews/{reviewId}` | Update a review. |
 | DELETE | `/api/secure/reviews/{reviewId}` | Delete a review. |
 
-### 10.6. Bookmark API
+### 9.6. Bookmark API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -653,7 +617,7 @@ jwt_token=<jwt_token>
 | DELETE | `/api/secure/bookmarks/{documentId}` | Remove a bookmark. |
 | GET | `/api/secure/bookmarks/me` | View the current user's bookmark list. |
 
-### 10.7. Librarian API
+### 9.7. Librarian API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -666,7 +630,7 @@ jwt_token=<jwt_token>
 | DELETE | `/api/secure/librarian/documents/{documentId}/files/{fileId}` | Delete a document file. |
 | GET | `/api/secure/librarian/documents/{documentId}/borrowers` | View users who borrowed/accessed a document. |
 
-### 10.8. Admin API
+### 9.8. Admin API
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -683,7 +647,31 @@ jwt_token=<jwt_token>
 | GET | `/api/secure/admin/statistics/access` | Access statistics. |
 | GET | `/api/secure/admin/statistics/borrows` | Borrowing statistics. |
 
-### 10.9. Admin Thymeleaf Pages
+### 9.9. AI Chatbot API
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/ai/chat` | Spring Backend endpoint used by the ReactJS chatbot. |
+| POST | `/api/chat` | FastAPI endpoint called internally by Spring Backend. |
+
+The frontend communicates with Spring Backend rather than calling FastAPI directly.
+
+When FastAPI references a library book, it returns the `book_id`. Spring Backend uses that ID to retrieve the corresponding document thumbnail from MySQL and returns the enriched book information to ReactJS.
+
+Example response:
+
+```json
+{
+  "answer": "I recommend \"The Vampire Lestat\" by Anne Rice.",
+  "referenced_book": {
+    "title": "The Vampire Lestat",
+    "thumbNail": "https://example.com/thumbnail.jpg",
+    "book_id": 7205
+  }
+}
+```
+
+### 9.10. Admin Thymeleaf Pages
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -699,7 +687,7 @@ jwt_token=<jwt_token>
 
 ---
 
-## 11. Important Security Rules
+## 10. Important Security Rules
 
 The project should ensure the following principles:
 
@@ -730,11 +718,21 @@ Quick test table:
 
 ---
 
-## 12. Suggested Project Running Flow
+## 11. Suggested Project Running Flow
 
 ### Step 1: Start MySQL
 
 Make sure MySQL is running and the `digital_library` database has been created.
+
+### Before running the backend
+
+When testing the AI Chatbot, start the FastAPI service first:
+
+```bash
+cd AI-Service
+venv\Scripts\activate
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
 ### Step 2: Run the backend
 
@@ -786,9 +784,9 @@ After logging in, use the token to call secured APIs.
 
 ---
 
-## 13. Common Errors
+## 12. Common Errors
 
-### 13.1. 401 Unauthorized
+### 12.1. 401 Unauthorized
 
 Common causes:
 
@@ -798,7 +796,7 @@ Common causes:
 - Expired token.
 - Postman does not send `Authorization: Bearer <token>` or does not send the `jwt_token` cookie.
 
-### 13.2. 403 Forbidden
+### 12.2. 403 Forbidden
 
 Common causes:
 
@@ -806,7 +804,7 @@ Common causes:
 - Student calls an admin API.
 - Librarian has not been approved but calls the document creation API.
 
-### 13.3. CORS Error
+### 12.3. CORS Error
 
 Common causes:
 
@@ -814,7 +812,7 @@ Common causes:
 - Cookies are used but backend has not enabled `allowCredentials(true)`.
 - `allowedOrigins("*")` is used together with credentials.
 
-### 13.4. Database Connection Error
+### 12.4. Database Connection Error
 
 Common causes:
 
@@ -823,7 +821,7 @@ Common causes:
 - Wrong MySQL port.
 - Missing MySQL driver.
 
-### 13.5. File Upload Error
+### 12.5. File Upload Error
 
 Common causes:
 
@@ -834,7 +832,25 @@ Common causes:
 
 ---
 
-## 14. Suggested Scripts in Frontend `package.json`
+### 12.6. AI Service Connection Error
+
+Common causes:
+
+- FastAPI AI Service is not running.
+- `ai.service.base-url` is incorrect.
+- `ai.service.chat-endpoint` is incorrect.
+- The AI Service port is unavailable.
+
+### 12.7. AI Service Returns `422 Unprocessable Entity`
+
+Common causes:
+
+- The JSON body sent by Spring does not match the FastAPI `ChatRequest` schema.
+- The request body is missing.
+- A required field such as `message` is missing.
+- JSON property names do not match the FastAPI schema.
+
+## 13. Suggested Scripts in Frontend `package.json`
 
 If using Create React App:
 
@@ -863,7 +879,7 @@ If using Vite:
 
 ---
 
-## 15. Suggested Demo Accounts
+## 14. Suggested Demo Accounts
 
 > Replace the information below based on the actual seeded data of the project.
 
@@ -876,18 +892,7 @@ If using Vite:
 
 ---
 
-## 16. Notes for Team Collaboration
-
-- Do not commit files containing real secrets such as database passwords, JWT secrets, or Cloudinary API secrets.
-- Before merging code, test all important APIs with Postman.
-- Keep permission-checking logic in the service layer to avoid making controllers too complex.
-- The frontend should call APIs through one shared configuration file so the base URL can be changed easily.
-- DTO responses should not contain passwords or sensitive data.
-- For file upload APIs, the frontend must use `FormData`, not normal JSON.
-
----
-
-## 17. Quick Start Summary
+## 15. Quick Start Summary
 
 Backend:
 
@@ -895,6 +900,14 @@ Backend:
 cd DigitalLibrary
 mvn clean package
 # deploy the WAR file in target/ to Tomcat
+```
+
+AI Service:
+
+```bash
+cd AI-Service
+venv\Scripts\activate
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Frontend:
