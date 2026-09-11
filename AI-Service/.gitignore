@@ -1,0 +1,39 @@
+__pycache__/
+*.py[cod]
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+venv/
+.venv/
+
+.env
+
+# Keep example environment file
+!.env.example
+
+# data
+data/index/
+data/metadata/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+*.log
+
+
+*.tmp
+*.temp
+*.bak
+*~
+
+# Test / Coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
